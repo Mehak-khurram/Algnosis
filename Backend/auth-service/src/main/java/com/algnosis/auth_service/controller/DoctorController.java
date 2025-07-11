@@ -1,9 +1,10 @@
 package com.algnosis.auth_service.controller;
 
-
+import com.algnosis.auth_service.dto.DoctorSignUpRequestDTO;
 import com.algnosis.auth_service.dto.LogInRequestDTO;
 import com.algnosis.auth_service.dto.LogInResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.service.DoctorService;
 import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,22 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class PatientController {
-    private PatientService patientService;
+public class DoctorController {
+    private DoctorService doctorService;
 
-    public PatientController(PatientService patientService){
-        this.patientService = patientService;
+    public DoctorController(DoctorService doctorService){
+        this.doctorService = doctorService;
     }
 
-    @PostMapping("/patient/register")
-    public ResponseEntity<PatientSignUpRequestDTO> registerPatient(@RequestBody PatientSignUpRequestDTO patient){
-            PatientSignUpRequestDTO registeredPatient = patientService.registerPatient(patient);
-            return ResponseEntity.ok(registeredPatient);
+    @PostMapping("/doctor/register")
+    public ResponseEntity<DoctorSignUpRequestDTO> registerDoctor(@RequestBody DoctorSignUpRequestDTO doctor){
+        DoctorSignUpRequestDTO registeredDoctor = doctorService.registerDoctor(doctor);
+        return ResponseEntity.ok(registeredDoctor);
     }
 
-    @PostMapping("/patient/login")
+    @PostMapping("/doctor/login")
     public ResponseEntity<LogInResponseDTO> loginDoctor(@RequestBody LogInRequestDTO logInRequestDTO){
-        LogInResponseDTO logInResponseDTO = patientService.loginPatient(logInRequestDTO);
+        LogInResponseDTO logInResponseDTO = doctorService.loginDoctor(logInRequestDTO);
         return ResponseEntity.ok(logInResponseDTO);
     }
 }
