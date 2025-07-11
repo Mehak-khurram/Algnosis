@@ -9,13 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PatientSignUpRequestDTO {
+public class PatientSignUpRequestDTO extends UserDTO{
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
-    private String phoneNumber;
     private int age;
     private String gender;
 
@@ -30,4 +25,6 @@ public class PatientSignUpRequestDTO {
     private String primaryContactPhone;
     private String secondaryContactName;
     private String secondaryContactPhone;
+
+    private final String role = "PATIENT";
 }

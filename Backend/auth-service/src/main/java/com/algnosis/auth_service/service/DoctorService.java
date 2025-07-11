@@ -1,13 +1,16 @@
 package com.algnosis.auth_service.service;
 
-
+import com.algnosis.auth_service.dto.DoctorSignUpRequestDTO;
 import com.algnosis.auth_service.dto.LogInRequestDTO;
 import com.algnosis.auth_service.dto.LogInResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.entity.Doctor;
 import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
+import com.algnosis.auth_service.mapper.DoctorSignUpMapper;
 import com.algnosis.auth_service.mapper.PatientSignUpMapper;
+import com.algnosis.auth_service.repository.DoctorRepository;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PatientService {
+public class DoctorService {
 
     @Autowired
-    private final PatientRepository patientRepo;
+    private final DoctorRepository doctorRepo;
 
     @Autowired
     private final BCryptPasswordEncoder passwordEncoder;
@@ -27,56 +30,51 @@ public class PatientService {
     private final JWTService jwtService;
 
     //CONSTRUCTOR
-    public PatientService(
-            PatientRepository patientRepo,
-            BCryptPasswordEncoder passwordEncoder,
-            JWTService jwtService
-    ) {
-        this.patientRepo = patientRepo;
+    public DoctorService(DoctorRepository doctorRepo, BCryptPasswordEncoder passwordEncoder, JWTService jwtService) {
+        this.doctorRepo = doctorRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
-    //HANDLING PATIENT REGISTRATION
-    public PatientSignUpRequestDTO registerPatient(PatientSignUpRequestDTO request) {
+    //HANDLING DOCTOR REGISTRATION
+    public DoctorSignUpRequestDTO registerDoctor(DoctorSignUpRequestDTO request) {
 
-        Patient patient = PatientSignUpMapper.toEntity(request);
+        Doctor doctor = DoctorSignUpMapper.toEntity(request);
 
         if(emailAlreadyExists(request.getEmail())){
-            //throw custom exception: Email already exists! Please login instead.
             throw new EmailAlreadyRegistered("Email " + request.getEmail() + " is already registered.");
         }
 
         //hash password
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-        patient.setPassword(hashedPassword);
+        doctor.setPassword(hashedPassword);
 
-        PatientSignUpRequestDTO patientSignUpRequestDTO = PatientSignUpMapper.toDTO(
-                patientRepo.save(patient)
+        DoctorSignUpRequestDTO doctorSignUpRequestDTO = DoctorSignUpMapper.toDTO(
+                doctorRepo.save(doctor)
         );
 
-        return patientSignUpRequestDTO;
+        return doctorSignUpRequestDTO;
     }
 
     //CHECKING IF EMAIL IS ALREADY SIGNED UP/ ACCOUNT ALREADY EXISTS
     public boolean emailAlreadyExists(String email){
-        return patientRepo.findByEmail(email).isPresent();
+        return doctorRepo.findByEmail(email).isPresent();
     }
 
-    public LogInResponseDTO loginPatient(LogInRequestDTO loginRequestDTO){
-        //FIRST FIND THE PATIENT BY EMAIL
-        Patient patient = (Patient) patientRepo.findByEmail(loginRequestDTO.getEmail()).orElseThrow(
+    public LogInResponseDTO loginDoctor(LogInRequestDTO loginRequestDTO){
+        //FIRST FIND THE Doctor BY EMAIL
+        Doctor doctor = (Doctor) doctorRepo.findByEmail(loginRequestDTO.getEmail()).orElseThrow(
                 () -> new InvalidCredentials("Email address or password incorrect.")
         );
 
-        if(!passwordEncoder.matches(loginRequestDTO.getPassword(), patient.getPassword())){
+        if(!passwordEncoder.matches(loginRequestDTO.getPassword(), doctor.getPassword())){
             throw new InvalidCredentials("Email address or password incorrect.");
         }
 
-        String token = jwtService.generateToken(patient.getEmail(), patient.getRole());
-        return new LogInResponseDTO(token, patient.getFirstName(),
-                patient.getLastName(),
-                patient.getEmail(),
-                patient.getRole());
+        String token = jwtService.generateToken(doctor.getEmail(), doctor.getRole());
+        return new LogInResponseDTO(token, doctor.getFirstName(),
+                doctor.getLastName(),
+                doctor.getEmail(),
+                doctor.getRole());
     }
 }

@@ -15,15 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Document(collection = "patient")
-public class Patient {
+public class Patient extends User{
     @Id
     private String id;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
-    private String phoneNumber;
     private int age;
     private String gender;
 
@@ -39,4 +34,5 @@ public class Patient {
     private String secondaryContactName;
     private String secondaryContactPhone;
 
+    private final String role = "PATIENT";
 }
