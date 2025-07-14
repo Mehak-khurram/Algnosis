@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import LoginForm from '../components/LoginForm.tsx';
 import SignupForm from '../components/SignupForm.tsx';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
+
 
 const Home: React.FC = () => {
     const [showLogin, setShowLogin] = useState(false);
@@ -9,30 +12,24 @@ const Home: React.FC = () => {
     return (
         <div className="min-h-screen bg-white flex flex-col">
             {/* Header */}
-            <header className="animated-navbar-bg border-b border-white/20 sticky top-0 z-20">
+            <header className="bg-white border-b border-black/10 sticky top-0 z-20 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center py-2">
                         <div className="flex items-center space-x-3">
-                            <img src="/Logo.png" alt="Algnosis Logo" className="h-12 w-12 object-contain" />
-                            <h1 className="text-2xl font-bold text-white">Algnosis</h1>
+                            <h1 className="text-2xl font-bold text-black tracking-wide">Algnosis</h1>
                         </div>
                         <div className="flex items-center space-x-2">
                             <button
                                 onClick={() => setShowLogin(true)}
-                                className="px-4 py-2 text-white font-medium rounded hover:bg-blue-800 transition bg-blue-900 border border-blue-900"
+                                className="px-4 py-2 text-black font-medium rounded bg-white border border-black hover:bg-black hover:text-white transition focus:outline-none focus:ring-2 focus:ring-black/20"
                             >
                                 Login
                             </button>
                             <button
                                 onClick={() => setShowSignup(true)}
-                                className="px-4 py-2 text-white font-medium rounded hover:bg-pink-700 transition bg-pink-600 border border-pink-600"
+                                className="px-4 py-2 text-black font-medium rounded bg-white border border-black hover:bg-black hover:text-white transition focus:outline-none focus:ring-2 focus:ring-black/20"
                             >
                                 Sign Up
-                            </button>
-                            <button
-                                className="px-4 py-2 text-white font-medium rounded hover:bg-gray-200 hover:text-blue-900 transition bg-white/20 border border-white/30"
-                            >
-                                Help
                             </button>
                         </div>
                     </div>
@@ -42,35 +39,49 @@ const Home: React.FC = () => {
             {/* Main Content - Scrollable Sections */}
             <main className="flex-1 w-full overflow-y-auto">
                 {/* Hero Section */}
-                <section className="w-full py-24 bg-gradient-to-br from-blue-50 to-pink-50 flex items-center justify-center">
-                    <div className="max-w-6xl w-full px-4 flex flex-col lg:flex-row items-center justify-center gap-16">
-                        {/* Large image on the left */}
-                        <div className="w-full lg:w-1/2 flex justify-center items-center mb-8 lg:mb-0">
-                            <img src="/image1.png" alt="Medical Hero" className="w-[32rem] h-[32rem] object-contain" style={{ background: 'transparent' }} />
+                <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-pink-50">
+                    {/* 3D Background Animation replaced with Sketchfab Embed */}
+                    <div className="absolute inset-0 w-full h-full z-0 pointer-events-none flex items-center justify-center">
+                        <div className="sketchfab-embed-wrapper w-full h-full flex items-center justify-center">
+                            <iframe
+                                title="Lungs - normal study"
+                                frameBorder="0"
+                                allowFullScreen
+                                allow="autoplay; fullscreen; xr-spatial-tracking"
+                                src="https://sketchfab.com/models/79149850d98842f981a1c60e7498413b/embed?autospin=1&autostart=1&ui_hint=0"
+                                style={{ width: '100%', height: '100%', minHeight: '500px', background: 'white' }}
+                            ></iframe>
                         </div>
-                        {/* Text and buttons on the right */}
-                        <div className="w-full lg:w-1/2 text-center lg:text-left">
-                            <h2 className="text-5xl font-extrabold text-gray-900 mb-6 leading-tight drop-shadow-sm">
-                                Welcome to Algnosis
-                            </h2>
-                            <p className="text-xl text-gray-700 mb-10">
-                                Your comprehensive medical platform for patients, healthcare providers, and administrators. Experience seamless healthcare management and access.
-                            </p>
-                            <div className="flex flex-col sm:flex-row lg:justify-start justify-center gap-4">
-                                <button
-                                    onClick={() => setShowSignup(true)}
-                                    className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition duration-200 transform hover:scale-105 shadow-md"
-                                >
-                                    Sign Up
-                                </button>
-                                <button
-                                    onClick={() => setShowLogin(true)}
-                                    className="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-4 px-8 rounded-lg text-lg transition duration-200 transform hover:scale-105 shadow-md border border-blue-900"
-                                >
-                                    Log In
-                                </button>
-                            </div>
-                        </div>
+                    </div>
+                    {/* Hero Content Overlay */}
+                    <div className="relative z-10 max-w-4xl w-full px-4 flex flex-col items-center justify-center text-center py-24">
+                        <h2 className="text-[12vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm" style={{ fontFamily: 'Inter, Arial Black, Arial, sans-serif', letterSpacing: '0.13em' }}>
+                            ALGNOSIS
+                        </h2>
+                    </div>
+                </section>
+
+                {/* Section 2 */}
+                <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-50 to-blue-100">
+                    <div className="relative z-10 max-w-4xl w-full px-4 flex flex-col items-center justify-center text-center py-24">
+                        <h2 className="text-[7vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm">Section 2</h2>
+                        <p className="mt-4 text-lg text-gray-700">This is a placeholder for Section 2 content.</p>
+                    </div>
+                </section>
+
+                {/* Section 3 */}
+                <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-pink-50 to-yellow-100">
+                    <div className="relative z-10 max-w-4xl w-full px-4 flex flex-col items-center justify-center text-center py-24">
+                        <h2 className="text-[7vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm">Section 3</h2>
+                        <p className="mt-4 text-lg text-gray-700">This is a placeholder for Section 3 content.</p>
+                    </div>
+                </section>
+
+                {/* Section 4 */}
+                <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 to-pink-100">
+                    <div className="relative z-10 max-w-4xl w-full px-4 flex flex-col items-center justify-center text-center py-24">
+                        <h2 className="text-[7vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm">Section 4</h2>
+                        <p className="mt-4 text-lg text-gray-700">This is a placeholder for Section 4 content.</p>
                     </div>
                 </section>
 
@@ -126,4 +137,9 @@ const Home: React.FC = () => {
     );
 };
 
-export default Home; 
+export default Home;
+
+function LungsModel() {
+    const { scene } = useGLTF('/lungs.glb');
+    return <primitive object={scene} scale={2.2} />;
+} 

@@ -1,11 +1,13 @@
 import React, { useRef, useState } from 'react';
 import PatientNavBar from '../../components/PatientNavBar.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const UploadReport: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [success, setSuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const navigate = useNavigate();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -14,14 +16,27 @@ const UploadReport: React.FC = () => {
         }
     };
 
-    const handleUpload = (e: React.FormEvent) => {
+    const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedFile) return;
         setUploading(true);
-        setTimeout(() => {
+        setSuccess(false);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        try {
+            const response = await fetch('http://localhost:8000/api/diagnosis/upload/', {
+                method: 'POST',
+                body: formData,
+            });
+            if (!response.ok) throw new Error('Upload failed');
+            const data = await response.json();
             setUploading(false);
             setSuccess(true);
-        }, 1500);
+            navigate('/patient/diagnosis-result', { state: { result: data.result } });
+        } catch (error) {
+            setUploading(false);
+            alert('Failed to upload and process the report.');
+        }
     };
 
     return (
