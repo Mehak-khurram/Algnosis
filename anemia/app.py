@@ -5,7 +5,8 @@ from flask_cors import CORS  # <-- Add this import
 from process_image import process_image
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=['http://localhost:3000'])
+#CORS(app)  # Enable CORS for all routes
 
 # Load pre-trained model
 print("Loading model...")
@@ -49,9 +50,12 @@ def index():
     # Debugging: Check final result before rendering
         print("Final result to render:", result)
         return jsonify({"result": result})
-    return render_template('index.html', result=result)
+    
+    #Not returning it to the JINJA app anymore
+    return render_template('test.html', result=result)
+    #return render_template('index.html', result=result)
 
-@app.route('/predict-image', methods=['POST'])
+@app.route('/anemia/predict-image', methods=['POST'])
 def upload_image():
     try:
         print("Endpoint '/predict-image' hit.")  # Debug: Endpoint reached
@@ -100,7 +104,7 @@ def upload_image():
         print("Debug: Prediction result:", result)  # Debug: Prediction result
 
         # Return the prediction result as JSON
-        response = jsonify({"result": result, "features": extracted_features})
+        response = jsonify({"diagnosis": result, "confidence": 90})
         print("Debug: Response prepared successfully.")  # Debug: Response ready
         return response
 

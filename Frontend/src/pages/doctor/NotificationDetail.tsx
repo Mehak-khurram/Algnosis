@@ -43,7 +43,7 @@ const NotificationDetail: React.FC = () => {
             setTBResult(null);
         }
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('image', file);
         try {
             let endpoint = '';
             if (selectedDisease === 'pneumonia') {
@@ -51,7 +51,7 @@ const NotificationDetail: React.FC = () => {
             } else if (selectedDisease === 'tb') {
                 endpoint = 'http://localhost:8000/api/diagnosis/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5000/predict-image'; // Flask Anemia backend
+                endpoint = 'http://localhost:5000/anemia/predict-image'; // Flask Anemia backend
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -59,6 +59,9 @@ const NotificationDetail: React.FC = () => {
             });
             if (!response.ok) throw new Error('Upload failed');
             const data = await response.json();
+
+            console.log(data);
+        
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data.result } });
@@ -76,10 +79,23 @@ const NotificationDetail: React.FC = () => {
         }
     };
 
-    // Helper to check if file is an image (for modal zoom)
+    // // Helper to check if file is an image (for modal zoom)
+    // const isImage = (fileUrl: string) => {
+    //     return fileUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) || fileUrl.includes('placeholder.com');
+    // };
+
     const isImage = (fileUrl: string) => {
-        return fileUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) || fileUrl.includes('placeholder.com');
-    };
+        if (!fileUrl) return false;
+
+        const imageExtensions = /\.(jpeg|jpg|png|gif|bmp|webp)$/i;
+        const trustedImageDomains = ['placehold.co', 'your-own-cdn.com']; // update as needed
+
+        return (
+            imageExtensions.test(fileUrl) ||
+            trustedImageDomains.some(domain => fileUrl.includes(domain))
+        );
+};
+
 
     if (!notif) {
         return (
