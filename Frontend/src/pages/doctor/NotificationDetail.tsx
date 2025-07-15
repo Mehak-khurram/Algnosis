@@ -51,7 +51,7 @@ const NotificationDetail: React.FC = () => {
             } else if (selectedDisease === 'tb') {
                 endpoint = 'http://localhost:5050/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5050/anemia/upload'; // Flask Anemia backend
+                endpoint = 'http://localhost:5000/anemia/predict-image'; // Flask Anemia backend
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -61,7 +61,7 @@ const NotificationDetail: React.FC = () => {
             const data = await response.json();
 
             console.log(data);
-        
+
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data.result } });
@@ -94,7 +94,7 @@ const NotificationDetail: React.FC = () => {
             imageExtensions.test(fileUrl) ||
             trustedImageDomains.some(domain => fileUrl.includes(domain))
         );
-};
+    };
 
 
     if (!notif) {
