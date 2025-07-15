@@ -24,7 +24,7 @@ def index():
     return render_template('test.html', result=result)
     #return render_template('index.html', result=result)
 
-@diagnosis_api.route('/anemia/predict-image', methods=['POST'])
+@diagnosis_api.route('/anemia/upload', methods=['POST'])
 def upload_image():
     try:
         print("Endpoint '/predict-image' hit.")  # Debug: Endpoint reached

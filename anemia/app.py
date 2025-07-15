@@ -4,8 +4,8 @@ from diagnosis_api.views import diagnosis_api
 
 
 app = Flask(__name__)
-# CORS(app, origins=['http://localhost:3000'])
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=['http://localhost:3000'])
+#CORS(app)  # Enable CORS for all routes
 
 app.register_blueprint(diagnosis_api, url_prefix="")
 
