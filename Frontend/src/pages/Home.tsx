@@ -3,6 +3,7 @@ import LoginForm from '../components/LoginForm.tsx';
 import SignupForm from '../components/SignupForm.tsx';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
+import { motion } from 'framer-motion';
 
 
 const Home: React.FC = () => {
@@ -55,9 +56,25 @@ const Home: React.FC = () => {
                     </div>
                     {/* Hero Content Overlay */}
                     <div className="relative z-10 max-w-4xl w-full px-4 flex flex-col items-center justify-center text-center py-24">
-                        <h2 className="text-[12vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm" style={{ fontFamily: 'Inter, Arial Black, Arial, sans-serif', letterSpacing: '0.13em' }}>
-                            ALGNOSIS
-                        </h2>
+                        <motion.h2
+                            className="text-[12vw] font-extrabold tracking-tight text-gray-900 drop-shadow-sm whitespace-nowrap"
+                            style={{ fontFamily: 'Inter, Arial Black, Arial, sans-serif', letterSpacing: '0.13em' }}
+                            initial={{ opacity: 0, y: 60, letterSpacing: '0.5em' }}
+                            animate={{ opacity: 1, y: 0, letterSpacing: '0.13em' }}
+                            transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+                        >
+                            {Array.from('ALGNOSIS').map((char, idx) => (
+                                <motion.span
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 + idx * 0.08, duration: 0.5, type: 'spring', stiffness: 200 }}
+                                    style={{ display: 'inline-block' }}
+                                >
+                                    {char}
+                                </motion.span>
+                            ))}
+                        </motion.h2>
                     </div>
                 </section>
 

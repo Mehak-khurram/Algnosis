@@ -18,11 +18,11 @@ const NotificationDetail: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [uploadingTB, setUploadingTB] = useState(false);
     const [tbResult, setTBResult] = useState<string | null>(null);
-    const [selectedDisease, setSelectedDisease] = useState<'pneumonia' | 'tb'>('pneumonia');
+    const [selectedDisease, setSelectedDisease] = useState<'pneumonia' | 'tb' | 'anemia'>('pneumonia');
     const [file, setFile] = useState<File | null>(null);
 
     const handleDiseaseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedDisease(e.target.value as 'pneumonia' | 'tb');
+        setSelectedDisease(e.target.value as 'pneumonia' | 'tb' | 'anemia');
         setFile(null);
         setDiagnosisResult(null);
         setTBResult(null);
@@ -38,16 +38,21 @@ const NotificationDetail: React.FC = () => {
         if (selectedDisease === 'pneumonia') {
             setUploading(true);
             setDiagnosisResult(null);
-        } else {
+        } else if (selectedDisease === 'tb') {
             setUploadingTB(true);
             setTBResult(null);
         }
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const endpoint = selectedDisease === 'pneumonia'
-                ? 'http://localhost:8000/api/diagnosis/upload/'
-                : 'http://localhost:8000/api/diagnosis/tb/upload/';
+            let endpoint = '';
+            if (selectedDisease === 'pneumonia') {
+                endpoint = 'http://localhost:8000/api/diagnosis/upload/';
+            } else if (selectedDisease === 'tb') {
+                endpoint = 'http://localhost:8000/api/diagnosis/tb/upload/';
+            } else if (selectedDisease === 'anemia') {
+                endpoint = 'http://localhost:5000/predict-image'; // Flask Anemia backend
+            }
             const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
@@ -57,12 +62,15 @@ const NotificationDetail: React.FC = () => {
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data.result } });
-            } else {
+            } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
                 navigate('/doctor/tb-result', { state: { result: data.result } });
+            } else if (selectedDisease === 'anemia') {
+                setUploading(false);
+                navigate('/doctor/diagnosis-result', { state: { result: data } });
             }
         } catch (error) {
-            if (selectedDisease === 'pneumonia') setUploading(false);
+            if (selectedDisease === 'pneumonia' || selectedDisease === 'anemia') setUploading(false);
             else setUploadingTB(false);
             alert('Failed to upload and process the report.');
         }
@@ -168,7 +176,8 @@ const NotificationDetail: React.FC = () => {
                                 onChange={handleDiseaseChange}
                             >
                                 <option value="pneumonia">Pneumonia</option>
-                                <option value="tb">Tuberculosis (TB)</option>
+                                <option value="tb">TB</option>
+                                <option value="anemia">Anemia</option>
                             </select>
                             <input
                                 type="file"
@@ -178,13 +187,13 @@ const NotificationDetail: React.FC = () => {
                                 disabled={uploading || uploadingTB}
                             />
                             <button
-                                className={`w-full px-4 py-2 rounded-lg text-white transition disabled:opacity-50 ${selectedDisease === 'pneumonia' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}
+                                className={`w-full px-4 py-2 rounded-lg text-white transition disabled:opacity-50 ${selectedDisease === 'pneumonia' ? 'bg-blue-600 hover:bg-blue-700' : selectedDisease === 'tb' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                                 disabled={uploading || uploadingTB || !file}
                                 onClick={handleUnifiedUpload}
                             >
                                 {(uploading || uploadingTB)
                                     ? 'Uploading...'
-                                    : `Upload & Diagnose ${selectedDisease === 'pneumonia' ? 'Pneumonia' : 'TB'}`}
+                                    : `Upload & Diagnose ${selectedDisease.charAt(0).toUpperCase() + selectedDisease.slice(1)}`}
                             </button>
                         </div>
                     </div>
