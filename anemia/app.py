@@ -5,8 +5,8 @@ from flask_cors import CORS  # <-- Add this import
 from process_image import process_image
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:3000'])
-#CORS(app)  # Enable CORS for all routes
+# CORS(app, origins=['http://localhost:3000'])
+CORS(app)  # Enable CORS for all routes
 
 # Load pre-trained model
 print("Loading model...")
@@ -114,4 +114,4 @@ def upload_image():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)
