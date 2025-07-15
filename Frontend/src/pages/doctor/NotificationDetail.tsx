@@ -51,7 +51,7 @@ const NotificationDetail: React.FC = () => {
             } else if (selectedDisease === 'tb') {
                 endpoint = 'http://localhost:5050/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5000/anemia/predict-image'; // Flask Anemia backend
+                endpoint = 'http://localhost:5000/anemia/upload'; // Flask Anemia backend
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
