@@ -47,11 +47,11 @@ const NotificationDetail: React.FC = () => {
         try {
             let endpoint = '';
             if (selectedDisease === 'pneumonia') {
-                endpoint = 'http://localhost:8000/api/diagnosis/upload/';
+                endpoint = 'http://localhost:5050/pneumonia/upload/';
             } else if (selectedDisease === 'tb') {
-                endpoint = 'http://localhost:8000/api/diagnosis/tb/upload/';
+                endpoint = 'http://localhost:5050/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5000/anemia/predict-image'; // Flask Anemia backend
+                endpoint = 'http://localhost:5050/anemia/upload'; // Flask Anemia backend
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
