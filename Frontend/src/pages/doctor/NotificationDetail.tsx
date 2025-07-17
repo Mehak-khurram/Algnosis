@@ -47,11 +47,11 @@ const NotificationDetail: React.FC = () => {
         try {
             let endpoint = '';
             if (selectedDisease === 'pneumonia') {
-                endpoint = 'http://localhost:5050/pneumonia/upload/';
+                endpoint = 'http://localhost:5051/pneumonia/upload';
             } else if (selectedDisease === 'tb') {
-                endpoint = 'http://localhost:5050/tb/upload/';
+                endpoint = 'http://localhost:5051/tb/upload';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5000/anemia/upload'; // Flask Anemia backend
+                endpoint = 'http://localhost:5050/anemia/upload'; // Flask Anemia backend
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -64,10 +64,10 @@ const NotificationDetail: React.FC = () => {
 
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data.result } });
+                navigate('/doctor/diagnosis-result', { state: { result: data } });
             } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
-                navigate('/doctor/tb-result', { state: { result: data.result } });
+                navigate('/doctor/diagnosis-result', { state: { result: data } });
             } else if (selectedDisease === 'anemia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data } });

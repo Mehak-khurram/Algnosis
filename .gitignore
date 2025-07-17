@@ -1,1 +1,22 @@
 *.h5
+*.pkl
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore Jupyter Notebook checkpoints (optional)
+.ipynb_checkpoints/
+
+# Ignore VSCode and PyCharm configs (optional)
+.vscode/
+.idea/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

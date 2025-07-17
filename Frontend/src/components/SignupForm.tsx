@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+
 
 interface SignupFormProps {
     onClose: () => void;
@@ -34,10 +36,44 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
         bio: '',
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle signup logic here
-        console.log('Signup attempt:', formData);
+    const handleSubmit = async (e: React.FormEvent) => {
+         e.preventDefault();
+
+        try {
+            const { userType, confirmPassword, password, ...restData } = formData;
+
+            console.log(formData);
+
+            // Prepare the correct API URL
+            const apiUrl =
+                userType === 'patient'
+                    ? 'http://localhost:8081/auth/patient/register'
+                    : 'http://localhost:8081/auth/doctor/register'; // change ports if needed
+
+            // Prepare the data payload based on userType
+            const payload = {
+                ...restData,
+                password,
+            };
+
+            console.log("calling api!");
+
+            const response = await axios.post(apiUrl, payload);
+
+
+            if (response.status === 200 || response.status === 201) {
+                alert("Account created successfully!");
+                onClose(); // Close the modal
+            } else {
+                alert("Signup failed.");
+            }
+
+            console.log('Signup attempt:', formData);
+            
+        } catch (error: any) {
+            console.error("Signup error:", error);
+            alert(error?.response?.data?.message || "Something went wrong.");
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
