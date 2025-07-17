@@ -6,16 +6,18 @@ import os
 import numpy as np
 from PIL import Image
 from flask import Blueprint, request, jsonify
-from tensorflow.keras.models import load_model
 from werkzeug.utils import secure_filename
 
 diagnosis_api = Blueprint('diagnosis_api', __name__)
 
 ########################### Working on ANEMIA here #######################
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 # Load pre-trained model
 print("Loading model...")
-anemiaModel = joblib.load('../model/random_forest_classifier.pkl')
+model_path = os.path.join(BASE_DIR, 'model', 'random_forest_classifier.pkl')
+anemiaModel = joblib.load(model_path)
 print("Model loaded successfully.")
 
 @diagnosis_api.route('/', methods=['GET'])
