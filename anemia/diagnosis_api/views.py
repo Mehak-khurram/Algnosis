@@ -15,14 +15,8 @@ diagnosis_api = Blueprint('diagnosis_api', __name__)
 
 # Load pre-trained model
 print("Loading model...")
-anemiaModel = joblib.load('../model/random_forest_classifier.pkl')
+anemiaModel = load_model('/Users/salmanajmal/Desktop/NewAlgo/Algnosis/anemia/model/pneumonia_model.h5')
 print("Model loaded successfully.")
-
-@diagnosis_api.route('/', methods=['GET'])
-def index():
-    result = None
-    return render_template('test.html', result=result)
-    #return render_template('index.html', result=result)
 
 @diagnosis_api.route('/anemia/upload', methods=['POST'])
 def upload_image():
@@ -66,7 +60,9 @@ def upload_image():
         # Prepare the input features for the model
         features = np.array([[gender_binary, hemoglobin, mch, mchc, mcv]])
         print("Debug: Features prepared for model:", features)  # Debug: Features for model
-
+        
+        print("everything working before predict")
+        
         # Get prediction from the model
         prediction = anemiaModel.predict(features)[0]
         result = 'Anemic' if prediction == 1 else 'Not Anemic'
@@ -80,74 +76,3 @@ def upload_image():
     except Exception as e:
         print("Error during image processing:", str(e))  # Debug: Exception details
         return jsonify({"error": str(e)}), 500
-
-########################## Working on Pneumonia here ###############################
-
-
-# Load models
-try:
-    model_path = os.path.join('../model', 'pneumonia_model.h5')
-    pneumonia_model = load_model(model_path)
-except Exception as e:
-    pneumonia_model = None
-    print(f"Failed to load pneumonia model: {e}")
-
-try:
-    tb_model_path = os.path.join('../models', 'tb_model.h5')
-    tb_model = load_model(tb_model_path)
-except Exception as e:
-    tb_model = None
-    print(f"Failed to load TB model: {e}")
-
-def preprocess_image(file):
-    img = Image.open(file).convert('RGB')
-    img = img.resize((220, 220))
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-    return img_array
-
-@diagnosis_api.route('/pneumonia/upload', methods=['POST'])
-def upload_report():
-    if pneumonia_model is None:
-        return jsonify({'error': 'Pneumonia model not available.'}), 503
-
-    file = request.files.get('file')
-    if not file:
-        return jsonify({'error': 'No file provided'}), 400
-
-    if file.mimetype not in ['image/jpeg', 'image/png']:
-        return jsonify({'error': 'Invalid file type. Only JPG and PNG are supported.'}), 400
-
-    try:
-        img_array = preprocess_image(file)
-        preds = pneumonia_model.predict(img_array)
-        pred_class = int(preds[0][0] > 0.5)
-        confidence = float(preds[0][0]) if pred_class == 1 else 1 - float(preds[0][0])
-        diagnosis = 'Pneumonia' if pred_class == 1 else 'Normal'
-        return jsonify({'result': {'diagnosis': diagnosis, 'confidence': round(confidence, 4)}})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-############################ Tuber Culosis ######################################
-
-@diagnosis_api.route('/tb/upload/', methods=['POST'])
-def upload_tb_report():
-    if tb_model is None:
-        return jsonify({'error': 'TB model not available.'}), 503
-
-    file = request.files.get('file')
-    if not file:
-        return jsonify({'error': 'No file provided'}), 400
-
-    if file.mimetype not in ['image/jpeg', 'image/png']:
-        return jsonify({'error': 'Invalid file type. Only JPG and PNG are supported.'}), 400
-
-    try:
-        img_array = preprocess_image(file)
-        preds = tb_model.predict(img_array)
-        pred_class = int(preds[0][0] > 0.5)
-        confidence = float(preds[0][0]) if pred_class == 1 else 1 - float(preds[0][0])
-        diagnosis = 'TB' if pred_class == 1 else 'Normal'
-        return jsonify({'result': {'diagnosis': diagnosis, 'confidence': round(confidence, 4)}})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500

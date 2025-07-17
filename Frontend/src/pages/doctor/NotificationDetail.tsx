@@ -18,11 +18,11 @@ const NotificationDetail: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [uploadingTB, setUploadingTB] = useState(false);
     const [tbResult, setTBResult] = useState<string | null>(null);
-    const [selectedDisease, setSelectedDisease] = useState<'pneumonia' | 'tb' | 'anemia'>('pneumonia');
+    const [selectedDisease, setSelectedDisease] = useState<'pneumonia' | 'tb' | 'anemia' | 'brain_tumor'>('pneumonia');
     const [file, setFile] = useState<File | null>(null);
 
     const handleDiseaseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedDisease(e.target.value as 'pneumonia' | 'tb' | 'anemia');
+        setSelectedDisease(e.target.value as 'pneumonia' | 'tb' | 'anemia' | 'brain_tumor');
         setFile(null);
         setDiagnosisResult(null);
         setTBResult(null);
@@ -47,33 +47,41 @@ const NotificationDetail: React.FC = () => {
         try {
             let endpoint = '';
             if (selectedDisease === 'pneumonia') {
-                endpoint = 'http://localhost:5050/pneumonia/upload/';
+                endpoint = 'http://localhost:5051/pneumonia/upload/';
             } else if (selectedDisease === 'tb') {
-                endpoint = 'http://localhost:5050/tb/upload/';
+                endpoint = 'http://localhost:5051/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5000/anemia/upload'; // Flask Anemia backend
+                endpoint = 'http://localhost:5051/anemia/predict-image';
+            } else if (selectedDisease === 'brain_tumor') {
+                endpoint = 'http://localhost:8000/segment';
             }
             const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
             });
             if (!response.ok) throw new Error('Upload failed');
+            if (selectedDisease === 'brain_tumor') {
+                // For brain tumor, get the blob (image)
+                const blob = await response.blob();
+                const segmentedUrl = URL.createObjectURL(blob);
+                // Pass both original and segmented image URLs to the result page
+                const originalUrl = URL.createObjectURL(file);
+                navigate('/doctor/brain-tumor-result', { state: { originalUrl, segmentedUrl } });
+                return;
+            }
             const data = await response.json();
-
-            console.log(data);
-
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data.result } });
             } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
-                navigate('/doctor/tb-result', { state: { result: data.result } });
+                navigate('/doctor/diagnosis-result', { state: { result: data.result } });
             } else if (selectedDisease === 'anemia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data } });
             }
         } catch (error) {
-            if (selectedDisease === 'pneumonia' || selectedDisease === 'anemia') setUploading(false);
+            if (selectedDisease === 'pneumonia' || selectedDisease === 'anemia' || selectedDisease === 'brain_tumor') setUploading(false);
             else setUploadingTB(false);
             alert('Failed to upload and process the report.');
         }
@@ -194,6 +202,7 @@ const NotificationDetail: React.FC = () => {
                                 <option value="pneumonia">Pneumonia</option>
                                 <option value="tb">TB</option>
                                 <option value="anemia">Anemia</option>
+                                <option value="brain_tumor">Brain Tumor Segmentation</option>
                             </select>
                             <input
                                 type="file"
