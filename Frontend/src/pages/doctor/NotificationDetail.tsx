@@ -51,7 +51,7 @@ const NotificationDetail: React.FC = () => {
             } else if (selectedDisease === 'tb') {
                 endpoint = 'http://localhost:5051/tb/upload/';
             } else if (selectedDisease === 'anemia') {
-                endpoint = 'http://localhost:5051/anemia/predict-image';
+                endpoint = 'http://localhost:5051/anemia/upload';
             } else if (selectedDisease === 'brain_tumor') {
                 endpoint = 'http://localhost:8000/segment';
             }
@@ -72,10 +72,10 @@ const NotificationDetail: React.FC = () => {
             const data = await response.json();
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data.result } });
+                navigate('/doctor/diagnosis-result', { state: { result: data } });
             } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data.result } });
+                navigate('/doctor/diagnosis-result', { state: { result: data } });
             } else if (selectedDisease === 'anemia') {
                 setUploading(false);
                 navigate('/doctor/diagnosis-result', { state: { result: data } });
