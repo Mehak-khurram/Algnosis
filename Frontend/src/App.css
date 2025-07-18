@@ -37,3 +37,23 @@
     transform: rotate(360deg);
   }
 }
+
+/* Remove all glow, drop-shadow, and animation styles for minimalism */
+.drop-shadow-glow,
+.shadow-glow,
+.animate-hero-glow {
+  text-shadow: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* For smooth button transitions */
+button,
+.shadow-glow {
+  transition: box-shadow 0.3s, background 0.3s, color 0.3s;
+}
+
+body {
+  background: #181A20;
+  color: #F4F4F9;
+}
