@@ -13,17 +13,31 @@ import DoctorDiagnosisResult from './pages/doctor/DoctorDiagnosisResult.tsx';
 import Profile from './pages/doctor/Profile.tsx';
 import PatientDetail from './pages/doctor/PatientDetail.tsx';
 import BrainTumorResult from './pages/doctor/BrainTumorResult.tsx';
+import ProtectedRoute from './pages/ProtectedRoutes.tsx'
 
 function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/patient/dashboard" element={<PatientDashboard />} />
+
+                <Route path="/patient/dashboard" element={
+                        <ProtectedRoute  allowedRoles={['PATIENT']}>
+                            <PatientDashboard />
+                        </ProtectedRoute>
+                    } 
+                />
+                
                 <Route path="/patient/upload-report" element={<UploadReport />} />
                 <Route path="/patient/doctors" element={<DoctorsList />} />
                 <Route path="/patient/diagnosis-result" element={<DiagnosisResult />} />
-                <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+
+                <Route path="/doctor/dashboard" element={
+                        <ProtectedRoute allowedRoles={['DOCTOR']}>
+                            <DoctorDashboard />
+                        </ProtectedRoute>
+                    } 
+                />
                 <Route path="/doctor/my-patients" element={<MyPatients />} />
                 <Route path="/doctor/notifications" element={<Notifications />} />
                 <Route path="/doctor/notifications/:id" element={<NotificationDetail />} />

@@ -18,11 +18,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
         // Patient-specific fields
         age: '',
         gender: '',
-        allergies: [],
-        medicalDevices: [],
-        recentSurgery: [],
+        allergies: '',
+        medicalDevices: '',
+        recentSurgery: '',
         dietaryRestrictions: '',
-        currentMedications: [],
+        currentMedications: '',
         emergencyContactPrimary: '',
         emergencyContactPrimaryPhone: '',
         emergencyContactSecondary: '',
@@ -46,8 +46,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
 
         const apiUrl =
             userType === 'patient'
-                ? 'http://localhost:8081/auth/patient/register'
-                : 'http://localhost:8081/auth/doctor/register';
+                ? 'http://localhost:8082/auth/patient/register'
+                : 'http://localhost:8082/auth/doctor/register';
 
         const payload = {
             ...restData,
@@ -72,18 +72,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
 };
 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
 
-    const listFields = ["allergies", "restrictions", "medicalDevices", "currentMedications"];
-
-    setFormData(prev => ({
-        ...prev,
-        [name]: listFields.includes(name)
-            ? value.split(',').map(item => item.trim()).filter(Boolean) // convert string to List<String>
-            : value
-    }));
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
 };
+
 
 
     return (

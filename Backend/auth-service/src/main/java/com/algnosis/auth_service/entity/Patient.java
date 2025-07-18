@@ -22,11 +22,11 @@ public class Patient extends User{
     private int age;
     private String gender;
 
-    private List<String> allergies;
-    private List<String> restrictions;
-    private List<String> medicalDevices;
+    private String allergies;
+    private String restrictions;
+    private String medicalDevices;
     private String recentSurgery;
-    private List<String> currentMedications;
+    private String currentMedications;
 
     //EMERGENCY CONTACTS(PRIMARY + SECONDARY)
     private String primaryContactName;
