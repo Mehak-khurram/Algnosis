@@ -24,11 +24,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
+    //aplies a filter on every incoming request before the controller is hit
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -40,6 +42,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String email = jwtService.extractEmail(token);
         String role = jwtService.extractRole(token);
 
+        //GENERATES AN AUTHENTICATION OBJECT AND SAVES IN SPRING SECURITY CONTEXT
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

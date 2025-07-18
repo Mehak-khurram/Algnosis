@@ -18,11 +18,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
         // Patient-specific fields
         age: '',
         gender: '',
-        allergies: '',
-        medicalDevices: '',
-        recentSurgery: '',
+        allergies: [],
+        medicalDevices: [],
+        recentSurgery: [],
         dietaryRestrictions: '',
-        currentMedications: '',
+        currentMedications: [],
         emergencyContactPrimary: '',
         emergencyContactPrimaryPhone: '',
         emergencyContactSecondary: '',
@@ -36,52 +36,55 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
         bio: '',
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-         e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        try {
-            const { userType, confirmPassword, password, ...restData } = formData;
+    try {
+        const { userType, confirmPassword, ...restData } = formData;
 
-            console.log(formData);
+        console.log("Form Data:", formData);
 
-            // Prepare the correct API URL
-            const apiUrl =
-                userType === 'patient'
-                    ? 'http://localhost:8081/auth/patient/register'
-                    : 'http://localhost:8081/auth/doctor/register'; // change ports if needed
+        const apiUrl =
+            userType === 'patient'
+                ? 'http://localhost:8081/auth/patient/register'
+                : 'http://localhost:8081/auth/doctor/register';
 
-            // Prepare the data payload based on userType
-            const payload = {
-                ...restData,
-                password,
-            };
+        const payload = {
+            ...restData,
+        };
 
-            console.log("calling api!");
+        console.log("Payload:", payload);
+        console.log("Calling API...");
 
-            const response = await axios.post(apiUrl, payload);
+        const response = await axios.post(apiUrl, payload);
 
-
-            if (response.status === 200 || response.status === 201) {
-                alert("Account created successfully!");
-                onClose(); // Close the modal
-            } else {
-                alert("Signup failed.");
-            }
-
-            console.log('Signup attempt:', formData);
-            
-        } catch (error: any) {
-            console.error("Signup error:", error);
-            alert(error?.response?.data?.message || "Something went wrong.");
+        if (response.status === 200 || response.status === 201) {
+            alert("Account created successfully!");
+            onClose();
+        } else {
+            alert("Signup failed.");
         }
-    };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    } catch (error: any) {
+        console.error("Signup error:", error);
+        alert(error?.response?.data?.message || "Something went wrong.");
+    }
+};
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+
+    const listFields = ["allergies", "restrictions", "medicalDevices", "currentMedications"];
+
+    setFormData(prev => ({
+        ...prev,
+        [name]: listFields.includes(name)
+            ? value.split(',').map(item => item.trim()).filter(Boolean) // convert string to List<String>
+            : value
+    }));
+};
+
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">

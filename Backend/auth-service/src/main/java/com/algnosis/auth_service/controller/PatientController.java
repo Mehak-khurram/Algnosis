@@ -6,11 +6,9 @@ import com.algnosis.auth_service.dto.LogInResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
 import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/auth")
 public class PatientController {
@@ -22,6 +20,8 @@ public class PatientController {
 
     @PostMapping("/patient/register")
     public ResponseEntity<PatientSignUpRequestDTO> registerPatient(@RequestBody PatientSignUpRequestDTO patient){
+
+            System.out.println("------------CONTROLLER WAS HIT----------");
             PatientSignUpRequestDTO registeredPatient = patientService.registerPatient(patient);
             return ResponseEntity.ok(registeredPatient);
     }
