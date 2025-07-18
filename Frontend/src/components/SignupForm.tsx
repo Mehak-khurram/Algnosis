@@ -87,13 +87,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
 
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-xl border border-gray-200 max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-medical-blue">Create Account</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-gray-400 hover:text-blue-600 transition-colors"
+                        aria-label="Close signup form"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -111,7 +112,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                             name="userType"
                             value={formData.userType}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                         >
                             <option value="patient">Patient</option>
                             <option value="provider">Healthcare Provider</option>
@@ -130,7 +131,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                 value={formData.firstName}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                 placeholder="First name"
                             />
                         </div>
@@ -146,7 +147,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                 value={formData.lastName}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                 placeholder="Last name"
                             />
                         </div>
@@ -163,7 +164,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                             placeholder="Enter your email"
                         />
                     </div>
@@ -178,14 +179,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                             placeholder="Enter your phone number"
                         />
                     </div>
 
                     {/* Patient-specific fields */}
                     {formData.userType === 'patient' && (
-                        <div className="space-y-4 border-t pt-4 mt-4">
+                        <div className="space-y-4 border-t border-gray-200 pt-4 mt-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
@@ -197,7 +198,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="age"
                                         value={formData.age}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Age"
                                     />
                                 </div>
@@ -210,7 +211,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="gender"
                                         value={formData.gender}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     >
                                         <option value="">Select</option>
                                         <option value="male">Male</option>
@@ -228,7 +229,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="allergies"
                                         value={formData.allergies}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Allergies"
                                     />
                                     <input
@@ -236,7 +237,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="medicalDevices"
                                         value={formData.medicalDevices}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Medical Devices/Implants"
                                     />
                                     <input
@@ -244,7 +245,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="recentSurgery"
                                         value={formData.recentSurgery}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Recent Surgery"
                                     />
                                     <input
@@ -252,7 +253,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="dietaryRestrictions"
                                         value={formData.dietaryRestrictions}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Dietary Restrictions"
                                     />
                                 </div>
@@ -267,7 +268,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="currentMedications"
                                     value={formData.currentMedications}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="List current medications"
                                     rows={2}
                                 />
@@ -281,7 +282,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="emergencyContactPrimary"
                                         value={formData.emergencyContactPrimary}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Primary Contact Name"
                                     />
                                     <input
@@ -289,7 +290,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="emergencyContactPrimaryPhone"
                                         value={formData.emergencyContactPrimaryPhone}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Primary Contact Phone"
                                     />
                                     <input
@@ -297,7 +298,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="emergencyContactSecondary"
                                         value={formData.emergencyContactSecondary}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Secondary Contact Name"
                                     />
                                     <input
@@ -305,7 +306,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                         name="emergencyContactSecondaryPhone"
                                         value={formData.emergencyContactSecondaryPhone}
                                         onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                         placeholder="Secondary Contact Phone"
                                     />
                                 </div>
@@ -315,7 +316,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
 
                     {/* Doctor-specific fields */}
                     {formData.userType === 'provider' && (
-                        <div className="space-y-4 border-t pt-4 mt-4">
+                        <div className="space-y-4 border-t border-gray-200 pt-4 mt-4">
                             <div>
                                 <label htmlFor="specialisation" className="block text-sm font-medium text-gray-700 mb-1">
                                     Specialisation
@@ -326,7 +327,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="specialisation"
                                     value={formData.specialisation}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="e.g. Cardiologist, Dentist"
                                 />
                             </div>
@@ -340,7 +341,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="experience"
                                     value={formData.experience}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="Years of experience"
                                 />
                             </div>
@@ -354,7 +355,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="qualifications"
                                     value={formData.qualifications}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="e.g. MBBS, MD, PhD"
                                 />
                             </div>
@@ -368,7 +369,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="clinicName"
                                     value={formData.clinicName}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="Clinic or Hospital Name"
                                 />
                             </div>
@@ -382,7 +383,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="licenseNumber"
                                     value={formData.licenseNumber}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="Medical License Number"
                                 />
                             </div>
@@ -395,7 +396,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                                     name="bio"
                                     value={formData.bio}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                                     placeholder="Tell us about yourself"
                                     rows={2}
                                 />
@@ -414,7 +415,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                             placeholder="Create a password"
                         />
                     </div>
@@ -430,14 +431,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                             placeholder="Confirm your password"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full bg-medical-magenta hover:bg-pink-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition"
                     >
                         Create Account
                     </button>
@@ -446,7 +447,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
                         Already have an account?{' '}
-                        <button className="text-medical-blue hover:text-medical-magenta font-medium">
+                        <button className="text-blue-600 hover:text-purple-600 font-medium">
                             Login here
                         </button>
                     </p>

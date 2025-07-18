@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PatientNavBar from '../../components/PatientNavBar.tsx';
+import { User, Edit2, UploadCloud, Phone, AlertCircle } from 'lucide-react';
 
 const initialPatientData = {
     name: 'John Doe',
@@ -96,70 +97,84 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-blue-50 to-pink-50">
+        <div className="min-h-screen w-full flex flex-col bg-[#f7f8fa]">
             <PatientNavBar />
-            <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col justify-center items-center py-12 px-4">
-                <div className="flex w-full justify-between items-center mb-4">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 mb-2 animate-fadein">Patient Dashboard</h1>
-                        <p className="text-lg text-gray-700 mb-2 animate-fadein delay-100">Welcome, <span className="font-semibold text-blue-900">{patient.name}</span></p>
+            <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col gap-8 py-10 px-4">
+                {/* Profile Summary Card */}
+                <div className="bg-white rounded-2xl shadow border border-gray-200 flex flex-col md:flex-row items-center gap-6 p-8 mb-2">
+                    <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                        <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-4xl font-bold">
+                            <User className="w-12 h-12" />
+                        </div>
+                        <button
+                            className="mt-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium flex items-center gap-1 hover:bg-blue-100 border border-blue-100"
+                            onClick={() => { setEditData(patient); setEditOpen(true); }}
+                        >
+                            <Edit2 className="w-4 h-4" /> Edit Profile
+                        </button>
                     </div>
-                    <button
-                        className="bg-blue-900 hover:bg-blue-800 text-white font-semibold px-6 py-2 rounded-lg shadow transition duration-200"
-                        onClick={() => { setEditData(patient); setEditOpen(true); }}
-                    >
-                        Edit
-                    </button>
+                    <div className="flex-1 flex flex-col gap-2 items-center md:items-start">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{patient.name}</h1>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold border border-blue-100">Age: {patient.age}</span>
+                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold border border-blue-100">Gender: {patient.gender}</span>
+                            {patient.allergies && <span className="px-3 py-1 bg-pink-50 text-pink-600 rounded-full text-xs font-semibold border border-pink-100">Allergies: {patient.allergies}</span>}
+                            {patient.medicalDevices && <span className="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-xs font-semibold border border-purple-100">Devices: {patient.medicalDevices}</span>}
+                            {patient.recentSurgery && <span className="px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full text-xs font-semibold border border-yellow-100">Surgery: {patient.recentSurgery}</span>}
+                            {patient.dietaryRestrictions && <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-semibold border border-green-100">Diet: {patient.dietaryRestrictions}</span>}
+                        </div>
+                    </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+
+                {/* Info Tiles Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {tileDataFromPatient(patient).map((tile, idx) => (
                         <div
                             key={tile.label}
-                            className={`bg-gradient-to-br ${tile.color} rounded-2xl p-8 shadow-lg flex flex-col items-start min-h-[160px] relative transform transition-all duration-700 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} delay-[${idx * 80}ms]`}
+                            className={`bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col items-start min-h-[120px] group hover:border-blue-400 hover:shadow-md transition-all duration-200 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                             style={{ transitionDelay: `${idx * 80 + 200}ms` }}
                         >
-                            <div className="mb-4">{tile.icon}</div>
-                            <span className="text-xs font-semibold uppercase mb-1 tracking-wider text-blue-900/70">{tile.label}</span>
-                            <span className="text-xl font-bold text-gray-900 break-words">{tile.value}</span>
+                            <div className="mb-2 flex items-center justify-center w-10 h-10 rounded-lg bg-blue-50 text-blue-600">{tile.icon}</div>
+                            <span className="text-xs font-semibold uppercase mb-1 tracking-wider text-gray-500">{tile.label}</span>
+                            <span className="text-lg font-bold text-gray-900 break-words">{tile.value}</span>
                         </div>
                     ))}
                     {/* Upload Report/X Ray tile */}
                     <a
                         href="/patient/upload-report"
-                        className={`bg-gradient-to-br from-blue-200 to-pink-100 rounded-2xl p-8 shadow-lg flex flex-col items-center justify-center min-h-[160px] transition-all duration-700 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                        className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center min-h-[120px] group hover:border-blue-500 hover:bg-blue-100 transition-all duration-200"
                         style={{ transitionDelay: `${(tileDataFromPatient(patient).length + 1) * 80 + 200}ms` }}
                     >
-                        <div className="mb-4">
-                            <svg className="w-10 h-10 text-blue-900" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
-                            </svg>
+                        <div className="mb-2 flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
+                            <UploadCloud className="w-6 h-6" />
                         </div>
-                        <span className="text-lg font-bold text-blue-900 mb-1">Upload Report / X Ray</span>
-                        <span className="text-sm text-gray-700 text-center">Upload your medical reports or X-rays securely</span>
+                        <span className="text-base font-bold text-blue-600 mb-1">Upload Report / X Ray</span>
+                        <span className="text-xs text-gray-600 text-center">Upload your medical reports or X-rays securely</span>
                     </a>
-                    {/* Emergency Contacts tile, full width */}
-                    <div className={`col-span-1 sm:col-span-2 lg:col-span-3 bg-gradient-to-br from-pink-100 to-blue-50 rounded-2xl p-8 shadow-lg flex flex-col min-h-[160px] mt-2 transition-all duration-700 ${animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} delay-[${tileDataFromPatient(patient).length * 80}ms]`} style={{ transitionDelay: `${tileDataFromPatient(patient).length * 80 + 200}ms` }}>
-                        <div className="mb-4 flex items-center gap-2">
-                            <svg className="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                            <span className="text-xs font-semibold uppercase tracking-wider text-pink-600">Emergency Contacts</span>
-                        </div>
-                        <div className="flex flex-col gap-2 mt-1">
-                            {patient.emergencyContacts.map((contact, idx) => (
-                                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                                    <span className="font-semibold text-gray-900">{contact.name}</span>
-                                    <span className="text-gray-700">{contact.relation}</span>
-                                    <span className="text-blue-900 font-mono">{contact.phone}</span>
-                                </div>
-                            ))}
-                        </div>
+                </div>
+
+                {/* Emergency Contacts Card */}
+                <div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-sm flex flex-col gap-2 mt-8">
+                    <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-semibold uppercase tracking-wider text-blue-600">Emergency Contacts</span>
+                    </div>
+                    <div className="flex flex-col gap-2 mt-1">
+                        {patient.emergencyContacts.map((contact, idx) => (
+                            <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-gray-100 pb-2 last:border-b-0">
+                                <span className="font-semibold text-gray-900 flex items-center gap-1"><Phone className="w-4 h-4 text-blue-400" />{contact.name}</span>
+                                <span className="text-gray-600">{contact.relation}</span>
+                                <span className="text-blue-600 font-mono">{contact.phone}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
             {/* Edit Modal */}
             {editOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadein">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
                     <form
-                        className="bg-white rounded-2xl shadow-2xl border border-blue-200 max-w-lg w-full p-8 relative animate-fadein"
+                        className="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-lg w-full p-8 relative flex flex-col gap-6"
                         onSubmit={handleSave}
                     >
                         <button
@@ -170,7 +185,7 @@ const Dashboard: React.FC = () => {
                         >
                             &times;
                         </button>
-                        <h2 className="text-2xl font-bold text-blue-900 mb-4">Edit Information</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Edit Information</h2>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -179,7 +194,7 @@ const Dashboard: React.FC = () => {
                                     name="name"
                                     value={editData.name}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                             <div>
@@ -189,7 +204,7 @@ const Dashboard: React.FC = () => {
                                     name="age"
                                     value={editData.age}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                         </div>
@@ -201,7 +216,7 @@ const Dashboard: React.FC = () => {
                                     name="gender"
                                     value={editData.gender}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                             <div>
@@ -211,7 +226,7 @@ const Dashboard: React.FC = () => {
                                     name="allergies"
                                     value={editData.allergies}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                         </div>
@@ -223,7 +238,7 @@ const Dashboard: React.FC = () => {
                                     name="medicalDevices"
                                     value={editData.medicalDevices}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                             <div>
@@ -233,7 +248,7 @@ const Dashboard: React.FC = () => {
                                     name="recentSurgery"
                                     value={editData.recentSurgery}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                         </div>
@@ -245,7 +260,7 @@ const Dashboard: React.FC = () => {
                                     name="dietaryRestrictions"
                                     value={editData.dietaryRestrictions}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                             <div>
@@ -255,7 +270,7 @@ const Dashboard: React.FC = () => {
                                     name="currentMedications"
                                     value={editData.currentMedications}
                                     onChange={handleEditChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                         </div>
