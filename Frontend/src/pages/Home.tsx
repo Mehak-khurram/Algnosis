@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Menu, X, Stethoscope, ArrowRight, Play, Shield, Clock, Users, MessageSquare, Brain, FileText, Heart, Droplets, FileCheck, Smartphone, Mail, Phone, MapPin } from "lucide-react";
 import LoginForm from "../components/LoginForm.tsx";
 import SignupForm from "../components/SignupForm.tsx";
-// TODO: Replace with actual Button component if available
 const Button = (props: any) => <button {...props} className={"px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition " + (props.className || "")}>{props.children}</button>;
 
 // --- How It Works Section Data ---
@@ -14,7 +13,6 @@ const steps = [
     { icon: FileText, title: "Get Results", description: "Receive detailed insights, potential conditions, and personalized recommendations within minutes.", step: "03" }
 ];
 
-// --- Diagnosis Types Section Data ---
 const diagnosisTypes = [
     { icon: Heart, title: "Pneumonia Detection", description: "Advanced chest X-ray analysis using AI to detect pneumonia patterns and lung inflammation with high precision.", color: "bg-blue-500/10 text-blue-600 border-blue-200", features: ["Chest X-ray Analysis", "Lung Pattern Recognition", "Severity Assessment"] },
     { icon: Heart, title: "Tuberculosis (TB) Screening", description: "Comprehensive TB detection through medical imaging and symptom analysis for early intervention.", color: "bg-red-500/10 text-red-600 border-red-200", features: ["Medical Imaging", "Symptom Correlation", "Risk Assessment"] },
@@ -22,7 +20,7 @@ const diagnosisTypes = [
     { icon: Droplets, title: "Anemia Diagnosis", description: "Blood test interpretation and symptom analysis to detect various types of anemia conditions.", color: "bg-orange-500/10 text-orange-600 border-orange-200", features: ["Blood Test Analysis", "Symptom Evaluation", "Type Classification"] }
 ];
 
-// --- Features Section Data ---
+
 const features = [
     { icon: Brain, title: "Advanced AI Technology", description: "Our machine learning algorithms are trained on millions of medical cases for accurate diagnosis." },
     { icon: Clock, title: "Instant Results", description: "Get comprehensive health insights in under 5 minutes, available 24/7 whenever you need them." },
@@ -342,4 +340,4 @@ const Home = () => {
     );
 };
 
-export default Home; 
+export default Home;

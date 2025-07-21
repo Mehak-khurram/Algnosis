@@ -13,6 +13,7 @@ import DoctorDiagnosisResult from './pages/doctor/DoctorDiagnosisResult.tsx';
 import Profile from './pages/doctor/Profile.tsx';
 import PatientDetail from './pages/doctor/PatientDetail.tsx';
 import BrainTumorResult from './pages/doctor/BrainTumorResult.tsx';
+import Reports from './pages/patient/Reports.tsx';
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/patient/upload-report" element={<UploadReport />} />
                 <Route path="/patient/doctors" element={<DoctorsList />} />
                 <Route path="/patient/diagnosis-result" element={<DiagnosisResult />} />
+                <Route path="/patient/reports" element={<Reports />} />
                 <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
                 <Route path="/doctor/my-patients" element={<MyPatients />} />
                 <Route path="/doctor/notifications" element={<Notifications />} />

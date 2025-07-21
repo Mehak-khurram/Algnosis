@@ -1,5 +1,26 @@
 import React, { useState } from 'react';
 import PatientNavBar from '../../components/PatientNavBar.tsx';
+import {
+    User,
+    Heart,
+    Stethoscope,
+    Smile,
+    Star,
+    Phone,
+    Mail,
+    Activity,
+    Calendar,
+    FileText,
+} from "lucide-react";
+
+// Card, Button, Badge components (copied from Dashboard.tsx)
+const Card = ({ children, className }: any) => <div className={`bg-white rounded-2xl shadow border border-gray-200 ${className}`}>{children}</div>;
+const CardContent = ({ children, className }: any) => <div className={className}>{children}</div>;
+const CardHeader = ({ children, className }: any) => <div className={className}>{children}</div>;
+const CardTitle = ({ children, className }: any) => <div className={className}>{children}</div>;
+const CardDescription = ({ children, className }: any) => <div className={className}>{children}</div>;
+const Button = ({ children, className, ...props }: any) => <button className={`px-4 py-2 rounded-lg font-semibold transition ${className || ''}`} {...props}>{children}</button>;
+const Badge = ({ children, className }: any) => <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${className}`}>{children}</span>;
 
 const mockDoctors = [
     {
@@ -48,64 +69,110 @@ const DoctorsList: React.FC = () => {
     return (
         <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-blue-50 to-pink-50">
             <PatientNavBar />
-            <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col justify-center items-center py-12 px-4">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-blue-900 mb-8 mt-8">Available Doctors</h1>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+            <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col justify-center items-center py-12 px-4">
+                <h1 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-8 mt-8">Available Doctors</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 w-full">
                     {mockDoctors.map((doc, idx) => (
-                        <div
+                        <Card
                             key={doc.id}
-                            className={`bg-white rounded-2xl shadow-lg border border-blue-100 p-6 flex flex-col items-start transition-all duration-300 cursor-pointer relative hover:shadow-xl hover:-translate-y-1 animate-fadein-tile`}
+                            className="min-h-[220px] min-w-0 border-0 shadow-2xl hover:shadow-2xl transition-all duration-300 rounded-3xl bg-gradient-to-br from-white to-blue-50/30 hover:scale-105 p-8 flex flex-col justify-between cursor-pointer animate-fadein-tile"
+                            style={{ transitionDelay: `${idx * 100 + 200}ms` }}
                             onClick={() => setExpandedId(doc.id)}
-                            style={{ minHeight: 180, transitionDelay: `${idx * 100 + 200}ms` }}
                         >
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl">
-                                    {doc.name.split(' ').map((n) => n[0]).join('')}
+                            <CardHeader className="pb-5 rounded-t-3xl flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-3xl font-bold">
+                                    <Stethoscope className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <div className="text-lg font-bold text-blue-900">{doc.name}</div>
-                                    <div className="text-sm text-pink-600 font-semibold">{doc.specialisation}</div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-2xl font-bold text-gray-800">{doc.name}</span>
+                                        <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                                    </div>
+                                    <Badge className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 border-0 rounded-full px-4 py-1 text-base">
+                                        {doc.specialisation}
+                                    </Badge>
                                 </div>
-                            </div>
-                            <div className="text-gray-700 text-sm mb-2">Experience: <span className="font-semibold text-blue-900">{doc.experience} years</span></div>
-                        </div>
+                            </CardHeader>
+                            <CardContent className="mt-4 space-y-2">
+                                <div className="flex items-center gap-2 text-lg text-blue-900 font-semibold">
+                                    <User className="w-5 h-5 text-blue-500" />
+                                    Experience: {doc.experience} years
+                                </div>
+                                <div className="flex items-center gap-2 text-base text-gray-700">
+                                    <FileText className="w-5 h-5 text-indigo-500" />
+                                    {doc.qualifications}
+                                </div>
+                                <div className="flex items-center gap-2 text-base text-gray-700">
+                                    <Heart className="w-5 h-5 text-pink-500" />
+                                    {doc.clinicName}
+                                </div>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
             </div>
             {/* Expanded Doctor Modal */}
             {expandedDoctor && (
                 <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadein">
-                    <div className="bg-white rounded-2xl shadow-2xl border border-blue-200 max-w-lg w-full p-8 relative animate-fadein">
+                    <Card className="rounded-3xl shadow-2xl border-0 max-w-2xl w-full p-10 relative animate-fadein bg-gradient-to-br from-white to-blue-50/50">
                         <button
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+                            className="absolute top-6 right-6 text-gray-400 hover:text-gray-700 text-3xl font-bold"
                             onClick={() => setExpandedId(null)}
                             aria-label="Close"
                         >
                             &times;
                         </button>
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-2xl">
-                                {expandedDoctor.name.split(' ').map((n) => n[0]).join('')}
+                        <CardHeader className="flex items-center gap-6 mb-6">
+                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-4xl font-bold">
+                                <Stethoscope className="w-10 h-10" />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-blue-900">{expandedDoctor.name}</div>
-                                <div className="text-lg text-pink-600 font-semibold">{expandedDoctor.specialisation}</div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-3xl font-bold text-gray-800">{expandedDoctor.name}</span>
+                                    <Star className="w-6 h-6 text-yellow-400 fill-current" />
+                                </div>
+                                <Badge className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 border-0 rounded-full px-4 py-1 text-lg">
+                                    {expandedDoctor.specialisation}
+                                </Badge>
                             </div>
-                        </div>
-                        <div className="mb-2 text-gray-700 text-sm">Experience: <span className="font-semibold text-blue-900">{expandedDoctor.experience} years</span></div>
-                        <div className="mb-2 text-gray-700 text-sm">Qualifications: <span className="font-semibold text-blue-900">{expandedDoctor.qualifications}</span></div>
-                        <div className="mb-2 text-gray-700 text-sm">Clinic/Hospital: <span className="font-semibold text-blue-900">{expandedDoctor.clinicName}</span></div>
-                        <div className="mb-2 text-gray-700 text-sm">License #: <span className="font-semibold text-blue-900">{expandedDoctor.licenseNumber}</span></div>
-                        <div className="mb-2 text-gray-700 text-sm">Contact: <span className="font-semibold text-blue-900">{expandedDoctor.contact}</span></div>
-                        <div className="mb-2 text-gray-700 text-sm">Email: <span className="font-semibold text-blue-900">{expandedDoctor.email}</span></div>
-                        <div className="mb-4 text-gray-700 text-sm">Bio: <span className="font-normal text-gray-800">{expandedDoctor.bio}</span></div>
-                        <button
-                            className={`w-full mt-2 px-6 py-3 rounded-lg font-semibold text-white transition bg-blue-900 hover:bg-blue-800 shadow ${selectedId === expandedDoctor.id ? 'ring-2 ring-pink-600' : ''}`}
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-lg">
+                            <div className="flex items-center gap-3 text-blue-900 font-semibold">
+                                <User className="w-5 h-5 text-blue-500" />
+                                Experience: {expandedDoctor.experience} years
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <FileText className="w-5 h-5 text-indigo-500" />
+                                Qualifications: {expandedDoctor.qualifications}
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <Heart className="w-5 h-5 text-pink-500" />
+                                Clinic/Hospital: {expandedDoctor.clinicName}
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <Smile className="w-5 h-5 text-green-500" />
+                                License #: {expandedDoctor.licenseNumber}
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <Phone className="w-5 h-5 text-blue-500" />
+                                Contact: {expandedDoctor.contact}
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <Mail className="w-5 h-5 text-indigo-500" />
+                                Email: {expandedDoctor.email}
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-700">
+                                <Activity className="w-5 h-5 text-purple-500" />
+                                Bio: <span className="font-normal text-gray-800">{expandedDoctor.bio}</span>
+                            </div>
+                        </CardContent>
+                        <Button
+                            className={`w-full mt-6 px-8 py-4 rounded-2xl font-semibold text-white transition bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg text-xl ${selectedId === expandedDoctor.id ? 'ring-2 ring-pink-600' : ''}`}
                             onClick={() => { setSelectedId(expandedDoctor.id); setExpandedId(null); }}
                         >
                             {selectedId === expandedDoctor.id ? 'Selected' : 'Select Doctor'}
-                        </button>
-                    </div>
+                        </Button>
+                    </Card>
                 </div>
             )}
             <style>{`
@@ -126,6 +193,6 @@ const DoctorsList: React.FC = () => {
       `}</style>
         </div>
     );
-};
+}
 
-export default DoctorsList; 
+export default DoctorsList;
