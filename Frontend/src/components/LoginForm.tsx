@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
     onClose: () => void;
@@ -10,11 +12,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
         password: '',
         userType: 'patient'
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log('Login attempt:', formData);
+        setLoading(true);
+        setError('');
+        try {
+            const { email, password, userType } = formData;
+            const apiUrl = `http://localhost:9000/auth/${userType}/login`;
+            const response = await axios.post(apiUrl, { email, password });
+            if (response.status === 200 && response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                if (userType === 'patient') {
+                    navigate('/patient/dashboard');
+                } else {
+                    navigate('/doctor/dashboard');
+                }
+            } else {
+                setError('Invalid email or password.');
+            }
+        } catch (err: any) {
+            setError('Invalid email or password.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -93,9 +117,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
                     <button
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition"
+                        disabled={loading}
                     >
-                        Login
+                        {loading ? 'Logging in...' : 'Login'}
                     </button>
+                    {error && <div className="text-red-500 text-center text-sm mt-2">{error}</div>}
                 </form>
 
                 <div className="mt-6 text-center">

@@ -1,6 +1,5 @@
 package com.algnosis.auth_service.config;
 
-
 import com.algnosis.auth_service.security.JWTAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -24,7 +23,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -37,12 +36,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/patient/register").permitAll() // allow public access to login/signup
+                        .requestMatchers("/auth/patient/register", "/auth/patient/login").permitAll() // allow public
+                                                                                                      // access to
+                                                                                                      // register and
+                                                                                                      // login
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/patient/**").hasRole("PATIENT")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
