@@ -49,7 +49,7 @@ const NotificationDetail: React.FC = () => {
             if (selectedDisease === 'pneumonia') {
                 endpoint = 'http://localhost:5051/pneumonia/upload/';
             } else if (selectedDisease === 'tb') {
-                endpoint = 'http://localhost:5051/tb/upload/';
+                endpoint = 'http://localhost:9000/tb/upload/';
             } else if (selectedDisease === 'anemia') {
                 endpoint = 'http://localhost:5051/anemia/upload';
             } else if (selectedDisease === 'brain_tumor') {

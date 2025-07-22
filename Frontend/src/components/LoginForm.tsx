@@ -22,7 +22,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
         setError('');
         try {
             const { email, password, userType } = formData;
-            const apiUrl = `http://localhost:9000/auth/${userType}/login`;
+            const apiUrl = `http://localhost:11000/auth/${userType}/login`;
             const response = await axios.post(apiUrl, { email, password });
             if (response.status === 200 && response.data.token) {
                 localStorage.setItem('token', response.data.token);
