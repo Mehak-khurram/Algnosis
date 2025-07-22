@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PatientUploadRepository extends MongoRepository<PatientUpload, String> {
-    List<PatientUpload> findByPatientEmail(String email);
+
 }

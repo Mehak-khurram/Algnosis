@@ -23,7 +23,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
-    //aplies a filter on every incoming request before the controller is hit
+    //applies a filter on every incoming request before the controller is hit
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
