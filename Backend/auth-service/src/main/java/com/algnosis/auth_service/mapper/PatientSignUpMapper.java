@@ -1,7 +1,11 @@
 package com.algnosis.auth_service.mapper;
 
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.dto.PatientSignUpResponseDTO;
 import com.algnosis.auth_service.entity.Patient;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class PatientSignUpMapper {
 
@@ -12,12 +16,16 @@ public class PatientSignUpMapper {
         patient.setLastName(patientDTO.getLastName());
         patient.setAge(patientDTO.getAge());
         patient.setEmail(patientDTO.getEmail());
+        //first split the allergies by comma
         patient.setAllergies(patientDTO.getAllergies());
         patient.setGender(patientDTO.getGender());
         patient.setPassword(patientDTO.getPassword());
+        //splitting current medications by comma
         patient.setCurrentMedications(patientDTO.getCurrentMedications());
         patient.setPhoneNumber(patientDTO.getPhoneNumber());
+        //splitting medical devices by comma
         patient.setMedicalDevices(patientDTO.getMedicalDevices());
+        //splitting restrictions by comma
         patient.setRestrictions(patientDTO.getRestrictions());
         patient.setRecentSurgery(patientDTO.getRecentSurgery());
         patient.setPrimaryContactName(patientDTO.getPrimaryContactName());
@@ -30,8 +38,8 @@ public class PatientSignUpMapper {
         return patient;
     }
 
-    public static PatientSignUpRequestDTO toDTO(Patient patient) {
-        PatientSignUpRequestDTO patientDTO = new PatientSignUpRequestDTO();
+    public static PatientSignUpResponseDTO toDTO(Patient patient) {
+        PatientSignUpResponseDTO patientDTO = new PatientSignUpResponseDTO();
 
         patientDTO.setFirstName(patient.getFirstName());
         patientDTO.setLastName(patient.getLastName());

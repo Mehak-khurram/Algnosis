@@ -1,5 +1,4 @@
-package com.algnosis.auth_service.security;
-
+package com.algnosis.report_service.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

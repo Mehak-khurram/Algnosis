@@ -23,15 +23,15 @@ const PatientNavBar: React.FC = () => {
                         <span className="text-xl font-bold text-gray-900">Algnosis</span>
                     </div>
                     <div className="hidden md:flex items-center space-x-8">
-                        {navItems.map((item) => (
+                    {navItems.map((item) => (
                             <Link
-                                key={item.name}
-                                to={item.to}
+                            key={item.name}
+                            to={item.to}
                                 className="text-gray-500 hover:text-blue-600 transition font-medium"
-                            >
-                                {item.name}
+                        >
+                            {item.name}
                             </Link>
-                        ))}
+                    ))}
                     </div>
                     <div className="md:hidden">
                         <button onClick={() => setIsOpen(!isOpen)} className="bg-transparent text-gray-900 p-2">

@@ -101,11 +101,11 @@ const DoctorsList: React.FC = () => {
                                 <div className="flex items-center gap-2 text-base text-gray-700">
                                     <FileText className="w-5 h-5 text-indigo-500" />
                                     {doc.qualifications}
-                                </div>
+                            </div>
                                 <div className="flex items-center gap-2 text-base text-gray-700">
                                     <Heart className="w-5 h-5 text-pink-500" />
                                     {doc.clinicName}
-                                </div>
+                        </div>
                             </CardContent>
                         </Card>
                     ))}
@@ -164,7 +164,7 @@ const DoctorsList: React.FC = () => {
                             <div className="flex items-center gap-3 text-gray-700">
                                 <Activity className="w-5 h-5 text-purple-500" />
                                 Bio: <span className="font-normal text-gray-800">{expandedDoctor.bio}</span>
-                            </div>
+                        </div>
                         </CardContent>
                         <Button
                             className={`w-full mt-6 px-8 py-4 rounded-2xl font-semibold text-white transition bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg text-xl ${selectedId === expandedDoctor.id ? 'ring-2 ring-pink-600' : ''}`}
@@ -195,4 +195,4 @@ const DoctorsList: React.FC = () => {
     );
 }
 
-export default DoctorsList;
+export default DoctorsList; 

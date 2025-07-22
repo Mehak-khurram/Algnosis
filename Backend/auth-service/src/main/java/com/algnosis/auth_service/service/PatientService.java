@@ -4,6 +4,7 @@ package com.algnosis.auth_service.service;
 import com.algnosis.auth_service.dto.LogInRequestDTO;
 import com.algnosis.auth_service.dto.LogInResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.dto.PatientSignUpResponseDTO;
 import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
@@ -38,7 +39,7 @@ public class PatientService {
     }
 
     //HANDLING PATIENT REGISTRATION
-    public PatientSignUpRequestDTO registerPatient(PatientSignUpRequestDTO request) {
+    public PatientSignUpResponseDTO registerPatient(PatientSignUpRequestDTO request) {
 
         Patient patient = PatientSignUpMapper.toEntity(request);
 
@@ -51,11 +52,11 @@ public class PatientService {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
         patient.setPassword(hashedPassword);
 
-        PatientSignUpRequestDTO patientSignUpRequestDTO = PatientSignUpMapper.toDTO(
+        PatientSignUpResponseDTO patientSignUpResponseDTO = PatientSignUpMapper.toDTO(
                 patientRepo.save(patient)
         );
 
-        return patientSignUpRequestDTO;
+        return patientSignUpResponseDTO;
     }
 
     //CHECKING IF EMAIL IS ALREADY SIGNED UP/ ACCOUNT ALREADY EXISTS
