@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Upload, FileText, Brain, TreesIcon as Lungs, Droplets } from "lucide-react";
+import { Upload, FileText, Brain, TreesIcon as Lungs, Droplets, ChevronLeft, ChevronRight } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
 
 const diseases = [
@@ -7,41 +7,49 @@ const diseases = [
         id: "pneumonia",
         name: "Pneumonia",
         icon: Lungs,
-        fileType: "X-Ray",
-        description: "Chest X-Ray images are required for pneumonia diagnosis",
-        acceptedFormats: ".jpg, .jpeg, .png, .pdf",
-        gradient: "from-blue-400 via-blue-500 to-blue-600",
-        iconBg: "bg-gradient-to-br from-blue-200 to-blue-400",
+        description: "Pneumonia is a lung infection that can cause serious illness, especially in vulnerable populations. Early and accurate diagnosis is essential for effective treatment.",
+        required: "Chest X-Ray (PA view preferred)",
+        requiredColor: "text-blue-800",
+        fileLabel: "Reference X-Ray",
+        sample: "/sample-xray-pneumonia.jpg",
+        iconColor: "text-blue-700",
+        headerColor: "text-blue-900",
     },
     {
         id: "tb",
         name: "Tuberculosis (TB)",
         icon: Lungs,
-        fileType: "X-Ray",
-        description: "Chest X-Ray images are required for TB diagnosis",
-        acceptedFormats: ".jpg, .jpeg, .png, .pdf",
-        gradient: "from-pink-400 via-pink-500 to-pink-600",
-        iconBg: "bg-gradient-to-br from-pink-200 to-pink-400",
+        description: "Tuberculosis is a bacterial infection that primarily affects the lungs. Prompt detection and treatment are critical to prevent complications and transmission.",
+        required: "Chest X-Ray (PA view preferred)",
+        requiredColor: "text-pink-800",
+        fileLabel: "Reference X-Ray",
+        sample: "/sample-xray-tb.jpg",
+        iconColor: "text-pink-700",
+        headerColor: "text-pink-900",
     },
     {
         id: "brain-tumor",
         name: "Brain Tumor",
         icon: Brain,
-        fileType: "MRI Scan",
-        description: "MRI scan images are required for brain tumor diagnosis",
-        acceptedFormats: ".jpg, .jpeg, .png, .pdf",
-        gradient: "from-purple-400 via-purple-500 to-purple-600",
-        iconBg: "bg-gradient-to-br from-purple-200 to-purple-400",
+        description: "Brain tumors are abnormal growths of cells within the brain. MRI scans are the standard for detection and assessment of brain tumors.",
+        required: "MRI Scan (T1/T2-weighted preferred)",
+        requiredColor: "text-purple-800",
+        fileLabel: "Reference MRI",
+        sample: "/sample-mri-brain-tumor.jpg",
+        iconColor: "text-purple-700",
+        headerColor: "text-purple-900",
     },
     {
         id: "anemia",
         name: "Anemia",
         icon: Droplets,
-        fileType: "Blood Report (CBC)",
-        description: "Complete Blood Count (CBC) report is required for anemia diagnosis",
-        acceptedFormats: ".pdf, .jpg, .jpeg, .png",
-        gradient: "from-orange-400 via-pink-400 to-pink-500",
-        iconBg: "bg-gradient-to-br from-orange-200 to-pink-200",
+        description: "Anemia is a condition characterized by a deficiency of red blood cells or hemoglobin. Diagnosis is based on laboratory analysis of a complete blood count (CBC) report.",
+        required: "Blood Report (CBC)",
+        requiredColor: "text-orange-800",
+        fileLabel: "Reference CBC",
+        sample: "/sample-cbc-anemia.jpg",
+        iconColor: "text-orange-700",
+        headerColor: "text-orange-900",
     },
 ];
 
@@ -50,6 +58,7 @@ export default function Reports() {
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     const selectedDiseaseData = diseases.find((d) => d.id === selectedDisease);
 
@@ -87,10 +96,42 @@ export default function Reports() {
         }
     };
 
+    // Slider navigation
+    const goToPrev = () => setCurrentSlide((prev) => (prev === 0 ? diseases.length - 1 : prev - 1));
+    const goToNext = () => setCurrentSlide((prev) => (prev === diseases.length - 1 ? 0 : prev + 1));
+
     return (
         <div className="min-h-screen bg-white">
             <PatientNavBar />
             <div className="container mx-auto px-4 py-8 max-w-4xl pt-20">
+                {/* Disease Explanation Slider */}
+                <section className="mb-10 flex flex-col items-center">
+                    <div className="relative w-full max-w-2xl mx-auto">
+                        <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center">
+                            <div className="flex items-center mb-3">
+                                {React.createElement(diseases[currentSlide].icon, { className: `w-6 h-6 mr-2 ${diseases[currentSlide].iconColor}` })}
+                                <h2 className={`text-lg font-bold ${diseases[currentSlide].headerColor}`}>About {diseases[currentSlide].name}</h2>
+                            </div>
+                            <p className="text-gray-800 mb-2 text-center">{diseases[currentSlide].description}</p>
+                            <p className="text-gray-700 mb-2 text-center"><span className={`font-semibold ${diseases[currentSlide].requiredColor}`}>Required file:</span> {diseases[currentSlide].required}</p>
+                            <div className="flex flex-col md:flex-row items-center gap-4 mt-2">
+                                <div className="w-44 h-32 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
+                                    <img src={diseases[currentSlide].sample} alt={diseases[currentSlide].fileLabel} className="object-contain h-full" />
+                                </div>
+                                <span className="text-xs text-gray-500">Reference Image</span>
+                            </div>
+                        </div>
+                        {/* Slider Arrows */}
+                        <button onClick={goToPrev} className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 transition"><ChevronLeft className="w-5 h-5 text-gray-700" /></button>
+                        <button onClick={goToNext} className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 transition"><ChevronRight className="w-5 h-5 text-gray-700" /></button>
+                        {/* Progress Dots */}
+                        <div className="flex justify-center mt-4 space-x-2">
+                            {diseases.map((_, idx) => (
+                                <span key={idx} className={`w-3 h-3 rounded-full ${idx === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}></span>
+                            ))}
+                        </div>
+                    </div>
+                </section>
                 {/* Header */}
                 <div className="text-center mb-8">
                     <p className="text-gray-700 max-w-2xl mx-auto text-lg font-medium">
@@ -107,15 +148,13 @@ export default function Reports() {
                             <div
                                 key={disease.id}
                                 className={`cursor-pointer rounded-3xl border-2 p-6 flex items-center space-x-4 shadow-lg transition-all duration-200 bg-white hover:scale-[1.03] hover:shadow-2xl border-transparent ${selectedDisease === disease.id ? `ring-4 ring-blue-400 scale-105` : ""}`}
-                                style={{ background: `linear-gradient(120deg, var(--tw-gradient-stops))` }}
                                 onClick={() => setSelectedDisease(disease.id)}
                             >
-                                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-md ${disease.iconBg}`}>
-                                    <Icon className="w-8 h-8 text-white drop-shadow" />
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-md bg-gray-100`}>
+                                    <Icon className="w-8 h-8 text-blue-600 drop-shadow" />
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-xl text-gray-900 mb-1">{disease.name}</h3>
-                                    <p className="text-sm text-gray-700 mb-1">Requires: <span className="font-semibold text-blue-700">{disease.fileType}</span></p>
                                     <p className="text-xs text-gray-500">{disease.description}</p>
                                 </div>
                             </div>
@@ -124,20 +163,20 @@ export default function Reports() {
                 </div>
 
                 {/* File Requirements Info */}
-                {selectedDiseaseData && (
+                {selectedDisease && (
                     <div className="mb-8 rounded-3xl shadow-xl bg-gradient-to-br from-white via-blue-50 to-purple-50 p-6 border-2 border-blue-200">
                         <h2 className="text-xl font-bold text-blue-900 mb-2 flex items-center">
                             <FileText className="w-5 h-5 mr-2 text-purple-500" /> Step 2: File Requirements
                         </h2>
                         <div className="flex items-start space-x-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedDiseaseData.iconBg}`}>
-                                <selectedDiseaseData.icon className="w-6 h-6 text-white" />
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-100`}>
+                                {React.createElement(selectedDiseaseData?.icon || Lungs, { className: "w-6 h-6 text-blue-600" })}
                             </div>
                             <div>
-                                <h4 className="font-semibold text-blue-900 mb-1">{selectedDiseaseData.name} Diagnosis</h4>
-                                <p className="text-gray-700 mb-2">{selectedDiseaseData.description}</p>
+                                <h4 className="font-semibold text-blue-900 mb-1">{selectedDiseaseData?.name} Diagnosis</h4>
+                                <p className="text-gray-700 mb-2">{selectedDiseaseData?.description}</p>
                                 <span className="bg-white border border-blue-200 text-blue-700 rounded-full px-3 py-1 text-xs font-semibold shadow">
-                                    Accepted formats: {selectedDiseaseData.acceptedFormats}
+                                    Required: {selectedDiseaseData?.required}
                                 </span>
                             </div>
                         </div>
@@ -145,12 +184,12 @@ export default function Reports() {
                 )}
 
                 {/* File Upload */}
-                {selectedDiseaseData && (
+                {selectedDisease && (
                     <div className="mb-10 rounded-3xl shadow-xl bg-gradient-to-br from-white via-blue-50 to-purple-50 p-8 border-2 border-blue-200">
                         <h2 className="text-xl font-bold text-blue-900 mb-2 flex items-center">
                             <Upload className="w-5 h-5 mr-2 text-blue-500" /> Step 3: Upload Medical File
                         </h2>
-                        <p className="text-blue-700 mb-4">Upload your {selectedDiseaseData.fileType.toLowerCase()} file for analysis</p>
+                        <p className="text-blue-700 mb-4">Upload your file for analysis</p>
                         <div
                             className={`border-4 border-dashed rounded-2xl p-10 text-center transition-colors bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 ${dragActive ? "border-blue-500 bg-blue-50" : "border-blue-300 hover:border-blue-400"}`}
                             onDragEnter={handleDrag}
@@ -160,7 +199,6 @@ export default function Reports() {
                             onClick={() => {
                                 const input = document.createElement("input");
                                 input.type = "file";
-                                input.accept = selectedDiseaseData.acceptedFormats;
                                 input.onchange = (e) => {
                                     const target = e.target as HTMLInputElement;
                                     if (target.files && target.files[0]) {
@@ -193,7 +231,7 @@ export default function Reports() {
                                     <Upload className="w-16 h-16 text-blue-400 mx-auto" />
                                     <div>
                                         <p className="text-lg font-semibold text-gray-700 mb-2">
-                                            Drop your {selectedDiseaseData.fileType.toLowerCase()} here
+                                            Drop your file here
                                         </p>
                                         <p className="text-gray-500 mb-4">or click to browse files</p>
                                     </div>
