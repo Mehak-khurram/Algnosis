@@ -87,12 +87,43 @@ export default function Reports() {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (selectedDisease && uploadedFile) {
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 3000);
-            setUploadedFile(null);
-            setSelectedDisease(null);
+            const token = localStorage.getItem("token");
+
+            const formData = new FormData();
+            formData.append("file", uploadedFile);
+
+            const endpoints: Record<string, string> = {
+                pneumonia: "http://localhost:8083/patient/upload/pneumonia"
+            };
+
+            const endpoint = endpoints[selectedDisease];
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Upload failed");
+                }
+
+                const result = await response.json();
+                console.log("Upload result:", result);
+
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000);
+                setUploadedFile(null);
+                setSelectedDisease(null);
+            } catch (error) {
+                console.error("Upload error:", error);
+                alert("Upload failed. Please try again.");
+            }
         }
     };
 
