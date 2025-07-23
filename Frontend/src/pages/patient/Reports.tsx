@@ -1,318 +1,268 @@
-import React from "react"
-import { useState } from "react"
-import { Upload, FileText, Brain, TreesIcon as Lungs, Droplets, Clock, CheckCircle } from "lucide-react"
-// Removed all custom UI component imports
+import React, { useState } from "react";
+import { Upload, FileText, Brain, TreesIcon as Lungs, Droplets, ChevronLeft, ChevronRight } from "lucide-react";
+import PatientNavBar from "../../components/PatientNavBar.tsx";
 
-interface UploadedFile {
-    id: string
-    name: string
-    type: string
-    size: string
-    uploadDate: string
-}
-
-interface PastReport {
-    id: string
-    type: string
-    diagnosis: string
-    date: string
-    status: "completed" | "pending" | "in-review"
-    doctor: string
-    files: number
-}
+const diseases = [
+    {
+        id: "pneumonia",
+        name: "Pneumonia",
+        icon: Lungs,
+        description: "Pneumonia is a lung infection that can cause serious illness, especially in vulnerable populations. Early and accurate diagnosis is essential for effective treatment.",
+        required: "Chest X-Ray (PA view preferred)",
+        requiredColor: "text-blue-800",
+        fileLabel: "Reference X-Ray",
+        sample: "/sample-xray-pneumonia.jpg",
+        iconColor: "text-blue-700",
+        headerColor: "text-blue-900",
+    },
+    {
+        id: "tb",
+        name: "Tuberculosis (TB)",
+        icon: Lungs,
+        description: "Tuberculosis is a bacterial infection that primarily affects the lungs. Prompt detection and treatment are critical to prevent complications and transmission.",
+        required: "Chest X-Ray (PA view preferred)",
+        requiredColor: "text-pink-800",
+        fileLabel: "Reference X-Ray",
+        sample: "/sample-xray-tb.jpg",
+        iconColor: "text-pink-700",
+        headerColor: "text-pink-900",
+    },
+    {
+        id: "brain-tumor",
+        name: "Brain Tumor",
+        icon: Brain,
+        description: "Brain tumors are abnormal growths of cells within the brain. MRI scans are the standard for detection and assessment of brain tumors.",
+        required: "MRI Scan (T1/T2-weighted preferred)",
+        requiredColor: "text-purple-800",
+        fileLabel: "Reference MRI",
+        sample: "/sample-mri-brain-tumor.jpg",
+        iconColor: "text-purple-700",
+        headerColor: "text-purple-900",
+    },
+    {
+        id: "anemia",
+        name: "Anemia",
+        icon: Droplets,
+        description: "Anemia is a condition characterized by a deficiency of red blood cells or hemoglobin. Diagnosis is based on laboratory analysis of a complete blood count (CBC) report.",
+        required: "Blood Report (CBC)",
+        requiredColor: "text-orange-800",
+        fileLabel: "Reference CBC",
+        sample: "/sample-cbc-anemia.jpg",
+        iconColor: "text-orange-700",
+        headerColor: "text-orange-900",
+    },
+];
 
 export default function Reports() {
-    const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFile[]>>({
-        xray: [],
-        mri: [],
-        blood: [],
-    })
+    const [selectedDisease, setSelectedDisease] = useState<string | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [dragActive, setDragActive] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
-    const pastReports: PastReport[] = [
-        {
-            id: "1",
-            type: "X-Ray",
-            diagnosis: "Pneumonia Screening",
-            date: "2024-01-15",
-            status: "completed",
-            doctor: "Dr. Sarah Johnson",
-            files: 2,
-        },
-        {
-            id: "2",
-            type: "MRI",
-            diagnosis: "Brain Tumor Detection",
-            date: "2024-01-10",
-            status: "in-review",
-            doctor: "Dr. Sarah Johnson",
-            files: 3,
-        },
-        {
-            id: "3",
-            type: "Blood Report",
-            diagnosis: "Anemia Detection",
-            date: "2024-01-05",
-            status: "completed",
-            doctor: "Dr. Sarah Johnson",
-            files: 1,
-        },
-    ]
+    const selectedDiseaseData = diseases.find((d) => d.id === selectedDisease);
 
-    const handleFileUpload = (type: string, files: FileList | null) => {
-        if (!files) return
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
 
-        const newFiles: UploadedFile[] = Array.from(files).map((file, index) => ({
-            id: `${type}-${Date.now()}-${index}`,
-            name: file.name,
-            type: file.type,
-            size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-            uploadDate: new Date().toISOString().split("T")[0],
-        }))
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            setUploadedFile(e.dataTransfer.files[0]);
+        }
+    };
 
-        setUploadedFiles((prev) => ({
-            ...prev,
-            [type]: [...prev[type], ...newFiles],
-        }))
-    }
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setUploadedFile(e.target.files[0]);
+        }
+    };
 
-    const UploadArea = ({
-        type,
-        title,
-        description,
-        icon: Icon,
-        acceptedTypes,
-        color,
-    }: {
-        type: string
-        title: string
-        description: string
-        icon: any
-        acceptedTypes: string
-        color: string
-    }) => (
-        <div className="rounded-xl shadow border bg-white">
-            <div className="text-center p-6">
-                <div className={`mx-auto w-12 h-12 ${color} rounded-full flex items-center justify-center mb-2`}>
-                    <Icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-blue-900 font-semibold">{title}</h3>
-                <p className="text-blue-600 text-sm">{description}</p>
-            </div>
-            <div className="p-6 border-t border-blue-200">
-                <div
-                    className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center hover:bg-blue-50 transition-colors cursor-pointer"
-                    onDrop={(e) => {
-                        e.preventDefault()
-                        handleFileUpload(type, e.dataTransfer.files)
-                    }}
-                    onDragOver={(e) => e.preventDefault()}
-                    onClick={() => {
-                        const input = document.createElement("input")
-                        input.type = "file"
-                        input.multiple = true
-                        input.accept = acceptedTypes
-                        input.onchange = (e) => {
-                            const target = e.target as HTMLInputElement
-                            handleFileUpload(type, target.files)
-                        }
-                        input.click()
-                    }}
-                >
-                    <Upload className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                    <p className="text-blue-700 font-medium">Click to upload or drag and drop</p>
-                    <p className="text-blue-500 text-sm mt-1">Accepted formats: {acceptedTypes}</p>
-                </div>
+    const handleSubmit = () => {
+        if (selectedDisease && uploadedFile) {
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
+            setUploadedFile(null);
+            setSelectedDisease(null);
+        }
+    };
 
-                {uploadedFiles[type].length > 0 && (
-                    <div className="mt-4 space-y-2">
-                        <h4 className="font-medium text-blue-900">Uploaded Files:</h4>
-                        {uploadedFiles[type].map((file) => (
-                            <div key={file.id} className="flex items-center justify-between p-2 bg-blue-50 rounded">
-                                <div className="flex items-center space-x-2">
-                                    <FileText className="w-4 h-4 text-blue-600" />
-                                    <span className="text-sm text-blue-800">{file.name}</span>
-                                </div>
-                                <span className="text-xs text-blue-600">{file.size}</span>
+    // Slider navigation
+    const goToPrev = () => setCurrentSlide((prev) => (prev === 0 ? diseases.length - 1 : prev - 1));
+    const goToNext = () => setCurrentSlide((prev) => (prev === diseases.length - 1 ? 0 : prev + 1));
+
+    return (
+        <div className="min-h-screen bg-white">
+            <PatientNavBar />
+            <div className="container mx-auto px-4 py-8 max-w-4xl pt-20">
+                {/* Disease Explanation Slider */}
+                <section className="mb-10 flex flex-col items-center">
+                    <div className="relative w-full max-w-2xl mx-auto">
+                        <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col items-center">
+                            <div className="flex items-center mb-3">
+                                {React.createElement(diseases[currentSlide].icon, { className: `w-6 h-6 mr-2 ${diseases[currentSlide].iconColor}` })}
+                                <h2 className={`text-lg font-bold ${diseases[currentSlide].headerColor}`}>About {diseases[currentSlide].name}</h2>
                             </div>
-                        ))}
+                            <p className="text-gray-800 mb-2 text-center">{diseases[currentSlide].description}</p>
+                            <p className="text-gray-700 mb-2 text-center"><span className={`font-semibold ${diseases[currentSlide].requiredColor}`}>Required file:</span> {diseases[currentSlide].required}</p>
+                            <div className="flex flex-col md:flex-row items-center gap-4 mt-2">
+                                <div className="w-44 h-32 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
+                                    <img src={diseases[currentSlide].sample} alt={diseases[currentSlide].fileLabel} className="object-contain h-full" />
+                                </div>
+                                <span className="text-xs text-gray-500">Reference Image</span>
+                            </div>
+                        </div>
+                        {/* Slider Arrows */}
+                        <button onClick={goToPrev} className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 transition"><ChevronLeft className="w-5 h-5 text-gray-700" /></button>
+                        <button onClick={goToNext} className="absolute right-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 transition"><ChevronRight className="w-5 h-5 text-gray-700" /></button>
+                        {/* Progress Dots */}
+                        <div className="flex justify-center mt-4 space-x-2">
+                            {diseases.map((_, idx) => (
+                                <span key={idx} className={`w-3 h-3 rounded-full ${idx === currentSlide ? 'bg-blue-600' : 'bg-gray-300'}`}></span>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <p className="text-gray-700 max-w-2xl mx-auto text-lg font-medium">
+                        Select the condition you'd like to diagnose and upload the required medical files. Our AI system will
+                        analyze your files and provide diagnostic insights.
+                    </p>
+                </div>
+
+                {/* Disease Selection */}
+                <div className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {diseases.map((disease) => {
+                        const Icon = disease.icon;
+                        return (
+                            <div
+                                key={disease.id}
+                                className={`cursor-pointer rounded-3xl border-2 p-6 flex items-center space-x-4 shadow-lg transition-all duration-200 bg-white hover:scale-[1.03] hover:shadow-2xl border-transparent ${selectedDisease === disease.id ? `ring-4 ring-blue-400 scale-105` : ""}`}
+                                onClick={() => setSelectedDisease(disease.id)}
+                            >
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-md bg-gray-100`}>
+                                    <Icon className="w-8 h-8 text-blue-600 drop-shadow" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-xl text-gray-900 mb-1">{disease.name}</h3>
+                                    <p className="text-xs text-gray-500">{disease.description}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* File Requirements Info */}
+                {selectedDisease && (
+                    <div className="mb-8 rounded-3xl shadow-xl bg-gradient-to-br from-white via-blue-50 to-purple-50 p-6 border-2 border-blue-200">
+                        <h2 className="text-xl font-bold text-blue-900 mb-2 flex items-center">
+                            <FileText className="w-5 h-5 mr-2 text-purple-500" /> Step 2: File Requirements
+                        </h2>
+                        <div className="flex items-start space-x-4">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-100`}>
+                                {React.createElement(selectedDiseaseData?.icon || Lungs, { className: "w-6 h-6 text-blue-600" })}
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-blue-900 mb-1">{selectedDiseaseData?.name} Diagnosis</h4>
+                                <p className="text-gray-700 mb-2">{selectedDiseaseData?.description}</p>
+                                <span className="bg-white border border-blue-200 text-blue-700 rounded-full px-3 py-1 text-xs font-semibold shadow">
+                                    Required: {selectedDiseaseData?.required}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* File Upload */}
+                {selectedDisease && (
+                    <div className="mb-10 rounded-3xl shadow-xl bg-gradient-to-br from-white via-blue-50 to-purple-50 p-8 border-2 border-blue-200">
+                        <h2 className="text-xl font-bold text-blue-900 mb-2 flex items-center">
+                            <Upload className="w-5 h-5 mr-2 text-blue-500" /> Step 3: Upload Medical File
+                        </h2>
+                        <p className="text-blue-700 mb-4">Upload your file for analysis</p>
+                        <div
+                            className={`border-4 border-dashed rounded-2xl p-10 text-center transition-colors bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 ${dragActive ? "border-blue-500 bg-blue-50" : "border-blue-300 hover:border-blue-400"}`}
+                            onDragEnter={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDragOver={handleDrag}
+                            onDrop={handleDrop}
+                            onClick={() => {
+                                const input = document.createElement("input");
+                                input.type = "file";
+                                input.onchange = (e) => {
+                                    const target = e.target as HTMLInputElement;
+                                    if (target.files && target.files[0]) {
+                                        setUploadedFile(target.files[0]);
+                                    }
+                                };
+                                input.click();
+                            }}
+                            style={{ cursor: "pointer" }}
+                        >
+                            {uploadedFile ? (
+                                <div className="space-y-4">
+                                    <FileText className="w-16 h-16 text-blue-600 mx-auto" />
+                                    <div>
+                                        <p className="font-semibold text-gray-900 text-lg">{uploadedFile.name}</p>
+                                        <p className="text-sm text-gray-600">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setUploadedFile(null);
+                                        }}
+                                        className="border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-full px-4 py-2 text-sm font-semibold shadow"
+                                    >
+                                        Remove File
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <Upload className="w-16 h-16 text-blue-400 mx-auto" />
+                                    <div>
+                                        <p className="text-lg font-semibold text-gray-700 mb-2">
+                                            Drop your file here
+                                        </p>
+                                        <p className="text-gray-500 mb-4">or click to browse files</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Submit Button */}
+                {selectedDisease && uploadedFile && (
+                    <div className="text-center">
+                        <button
+                            onClick={handleSubmit}
+                            className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all duration-200"
+                        >
+                            Submit for Diagnosis
+                        </button>
+                        <p className="text-sm text-gray-500 mt-2">
+                            Your file will be analyzed securely and results will be available shortly
+                        </p>
+                    </div>
+                )}
+
+                {/* Success Message */}
+                {success && (
+                    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 text-white px-8 py-4 rounded-full shadow-2xl z-50 font-semibold text-lg border-2 border-white">
+                        File uploaded successfully! Your diagnosis will be processed.
                     </div>
                 )}
             </div>
         </div>
-    )
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "completed":
-                return "bg-green-100 text-green-800"
-            case "pending":
-                return "bg-yellow-100 text-yellow-800"
-            case "in-review":
-                return "bg-blue-100 text-blue-800"
-            default:
-                return "bg-gray-100 text-gray-800"
-        }
-    }
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case "completed":
-                return <CheckCircle className="w-4 h-4" />
-            case "pending":
-                return <Clock className="w-4 h-4" />
-            case "in-review":
-                return <FileText className="w-4 h-4" />
-            default:
-                return <FileText className="w-4 h-4" />
-        }
-    }
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-            <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-blue-900 mb-2">Medical Imaging Portal</h1>
-                    <p className="text-blue-600 text-lg">Upload your medical reports for AI-powered diagnosis</p>
-                </div>
-
-                <div className="bg-blue-100 rounded-lg p-4 mb-6">
-                    <div className="grid grid-cols-3 gap-2">
-                        <button className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                            Upload Reports
-                        </button>
-                        <button className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                            Past Reports
-                        </button>
-                        <button className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                            Our Doctors
-                        </button>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <UploadArea
-                            type="xray"
-                            title="X-Ray Upload"
-                            description="For Pneumonia & TB Detection"
-                            icon={Lungs}
-                            acceptedTypes=".jpg,.jpeg,.png,.dcm"
-                            color="bg-blue-600"
-                        />
-
-                        <UploadArea
-                            type="mri"
-                            title="MRI Upload"
-                            description="For Brain Tumor Detection"
-                            icon={Brain}
-                            acceptedTypes=".jpg,.jpeg,.png,.dcm,.nii"
-                            color="bg-blue-700"
-                        />
-
-                        <UploadArea
-                            type="blood"
-                            title="Blood Report Upload"
-                            description="CBC for Anemia Detection"
-                            icon={Droplets}
-                            acceptedTypes=".pdf,.jpg,.jpeg,.png"
-                            color="bg-blue-800"
-                        />
-                    </div>
-
-                    <div className="bg-blue-50 border-blue-200 rounded-lg p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-blue-900">Ready to Submit?</h3>
-                                <p className="text-blue-700">
-                                    Your reports will be analyzed by our AI system and verified by Dr. Sarah Johnson.
-                                </p>
-                            </div>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Submit for Analysis</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-6 space-y-4">
-                    <div className="bg-white border-blue-200 rounded-lg shadow p-6">
-                        <h3 className="text-lg font-semibold text-blue-900 mb-2">Your Medical History</h3>
-                        <p className="text-blue-600 text-sm mb-4">Track your submitted reports and their analysis status</p>
-                        <div className="space-y-4">
-                            {pastReports.map((report) => (
-                                <div
-                                    key={report.id}
-                                    className="flex items-center justify-between p-4 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                            {report.type === "X-Ray" && <Lungs className="w-5 h-5 text-blue-600" />}
-                                            {report.type === "MRI" && <Brain className="w-5 h-5 text-blue-600" />}
-                                            {report.type === "Blood Report" && <Droplets className="w-5 h-5 text-blue-600" />}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-medium text-blue-900">{report.diagnosis}</h4>
-                                            <p className="text-sm text-blue-600">
-                                                {report.type} • {report.files} file(s) • {report.date}
-                                            </p>
-                                            <p className="text-sm text-blue-500">Reviewed by {report.doctor}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <span className={`${getStatusColor(report.status)} inline-flex items-center px-2 py-1 rounded text-xs font-medium`}>
-                                            {getStatusIcon(report.status)}
-                                            <span className="capitalize">{report.status.replace("-", " ")}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-6 space-y-6">
-                    <div className="flex justify-center">
-                        <div className="border-blue-200 rounded-lg shadow max-w-md w-full">
-                            <div className="text-center p-6">
-                                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="bg-blue-600 text-white text-xl">SJ</span>
-                                </div>
-                                <h3 className="text-blue-900 text-xl font-semibold">Dr. Sarah Johnson</h3>
-                                <p className="text-blue-600 text-base">Chief Medical Officer</p>
-                            </div>
-                            <div className="p-6 border-t border-blue-200 text-center space-y-4">
-                                <p className="text-blue-700">
-                                    Board-certified physician with expertise in radiology, hematology, and diagnostic medicine. Dr.
-                                    Johnson oversees all medical report verifications with 20+ years of clinical experience.
-                                </p>
-                                <div className="flex flex-wrap justify-center gap-2">
-                                    <span className="bg-blue-100 text-blue-800 inline-flex items-center px-2 py-1 rounded text-xs font-medium">X-Ray Analysis</span>
-                                    <span className="bg-blue-100 text-blue-800 inline-flex items-center px-2 py-1 rounded text-xs font-medium">MRI Analysis</span>
-                                    <span className="bg-blue-100 text-blue-800 inline-flex items-center px-2 py-1 rounded text-xs font-medium">Blood Analysis</span>
-                                </div>
-                                <div className="pt-4 border-t border-blue-200">
-                                    <h4 className="font-semibold text-blue-900 mb-2">Credentials</h4>
-                                    <ul className="text-sm text-blue-700 space-y-1">
-                                        <li>• MD from Harvard Medical School</li>
-                                        <li>• Board Certified in Internal Medicine</li>
-                                        <li>• Fellowship in Diagnostic Radiology</li>
-                                        <li>• 20+ years clinical experience</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-blue-50 border-blue-200 rounded-lg p-6">
-                        <div className="text-center">
-                            <h3 className="text-lg font-semibold text-blue-900 mb-2">Report Verification Process</h3>
-                            <p className="text-blue-700">
-                                All uploaded reports are first analyzed by our AI system and then personally reviewed and verified
-                                by Dr. Johnson to ensure accurate diagnosis and comprehensive medical recommendations.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+    );
 } 

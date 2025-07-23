@@ -24,8 +24,8 @@ except Exception as e:
     print(f"Failed to load pneumonia model: {e}")
 
 try:
-    tb_model_path = os.path.join(BASE_DIR, 'model', 'tb_model.h5')
-    tb_model = load_model(tb_model_path)
+    # tb_model_path = os.path.join(BASE_DIR, 'model', 'tb_model.h5')
+    tb_model = load_model('/Users/salmanajmal/Desktop/NewAlgo/Algnosis/pneumonia_TB/model/tb_model.h5', compile=False)
     print(f"TB model loaded successfully!")
 except Exception as e:
     tb_model = None
@@ -70,7 +70,7 @@ def upload_report():
     
 ############################ Tuber Culosis ######################################
 
-@diagnosis_api.route('/tb/upload', methods=['POST'])
+@diagnosis_api.route('/tb/upload', methods=['POST'], strict_slashes=False)
 def upload_tb_report():
     if tb_model is None:
         return jsonify({'error': 'TB model not available.'}), 503
