@@ -14,6 +14,7 @@ import Profile from './pages/doctor/Profile.tsx';
 import PatientDetail from './pages/doctor/PatientDetail.tsx';
 import BrainTumorResult from './pages/doctor/BrainTumorResult.tsx';
 import Reports from './pages/patient/Reports.tsx';
+import ReportUploaded from './pages/patient/ReportUploaded.tsx';
 
 function App() {
     return (
@@ -33,6 +34,8 @@ function App() {
                 <Route path="/doctor/profile" element={<Profile />} />
                 <Route path="/doctor/patient/:id" element={<PatientDetail />} />
                 <Route path="/doctor/brain-tumor-result" element={<BrainTumorResult />} />
+                <Route path="/patient/report-uploaded" element={<ReportUploaded />} />
+
                 {/* Add more routes here as needed */}
             </Routes>
         </Router>
