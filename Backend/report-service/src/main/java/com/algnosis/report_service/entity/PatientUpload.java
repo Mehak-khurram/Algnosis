@@ -20,6 +20,7 @@ public class PatientUpload {
     @Id
     private String id;
 
+    //THE FILE UPLOADED BY PATIENT
     private String email;
     private LocalDateTime createdAt;
     private String status;
@@ -28,5 +29,17 @@ public class PatientUpload {
     private String fileUrl;
     private String fileName;
     private String fileType;
+
+    //DOCTOR ASSIGNED TO THE REPORT
+    private String firstName;
+    private String lastName;
+    private String specialization;
+    private int yearsOfExperience;
+    private String qualifications;
+
+    //DIAGNOSIS OF THE REPORT
+    private String diagnosis;//to store the one line diagnosis
+    private String diagnosisSummary;
+    private String diagnosisUrl;//to store the url of the diagnosis report sent by the doctor
 
 }

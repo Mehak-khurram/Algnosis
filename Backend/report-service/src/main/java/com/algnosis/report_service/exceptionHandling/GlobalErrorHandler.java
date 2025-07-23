@@ -1,4 +1,4 @@
-package exceptionHandling;
+package com.algnosis.report_service.exceptionHandling;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,5 +22,15 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(UnreachableService.class)
+    public ResponseEntity<ErrorResponse> handleUnreachableService(UnreachableService ex){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_GATEWAY.value(),
+                "Service unreachable right now!",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
+    }
 
 }

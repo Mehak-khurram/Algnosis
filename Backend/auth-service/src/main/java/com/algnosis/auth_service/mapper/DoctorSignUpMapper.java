@@ -1,5 +1,6 @@
 package com.algnosis.auth_service.mapper;
 
+import com.algnosis.auth_service.dto.DoctorResponseDTO;
 import com.algnosis.auth_service.dto.DoctorSignUpRequestDTO;
 import com.algnosis.auth_service.entity.Doctor;
 
@@ -42,6 +43,29 @@ public class DoctorSignUpMapper{
         doctorDTO.setShortBio(entity.getShortBio());
         doctorDTO.setMedicalLicenseNumber(entity.getMedicalLicenseNumber());
         doctorDTO.setYearsOfExperience(entity.getYearsOfExperience());
+
+        //doctorDTO.setRole("DOCTOR");
+
+        return doctorDTO;
+    }
+
+    public static DoctorResponseDTO toDoctorResponseDTO(Doctor entity) {
+
+        DoctorResponseDTO doctorDTO = new DoctorResponseDTO();
+
+        doctorDTO.setFirstName(entity.getFirstName());
+        doctorDTO.setLastName(entity.getLastName());
+        doctorDTO.setEmail(entity.getEmail());
+        doctorDTO.setPassword(entity.getPassword());
+        doctorDTO.setPhoneNumber(entity.getPhoneNumber());
+
+        doctorDTO.setQualifications(entity.getQualifications());
+        doctorDTO.setHospitalName(entity.getHospitalName());
+        doctorDTO.setSpecialization(entity.getSpecialization());
+        doctorDTO.setShortBio(entity.getShortBio());
+        doctorDTO.setMedicalLicenseNumber(entity.getMedicalLicenseNumber());
+        doctorDTO.setYearsOfExperience(entity.getYearsOfExperience());
+        doctorDTO.setAssignedReports(entity.getAssignedReports());
 
         //doctorDTO.setRole("DOCTOR");
 

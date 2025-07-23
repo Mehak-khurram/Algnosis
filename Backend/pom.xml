@@ -5,9 +5,9 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>3.3.2</version> <!-- ✅ Latest compatible version -->
 	</parent>
+
 	<groupId>com.algnosis</groupId>
 	<artifactId>Backend</artifactId>
 	<version>1.0.0</version>

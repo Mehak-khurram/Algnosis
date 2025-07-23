@@ -36,7 +36,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/patient/register", "/auth/patient/login").permitAll() // allow public
+                        .requestMatchers("/auth/**",
+                                "/protected/doctor").permitAll() // allow public
                                                                                                       // access to
                                                                                                       // register and
                                                                                                       // login

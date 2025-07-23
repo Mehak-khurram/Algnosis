@@ -1,4 +1,4 @@
-package exceptionHandling;
+package com.algnosis.report_service.exceptionHandling;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

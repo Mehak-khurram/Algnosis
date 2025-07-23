@@ -8,6 +8,11 @@ public class PatientUploadMapper {
     public static PatientUploadDTO toDTO(PatientUpload patientUpload){
         PatientUploadDTO patientUploadDTO = new PatientUploadDTO();
 
+        patientUploadDTO.setFirstName(patientUpload.getFirstName());
+        patientUploadDTO.setLastName(patientUpload.getLastName());
+        patientUploadDTO.setQualifications(patientUpload.getQualifications());
+        patientUploadDTO.setSpecialization(patientUpload.getSpecialization());
+        patientUploadDTO.setYearsOfExperience(patientUpload.getYearsOfExperience());
         patientUploadDTO.setDisease(patientUpload.getDisease());
         patientUploadDTO.setEmail(patientUpload.getEmail());
         patientUploadDTO.setStatus(patientUpload.getStatus());

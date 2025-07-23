@@ -34,5 +34,5 @@ public class Patient extends User{
     private String secondaryContactName;
     private String secondaryContactPhone;
 
-    private final String role = "PATIENT";
+    private String role = "PATIENT";
 }

@@ -1,16 +1,12 @@
 package com.algnosis.auth_service.controller;
 
-import com.algnosis.auth_service.dto.DoctorSignUpRequestDTO;
-import com.algnosis.auth_service.dto.LogInRequestDTO;
-import com.algnosis.auth_service.dto.LogInResponseDTO;
-import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.dto.*;
 import com.algnosis.auth_service.service.DoctorService;
 import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,4 +28,5 @@ public class DoctorController {
         LogInResponseDTO logInResponseDTO = doctorService.loginDoctor(logInRequestDTO);
         return ResponseEntity.ok(logInResponseDTO);
     }
+
 }

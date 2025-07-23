@@ -1,9 +1,6 @@
 package com.algnosis.auth_service.service;
 
-import com.algnosis.auth_service.dto.DoctorSignUpRequestDTO;
-import com.algnosis.auth_service.dto.LogInRequestDTO;
-import com.algnosis.auth_service.dto.LogInResponseDTO;
-import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
+import com.algnosis.auth_service.dto.*;
 import com.algnosis.auth_service.entity.Doctor;
 import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
@@ -14,8 +11,11 @@ import com.algnosis.auth_service.repository.DoctorRepository;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class DoctorService {
@@ -76,5 +76,16 @@ public class DoctorService {
                 doctor.getLastName(),
                 doctor.getEmail(),
                 doctor.getRole());
+    }
+
+    public List<DoctorResponseDTO> getDoctorsBasedOnSpecialization(String specialization){
+        List<Doctor> doctors = doctorRepo.findBySpecializationIgnoreCase(specialization);
+        System.out.println(doctors);
+        List<DoctorResponseDTO> doctorDTOs = doctors.stream()
+                .map(DoctorSignUpMapper::toDoctorResponseDTO)
+                .toList();
+
+
+        return doctorDTOs;
     }
 }
