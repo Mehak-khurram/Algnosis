@@ -9,7 +9,6 @@ import java.util.List;
 
 public class CustomRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>>
 {
-
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         String role = jwt.getClaim("role");

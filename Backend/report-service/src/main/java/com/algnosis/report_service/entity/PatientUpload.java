@@ -7,28 +7,26 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "patientReports")
+@Document(collection = "patientReport")
 public class PatientUpload {
 
     @Id
     private String id;
 
-    private String patientEmail;
+    private String email;
+    private LocalDateTime createdAt;
+    private String status;
+    private String disease;
 
+    private String fileUrl;
     private String fileName;
-
     private String fileType;
-
-    private byte[] fileData;
-
-    private String status = "PENDING";
-
-    private Date uploadedAt = new Date();
 
 }
