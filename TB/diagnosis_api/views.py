@@ -13,16 +13,6 @@ diagnosis_api = Blueprint('diagnosis_api', __name__)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-
-# Load models
-try:
-    model_path = os.path.join(BASE_DIR, 'model', 'pneumonia_model.h5')
-    pneumonia_model = load_model(model_path)
-    print(f"Pneumonia model loaded successfully!")
-except Exception as e:
-    pneumonia_model = None
-    print(f"Failed to load pneumonia model: {e}")
-
 try:
     # tb_model_path = os.path.join(BASE_DIR, 'model', 'tb_model.h5')
     tb_model = load_model('/Users/salmanajmal/Desktop/NewAlgo/Algnosis/pneumonia_TB/model/tb_model.h5', compile=False)
@@ -44,30 +34,6 @@ def log_request_info():
     print(f"➡️ Incoming request: {request.method} {request.path}")
 
 
-########################## Working on Pneumonia here ###############################
-
-@diagnosis_api.route('/pneumonia/upload', methods=['POST'])
-def upload_report():
-    if pneumonia_model is None:
-        return jsonify({'error': 'Pneumonia model not available.'}), 503
-
-    file = request.files.get('image')
-    if not file:
-        return jsonify({'error': 'No file provided'}), 400
-
-    if file.mimetype not in ['image/jpeg', 'image/png']:
-        return jsonify({'error': 'Invalid file type. Only JPG and PNG are supported.'}), 400
-
-    try:
-        img_array = preprocess_image(file, target_size=(220,220))
-        preds = pneumonia_model.predict(img_array)
-        pred_class = int(preds[0][0] > 0.5)
-        confidence = float(preds[0][0]) if pred_class == 1 else 1 - float(preds[0][0])
-        result = 'Pneumonia' if pred_class == 1 else 'Normal'
-        return jsonify({'diagnosis': result, 'confidence': 90})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
 ############################ Tuber Culosis ######################################
 
 @diagnosis_api.route('/tb/upload', methods=['POST'], strict_slashes=False)

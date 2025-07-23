@@ -161,5 +161,5 @@ def segment_brain_tumor():
 
     return send_file(buf_mask, mimetype='image/png')
 
-if __name__ == '__main__':
-    app.run(debug=True, port=8000) 
+if __name__ == "__main__":
+    app.run(debug=False, use_reloader=False, port=8000)
