@@ -79,7 +79,7 @@ public class PatientUploadService {
         patientUploadRepository.save(upload);
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(upload);
 
-        authServiceClient.assignReportToDoctor(doctor);
+        //authServiceClient.assignReportToDoctor(doctor);
 
         return patientUploadDTO;
     }
