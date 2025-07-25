@@ -42,7 +42,9 @@ public class SecurityConfig {
                                                                                                       // register and
                                                                                                       // login
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/patient/**").hasRole("PATIENT")
+                        .requestMatchers("/patient/**",
+                                "/doctor/get/**"
+                                ).hasRole("PATIENT")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
