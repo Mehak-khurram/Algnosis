@@ -31,11 +31,12 @@ public class PatientUpload {
     private String fileType;
 
     //DOCTOR ASSIGNED TO THE REPORT
-    private String firstName;
-    private String lastName;
-    private String specialization;
-    private int yearsOfExperience;
-    private String qualifications;
+    private String doctorID;
+//    private String firstName;
+//    private String lastName;
+//    private String specialization;
+//    private int yearsOfExperience;
+//    private String qualifications;
 
     //DIAGNOSIS OF THE REPORT
     private String diagnosis;//to store the one line diagnosis

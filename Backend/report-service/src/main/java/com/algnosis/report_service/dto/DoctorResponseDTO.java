@@ -15,6 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DoctorResponseDTO {
 
+    private String id;
+
     private String firstName;
     private String lastName;
     private String email;

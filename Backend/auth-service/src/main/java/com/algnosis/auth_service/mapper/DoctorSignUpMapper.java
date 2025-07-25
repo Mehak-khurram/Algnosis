@@ -53,6 +53,7 @@ public class DoctorSignUpMapper{
 
         DoctorResponseDTO doctorDTO = new DoctorResponseDTO();
 
+        doctorDTO.setId(entity.getId());
         doctorDTO.setFirstName(entity.getFirstName());
         doctorDTO.setLastName(entity.getLastName());
         doctorDTO.setEmail(entity.getEmail());
