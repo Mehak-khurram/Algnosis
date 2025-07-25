@@ -1,6 +1,5 @@
 package com.algnosis.auth_service.controller;
 
-
 import com.algnosis.auth_service.dto.LogInRequestDTO;
 import com.algnosis.auth_service.dto.LogInResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
@@ -15,20 +14,20 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
     private PatientService patientService;
 
-    public PatientController(PatientService patientService){
+    public PatientController(PatientService patientService) {
         this.patientService = patientService;
     }
 
     @PostMapping("/patient/register")
-    public ResponseEntity<PatientSignUpResponseDTO> registerPatient(@RequestBody PatientSignUpRequestDTO patient){
+    public ResponseEntity<PatientSignUpResponseDTO> registerPatient(@RequestBody PatientSignUpRequestDTO patient) {
 
-            System.out.println("------------CONTROLLER WAS HIT----------");
-            PatientSignUpResponseDTO registeredPatient = patientService.registerPatient(patient);
-            return ResponseEntity.ok(registeredPatient);
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        PatientSignUpResponseDTO registeredPatient = patientService.registerPatient(patient);
+        return ResponseEntity.ok(registeredPatient);
     }
 
     @PostMapping("/patient/login")
-    public ResponseEntity<LogInResponseDTO> loginDoctor(@RequestBody LogInRequestDTO logInRequestDTO){
+    public ResponseEntity<LogInResponseDTO> loginDoctor(@RequestBody LogInRequestDTO logInRequestDTO) {
         LogInResponseDTO logInResponseDTO = patientService.loginPatient(logInRequestDTO);
         return ResponseEntity.ok(logInResponseDTO);
     }

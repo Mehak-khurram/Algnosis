@@ -15,6 +15,17 @@ import PatientDetail from './pages/doctor/PatientDetail.tsx';
 import BrainTumorResult from './pages/doctor/BrainTumorResult.tsx';
 import Reports from './pages/patient/Reports.tsx';
 import ReportUploaded from './pages/patient/ReportUploaded.tsx';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+function Logout() {
+    const navigate = useNavigate();
+    useEffect(() => {
+        localStorage.removeItem('token');
+        navigate('/');
+    }, [navigate]);
+    return null;
+}
 
 function App() {
     return (
@@ -35,6 +46,7 @@ function App() {
                 <Route path="/doctor/patient/:id" element={<PatientDetail />} />
                 <Route path="/doctor/brain-tumor-result" element={<BrainTumorResult />} />
                 <Route path="/patient/report-uploaded" element={<ReportUploaded />} />
+                <Route path="/logout" element={<Logout />} />
                 {/* Add more routes here as needed */}
             </Routes>
         </Router>
