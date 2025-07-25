@@ -116,7 +116,6 @@ export function PatientDashboard() {
                                 <div>
                                     <div className="flex items-center space-x-3 mb-2">
                                         <h2 className="text-3xl font-bold text-gray-800">{patientData.name}</h2>
-                                        <Star className="w-6 h-6 text-yellow-400 fill-current" />
                                     </div>
                                     <div className="flex flex-wrap gap-3 mb-4">
                                         <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-0 rounded-full px-4 py-1">
@@ -126,24 +125,8 @@ export function PatientDashboard() {
                                         <Badge className="bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-700 border-0 rounded-full px-4 py-1">
                                             Gender: {patientData.gender}
                                         </Badge>
-                                        <Badge className="bg-gradient-to-r from-red-100 to-pink-200 text-red-700 border-0 rounded-full px-4 py-1">
-                                            <AlertTriangle className="w-3 h-3 mr-1" />
-                                            Allergies: {patientData.allergies.join(", ")}
-                                        </Badge>
                                     </div>
                                     <div className="flex flex-wrap gap-3">
-                                        <Badge className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 border-0 rounded-full px-4 py-1">
-                                            <Heart className="w-3 h-3 mr-1" />
-                                            Device: {patientData.devices.join(", ")}
-                                        </Badge>
-                                        <Badge className="bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 border-0 rounded-full px-4 py-1">
-                                            <Scissors className="w-3 h-3 mr-1" />
-                                            Surgery: {patientData.recentSurgery}
-                                        </Badge>
-                                        <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-700 border-0 rounded-full px-4 py-1">
-                                            <Utensils className="w-3 h-3 mr-1" />
-                                            Diet: {patientData.diet}
-                                        </Badge>
                                     </div>
                                 </div>
                             </div>
@@ -254,31 +237,6 @@ export function PatientDashboard() {
                         </div>
 
                         {/* Upload Section */}
-                        <Card className="min-h-[220px] border-0 shadow-2xl rounded-3xl bg-gradient-to-br from-white to-blue-50/50 p-10 flex flex-col justify-center">
-                            <CardHeader className="rounded-t-3xl mb-4">
-                                <CardTitle className="flex items-center text-2xl text-blue-800">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mr-4">
-                                        <Upload className="w-7 h-7 text-white" />
-                                    </div>
-                                    Upload Medical Reports
-                                </CardTitle>
-                                <CardDescription className="text-lg text-gray-600 mt-2">
-                                    Upload your medical reports or X-rays securely
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="border-2 border-dashed border-blue-300 rounded-3xl p-10 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-300 cursor-pointer">
-                                    <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                                        <FileText className="w-10 h-10 text-white" />
-                                    </div>
-                                    <p className="text-xl font-medium text-blue-700 mb-2">Upload Report / X Ray</p>
-                                    <p className="text-base text-gray-600 mb-4">Upload your medical reports or X-rays securely</p>
-                                    <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 rounded-2xl px-10 py-4 shadow-lg hover:shadow-xl transition-all duration-200 text-lg">
-                                        Choose Files
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
                     </div>
 
                     {/* Sidebar */}
@@ -314,31 +272,7 @@ export function PatientDashboard() {
                             </CardContent>
                         </Card>
 
-                        {/* Quick Actions */}
-                        <Card className="min-h-[180px] border-0 shadow-2xl rounded-3xl bg-gradient-to-br from-white to-indigo-50/30 p-8 flex flex-col justify-between">
-                            <CardHeader className="rounded-t-3xl mb-2">
-                                <CardTitle className="flex items-center text-xl text-indigo-800">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-2xl flex items-center justify-center mr-4">
-                                        <Clock className="w-6 h-6 text-white" />
-                                    </div>
-                                    Quick Actions
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-5">
-                                <Button className="w-full justify-start bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 rounded-2xl py-4 shadow-lg hover:shadow-xl transition-all duration-200 text-lg">
-                                    <Calendar className="w-5 h-5 mr-4" />
-                                    Schedule Appointment
-                                </Button>
-                                <Button className="w-full justify-start bg-gradient-to-r from-white to-blue-50 hover:from-blue-50 hover:to-blue-100 text-blue-600 border border-blue-200 rounded-2xl py-4 shadow-md hover:shadow-lg transition-all duration-200 text-lg">
-                                    <FileText className="w-5 h-5 mr-4" />
-                                    View Medical History
-                                </Button>
-                                <Button className="w-full justify-start bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-purple-100 text-purple-600 border border-purple-200 rounded-2xl py-4 shadow-md hover:shadow-lg transition-all duration-200 text-lg">
-                                    <Pill className="w-5 h-5 mr-4" />
-                                    Medication Reminders
-                                </Button>
-                            </CardContent>
-                        </Card>
+
                     </div>
                 </div>
             </div>
