@@ -12,6 +12,13 @@ public class AuthServiceClientFallback implements AuthServiceClient {
 
     @Override
     public List<DoctorResponseDTO> getDoctorsBySpecializationIgnoreCase(String specialization) {
-        throw new UnreachableService("Auth-service not reachable.");
+        throw new UnreachableService("Auth-service not reachable. This error is thrown by " +
+                "getDoctorsBySpecialization in AuthServiceClientFallback.");
+    }
+
+    @Override
+    public void assignReportToDoctor(String doctorId, String reportId) {
+        throw new UnreachableService("Auth-service not reachable. This error is thrown by " +
+                "assignReportToDoctor in AuthServiceClientFallback.");
     }
 }

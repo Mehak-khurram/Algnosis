@@ -2,6 +2,7 @@ package com.algnosis.auth_service.controller;
 
 import com.algnosis.auth_service.dto.DoctorResponseDTO;
 import com.algnosis.auth_service.service.DoctorService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,5 +22,14 @@ public class FeignController {
 
         return doctors;
     }
+
+    @PutMapping("/doctors/{doctorId}/assign-report")
+    public ResponseEntity<String> assignReportToDoctor(
+            @PathVariable String doctorId,
+            @RequestParam String reportId) {
+        doctorService.assignReport(doctorId, reportId);
+        return ResponseEntity.ok("Report assigned to doctor");
+    }
+
 
 }

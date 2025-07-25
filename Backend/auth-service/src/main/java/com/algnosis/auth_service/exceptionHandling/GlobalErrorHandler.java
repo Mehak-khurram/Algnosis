@@ -21,6 +21,17 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DoctorNotFound.class)
+    public ResponseEntity<ErrorResponse> handleDoctorNotFound(DoctorNotFound ex){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "No Doctor Found Against Specified ID.",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(InvalidCredentials.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentials ex){
         ErrorResponse error = new ErrorResponse(

@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatientUploadDTO {
+    private String id;
 
     //THE FILE UPLOADED BY PATIENT
     private String email;

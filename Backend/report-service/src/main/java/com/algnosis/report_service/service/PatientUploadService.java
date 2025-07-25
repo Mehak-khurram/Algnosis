@@ -78,6 +78,9 @@ public class PatientUploadService {
         //SAVING TO MONGODB
         patientUploadRepository.save(upload);
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(upload);
+
+        authServiceClient.assignReportToDoctor(doctor);
+
         return patientUploadDTO;
     }
 

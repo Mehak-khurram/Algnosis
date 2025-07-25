@@ -3,6 +3,7 @@ package com.algnosis.auth_service.service;
 import com.algnosis.auth_service.dto.*;
 import com.algnosis.auth_service.entity.Doctor;
 import com.algnosis.auth_service.entity.Patient;
+import com.algnosis.auth_service.exceptionHandling.DoctorNotFound;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
 import com.algnosis.auth_service.mapper.DoctorSignUpMapper;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -88,4 +90,21 @@ public class DoctorService {
 
         return doctorDTOs;
     }
+
+    public void assignReport(String doctorId, String reportId) {
+        Doctor doctor = doctorRepo.findById(doctorId)
+                .orElseThrow(() -> new DoctorNotFound("Doctor not found for ID " +
+                        doctorId + "in auth service DoctorService class, function assignReports."));
+
+        List<String> reports = doctor.getAssignedReports();
+        if (reports == null) {
+            reports = new ArrayList<>();
+        }
+        if (!reports.contains(reportId)) {
+            reports.add(reportId);
+        }
+        doctor.setAssignedReports(reports);
+        doctorRepo.save(doctor);
+    }
+
 }

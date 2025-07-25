@@ -2,9 +2,7 @@ package com.algnosis.report_service.feign;
 
 import com.algnosis.report_service.dto.DoctorResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,4 +14,7 @@ public interface AuthServiceClient {
     @GetMapping("/protected/doctor")
     List<DoctorResponseDTO> getDoctorsBySpecializationIgnoreCase(@RequestParam("specialization") String specialization);
 
+
+    @PutMapping("/protected/doctors/{doctorId}/assign-report")
+    void assignReportToDoctor(@PathVariable String doctorId, @RequestParam String reportId);
 }
