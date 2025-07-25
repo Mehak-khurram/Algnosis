@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Upload, FileText, Brain, TreesIcon as Lungs, Droplets, ChevronLeft, ChevronRight } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
+import { useNavigate } from "react-router-dom";
 
 const diseases = [
     {
@@ -59,6 +60,7 @@ export default function Reports() {
     const [dragActive, setDragActive] = useState(false);
     const [success, setSuccess] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
+    const navigate = useNavigate();
 
     const selectedDiseaseData = diseases.find((d) => d.id === selectedDisease);
 
@@ -115,6 +117,12 @@ export default function Reports() {
 
                 const result = await response.json();
                 console.log("Upload result:", result);
+
+                // Generate a local preview URL
+                const previewUrl = URL.createObjectURL(uploadedFile);
+
+                // Navigate to ReportUploaded page with preview URL
+                navigate("/patient/report-uploaded", { state: { report: result, disease: selectedDisease, fileName: uploadedFile.name, previewUrl } });
 
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 3000);
