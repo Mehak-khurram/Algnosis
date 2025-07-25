@@ -49,8 +49,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
             // Prepare the correct API URL
             const apiUrl =
                 userType === 'patient'
-                    ? 'http://localhost:9000/auth/patient/register'
-                    : 'http://localhost:9000/auth/doctor/register'; // change ports if needed
+                    ? 'http://localhost:11000/auth/patient/register'
+                    : 'http://localhost:11000/auth/doctor/register'; // change ports if needed
 
             // Prepare the data payload based on userType
             const payload = {
