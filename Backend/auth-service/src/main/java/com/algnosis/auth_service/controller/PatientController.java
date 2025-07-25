@@ -5,10 +5,8 @@ import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
 import com.algnosis.auth_service.dto.PatientSignUpResponseDTO;
 import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/patient")
@@ -19,6 +17,7 @@ public class PatientController {
         this.patientService = patientService;
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/profile")
     public ResponseEntity<PatientResponseDTO> getPatientData(){
 
@@ -27,4 +26,10 @@ public class PatientController {
         return ResponseEntity.ok(patient);
     }
 
+    @PutMapping("/update")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<PatientResponseDTO> updatePatient(@RequestBody PatientResponseDTO updatedData) {
+        PatientResponseDTO updatedPatient = patientService.updatePatientProfile(updatedData);
+        return ResponseEntity.ok(updatedPatient);
+    }
 }
