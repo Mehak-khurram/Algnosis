@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**",
-                                "/protected/doctor").permitAll() // allow public
+                                "/protected/**").permitAll() // allow public
                                                                                                       // access to
                                                                                                       // register and
                                                                                                       // login

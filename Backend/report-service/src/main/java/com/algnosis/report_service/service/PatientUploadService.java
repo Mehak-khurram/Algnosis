@@ -68,25 +68,28 @@ public class PatientUploadService {
                 .diagnosis(null)
                 .diagnosisSummary(null)
                 .diagnosisUrl(null)
-                .firstName(doctors.get(index).getFirstName())
-                .lastName(doctors.get(index).getLastName())
-                .qualifications(doctors.get(index).getQualifications())
-                .yearsOfExperience(doctors.get(index).getYearsOfExperience())
-                .specialization(doctors.get(index).getSpecialization())
+                .doctorID(doctors.get(index).getId())
+//                .firstName(doctors.get(index).getFirstName())
+//                .lastName(doctors.get(index).getLastName())
+//                .qualifications(doctors.get(index).getQualifications())
+//                .yearsOfExperience(doctors.get(index).getYearsOfExperience())
+//                .specialization(doctors.get(index).getSpecialization())
                 .build();
 
         //SAVING TO MONGODB
         patientUploadRepository.save(upload);
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(upload);
-
-        authServiceClient.assignReportToDoctor(doctor);
+                                            //DOCTOR ID AND REPORT ID
+        authServiceClient.assignReportToDoctor(doctors.get(index).getId(), patientUploadDTO.getId());
 
         return patientUploadDTO;
     }
 
     public int findDoctorWithLeastReports(List<DoctorResponseDTO> doctors) {
         if (doctors == null || doctors.isEmpty()) {
-            throw new IllegalArgumentException("Doctor list is empty or null");
+            throw new IllegalArgumentException("Doctor list is empty or null." +
+                    "This exception is thrown by findDoctorWithLeastReports in " +
+                    "PatientUploadService of Report-service.");
         }
 
         int minIndex = 0;
