@@ -1,17 +1,17 @@
 package com.algnosis.auth_service.service;
 
 
-import com.algnosis.auth_service.dto.LogInRequestDTO;
-import com.algnosis.auth_service.dto.LogInResponseDTO;
-import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
-import com.algnosis.auth_service.dto.PatientSignUpResponseDTO;
+import com.algnosis.auth_service.dto.*;
 import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
+import com.algnosis.auth_service.exceptionHandling.PatientNotFound;
 import com.algnosis.auth_service.mapper.PatientSignUpMapper;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -79,5 +79,21 @@ public class PatientService {
                 patient.getLastName(),
                 patient.getEmail(),
                 patient.getRole());
+    }
+
+
+    public PatientResponseDTO getLoggedInPatientDetails() {
+        // 1. Get email from authentication
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // JWT subject
+
+        // 2. Fetch patient from DB
+        Patient patient = (Patient) patientRepo.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFound("No patient found. This" +
+                        "error is thrown by getLoggedInPatientDetails function " +
+                        "in PatientService class by Auth-service."));
+
+        // 3. Map to DTO
+        return PatientSignUpMapper.toPatientResponseDTO(patient);
     }
 }

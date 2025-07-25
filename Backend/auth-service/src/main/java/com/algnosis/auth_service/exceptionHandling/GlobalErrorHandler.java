@@ -32,6 +32,17 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PatientNotFound.class)
+    public ResponseEntity<ErrorResponse> handlePatientNotFound(PatientNotFound ex){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "No Patient Found Against Specified token.",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(InvalidCredentials.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentials ex){
         ErrorResponse error = new ErrorResponse(

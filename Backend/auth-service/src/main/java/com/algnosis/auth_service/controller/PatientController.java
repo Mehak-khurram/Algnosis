@@ -1,35 +1,30 @@
 package com.algnosis.auth_service.controller;
 
-
-import com.algnosis.auth_service.dto.LogInRequestDTO;
-import com.algnosis.auth_service.dto.LogInResponseDTO;
+import com.algnosis.auth_service.dto.PatientResponseDTO;
 import com.algnosis.auth_service.dto.PatientSignUpRequestDTO;
 import com.algnosis.auth_service.dto.PatientSignUpResponseDTO;
 import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/patient")
 public class PatientController {
     private PatientService patientService;
 
-    public PatientController(PatientService patientService){
+    public PatientController(PatientService patientService) {
         this.patientService = patientService;
     }
 
-    @PostMapping("/patient/register")
-    public ResponseEntity<PatientSignUpResponseDTO> registerPatient(@RequestBody PatientSignUpRequestDTO patient){
+    @GetMapping("/profile")
+    public ResponseEntity<PatientResponseDTO> getPatientData(){
 
-            System.out.println("------------CONTROLLER WAS HIT----------");
-            PatientSignUpResponseDTO registeredPatient = patientService.registerPatient(patient);
-            return ResponseEntity.ok(registeredPatient);
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        PatientResponseDTO patient = patientService.getLoggedInPatientDetails();
+        return ResponseEntity.ok(patient);
     }
 
-    @PostMapping("/patient/login")
-    public ResponseEntity<LogInResponseDTO> loginDoctor(@RequestBody LogInRequestDTO logInRequestDTO){
-        LogInResponseDTO logInResponseDTO = patientService.loginPatient(logInRequestDTO);
-        return ResponseEntity.ok(logInResponseDTO);
-    }
 }
