@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { FileText, CheckCircle, Clock } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
@@ -28,7 +29,7 @@ export default function SubmittedReports() {
                 return res.json();
             })
             .then(data => {
-                setReports(data);       // ✅ Set the fetched data
+                setReports(data);
                 setLoading(false);
             })
             .catch(err => {
@@ -60,11 +61,11 @@ export default function SubmittedReports() {
                                 key={report.id}
                                 className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow border border-gray-100 flex flex-col overflow-hidden"
                             >
-                                <div className="relative h-40 bg-blue-50 flex items-center justify-center">
+                                <div className="relative h-40 bg-blue-50 flex items-center justify-center overflow-hidden"> {/* Added overflow-hidden here */}
                                     <img
                                         src={report.fileUrl || "https://images.unsplash.com/photo-1581595219318-4d9ba8e4b69d?auto=format&fit=crop&w=400&q=80"}
                                         alt={report.disease}
-                                        className="object-contain h-full w-full rounded-t-2xl"
+                                        className="object-cover h-full w-full rounded-t-2xl" // Changed object-contain to object-cover
                                     />
                                     <div className="absolute top-2 left-2">
                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${statusStyles[report.status] || statusStyles.Pending}`}>
@@ -99,4 +100,4 @@ export default function SubmittedReports() {
             </div>
         </div>
     );
-} 
+}
