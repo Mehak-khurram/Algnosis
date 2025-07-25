@@ -107,4 +107,14 @@ public class DoctorService {
         doctorRepo.save(doctor);
     }
 
+    public DoctorResponseDTO getDoctorByID(String doctorID){
+        Doctor doctor = doctorRepo.findById(doctorID).orElseThrow(
+                () -> new DoctorNotFound("Doctor not found for ID " +
+                        doctorID + "in auth service DoctorService class, function getDoctorByID.")
+        );
+        DoctorResponseDTO doctorResponseDTO = DoctorSignUpMapper.toDoctorResponseDTO(doctor);
+
+        return doctorResponseDTO;
+    }
+
 }

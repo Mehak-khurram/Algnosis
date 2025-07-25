@@ -1,15 +1,16 @@
 package com.algnosis.auth_service.controller;
 
-import com.algnosis.auth_service.dto.*;
+import com.algnosis.auth_service.dto.DoctorResponseDTO;
 import com.algnosis.auth_service.service.DoctorService;
-import com.algnosis.auth_service.service.PatientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/doctor")
 public class DoctorController {
     private DoctorService doctorService;
 
@@ -17,17 +18,10 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
-    @PostMapping("/doctor/register")
-    public ResponseEntity<DoctorSignUpRequestDTO> registerDoctor(@RequestBody DoctorSignUpRequestDTO doctor){
-        DoctorSignUpRequestDTO registeredDoctor = doctorService.registerDoctor(doctor);
-        return ResponseEntity.ok(registeredDoctor);
+    @PreAuthorize("hasRole('PATIENT')")
+    @GetMapping("/get/{doctorID}")
+    public ResponseEntity<DoctorResponseDTO> getDoctorByID(@PathVariable String doctorID){
+        DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorByID(doctorID);
+        return ResponseEntity.ok(doctorResponseDTO);
     }
-
-    @PostMapping("/doctor/login")
-    public ResponseEntity<LogInResponseDTO> loginDoctor(@RequestBody LogInRequestDTO logInRequestDTO){
-        LogInResponseDTO logInResponseDTO = doctorService.loginDoctor(logInRequestDTO);
-        return ResponseEntity.ok(logInResponseDTO);
-    }
-
-
 }
