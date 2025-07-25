@@ -7,6 +7,6 @@ public class InvalidCredentials extends RuntimeException{
     private String message;
 
     public InvalidCredentials(String msg){
-        this.setMessage(msg);
+        super(msg);
     }
 }

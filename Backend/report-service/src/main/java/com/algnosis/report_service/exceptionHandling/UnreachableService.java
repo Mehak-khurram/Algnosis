@@ -10,6 +10,6 @@ import lombok.RequiredArgsConstructor;
 public class UnreachableService extends RuntimeException{
     private String message;
     public UnreachableService(String msg){
-        this.message = msg;
+        super(msg);
     }
 }

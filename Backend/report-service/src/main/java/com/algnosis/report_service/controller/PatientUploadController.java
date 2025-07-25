@@ -35,36 +35,39 @@ public class PatientUploadController {
         return ResponseEntity.ok(patientUploadDTO);
     }
 
-//    @PostMapping("/upload/tb")
-//    @PreAuthorize("hasRole('PATIENT)")
-//    public ResponseEntity<PatientUploadDTO> uploadFileForTB(
-//            @RequestParam("file") MultipartFile file
-//    ) throws IOException {
-//
-//        System.out.println("Controller was hit!");
-//        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "TB");
-//        return ResponseEntity.ok(patientUploadDTO);
-//    }
-//
-//    @PostMapping("/upload/braintumor")
-//    @PreAuthorize("hasRole('PATIENT)")
-//    public ResponseEntity<PatientUploadDTO> uploadFileForBrainTumor(
-//            @RequestParam("file") MultipartFile file
-//    ) throws IOException {
-//
-//        System.out.println("Controller was hit!");
-//        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "BRAIN_TUMOR");
-//        return ResponseEntity.ok(patientUploadDTO);
-//    }
-//
-//    @PostMapping("/upload/anemia")
-//    @PreAuthorize("hasRole('PATIENT)")
-//    public ResponseEntity<PatientUploadDTO> uploadFileForAnemia(
-//            @RequestParam("file") MultipartFile file
-//    ) throws IOException {
-//
-//        System.out.println("Controller was hit!");
-//        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "ANEMIA");
-//        return ResponseEntity.ok(patientUploadDTO);
-//    }
+    @PostMapping("/upload/tb")
+    @PreAuthorize("hasRole('PATIENT)")
+    public ResponseEntity<PatientUploadDTO> uploadFileForTB(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
+        System.out.println("Controller was hit!");
+        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "TB",
+                "PULMONOLOGY");
+        return ResponseEntity.ok(patientUploadDTO);
+    }
+
+    @PostMapping("/upload/braintumor")
+    @PreAuthorize("hasRole('PATIENT)")
+    public ResponseEntity<PatientUploadDTO> uploadFileForBrainTumor(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
+        System.out.println("Controller was hit!");
+        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "BRAIN_TUMOR",
+                "NEUROLOGY");
+        return ResponseEntity.ok(patientUploadDTO);
+    }
+
+    @PostMapping("/upload/anemia")
+    @PreAuthorize("hasRole('PATIENT)")
+    public ResponseEntity<PatientUploadDTO> uploadFileForAnemia(
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+
+        System.out.println("Controller was hit!");
+        PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "ANEMIA",
+                "GENERAL PHYSICIAN");
+        return ResponseEntity.ok(patientUploadDTO);
+    }
 }

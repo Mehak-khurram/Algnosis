@@ -33,4 +33,15 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
+    @ExceptionHandler(NoDoctorAvailable.class)
+    public ResponseEntity<ErrorResponse> handleNoDoctorAvailable(NoDoctorAvailable ex){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "No Doctor Available For This Disease.",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.algnosis.report_service.service;
 import com.algnosis.report_service.dto.DoctorResponseDTO;
 import com.algnosis.report_service.dto.PatientUploadDTO;
 import com.algnosis.report_service.entity.PatientUpload;
+import com.algnosis.report_service.exceptionHandling.NoDoctorAvailable;
 import com.algnosis.report_service.feign.AuthServiceClient;
 import com.algnosis.report_service.mapper.PatientUploadMapper;
 import com.algnosis.report_service.repository.PatientUploadRepository;
@@ -87,7 +88,7 @@ public class PatientUploadService {
 
     public int findDoctorWithLeastReports(List<DoctorResponseDTO> doctors) {
         if (doctors == null || doctors.isEmpty()) {
-            throw new IllegalArgumentException("Doctor list is empty or null." +
+            throw new NoDoctorAvailable("Doctor list is empty or null." +
                     "This exception is thrown by findDoctorWithLeastReports in " +
                     "PatientUploadService of Report-service.");
         }

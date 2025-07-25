@@ -7,6 +7,6 @@ public class EmailAlreadyRegistered extends RuntimeException{
     private String message;
 
     public EmailAlreadyRegistered(String msg){
-        this.setMessage(msg);
+        super(msg);
     }
 }

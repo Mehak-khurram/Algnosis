@@ -38,7 +38,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/patient/register",
                                 "/protected/**").permitAll() // allow public access to login/signup
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/patient/upload/pneumonia").hasRole("PATIENT")
+                        .requestMatchers("/patient/upload/pneumonia",
+                                "/patient/upload/tb",
+                                "/patient/upload/braintumor",
+                                "/patient/upload/anemia"
+                                ).hasRole("PATIENT")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
                         .anyRequest().authenticated()
                 )

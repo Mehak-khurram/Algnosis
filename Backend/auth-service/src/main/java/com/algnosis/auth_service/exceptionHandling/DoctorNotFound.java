@@ -4,6 +4,6 @@ public class DoctorNotFound extends RuntimeException{
     private String msg;
 
     public DoctorNotFound(String msg){
-        this.msg = msg;
+        super(msg);
     }
 }
