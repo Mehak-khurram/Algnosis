@@ -41,7 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/patient/upload/pneumonia",
                                 "/patient/upload/tb",
                                 "/patient/upload/braintumor",
-                                "/patient/upload/anemia"
+                                "/patient/upload/anemia",
+                                "/reports/list"
                                 ).hasRole("PATIENT")
                         .requestMatchers("/doctor/**").hasRole("DOCTOR")
                         .anyRequest().authenticated()

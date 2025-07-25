@@ -1,0 +1,36 @@
+package com.algnosis.report_service.controller;
+
+
+import com.algnosis.report_service.dto.PatientUploadDTO;
+import com.algnosis.report_service.service.PatientUploadService;
+import com.algnosis.report_service.service.ReportDisplayService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/reports")
+public class ReportDisplayController {
+    @Autowired
+    private final ReportDisplayService reportDisplayService;
+
+    public ReportDisplayController(ReportDisplayService reportDisplayService) {
+        this.reportDisplayService = reportDisplayService;
+    }
+
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('PATIENT)")
+    public ResponseEntity<List<PatientUploadDTO>> getListOfPatientsUploads()
+    {
+        System.out.println("Controller was hit!");
+        List<PatientUploadDTO> patientUploadlist = reportDisplayService.getAllReports();
+
+        return ResponseEntity.ok(patientUploadlist);
+    }
+
+}

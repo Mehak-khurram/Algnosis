@@ -44,4 +44,15 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NoReportsFound.class)
+    public ResponseEntity<ErrorResponse> handleNoReportsFound(NoReportsFound ex){
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "No Reports have been added yet.",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
 }
