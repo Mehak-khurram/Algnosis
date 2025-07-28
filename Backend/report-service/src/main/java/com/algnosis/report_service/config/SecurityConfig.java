@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/patient/upload/anemia",
                                 "/reports/list"
                                 ).hasRole("PATIENT")
-                        .requestMatchers("/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/doctor/**",
+                                "/reports/doctor/list").hasRole("DOCTOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

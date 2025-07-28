@@ -31,5 +31,10 @@ public class FeignController {
         return ResponseEntity.ok("Report assigned to doctor");
     }
 
+    @GetMapping("/doctors/email")
+    public DoctorResponseDTO getDoctorsBasedOnEmails(@RequestParam String email)
+    {
+        return doctorService.getDoctorBasedOnEmail(email);
+    }
 
 }

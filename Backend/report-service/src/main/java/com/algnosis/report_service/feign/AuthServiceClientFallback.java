@@ -21,4 +21,10 @@ public class AuthServiceClientFallback implements AuthServiceClient {
         throw new UnreachableService("Auth-service not reachable. This error is thrown by " +
                 "assignReportToDoctor in AuthServiceClientFallback.");
     }
+
+    @Override
+    public DoctorResponseDTO getDoctorByEmail(String email) {
+        throw new UnreachableService("Auth-service not reachable. This error is thrown by " +
+                "getDoctorByEmail in AuthServiceClientFallback.");
+    }
 }

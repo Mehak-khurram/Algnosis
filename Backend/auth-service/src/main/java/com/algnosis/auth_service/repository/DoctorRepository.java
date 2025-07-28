@@ -10,7 +10,9 @@ import java.util.Optional;
 @Repository
 public interface DoctorRepository extends MongoRepository<Doctor, String> {
 
+    List<Doctor> findBySpecializationIgnoreCase(String specialization);
+
     Optional<Object> findByEmail(String email);
 
-    List<Doctor> findBySpecializationIgnoreCase(String specialization);
+    Doctor findDoctorByEmail(String email);
 }

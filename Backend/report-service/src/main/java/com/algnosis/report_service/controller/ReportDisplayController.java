@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/reports")
 public class ReportDisplayController {
+
     @Autowired
     private final ReportDisplayService reportDisplayService;
 
@@ -24,13 +25,24 @@ public class ReportDisplayController {
     }
 
     @GetMapping("/list")
-    @PreAuthorize("hasRole('PATIENT)")
+    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<List<PatientUploadDTO>> getListOfPatientsUploads()
     {
         System.out.println("Controller was hit!");
         List<PatientUploadDTO> patientUploadlist = reportDisplayService.getAllReports();
 
         return ResponseEntity.ok(patientUploadlist);
+    }
+
+
+    @GetMapping("/doctor/list")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<List<PatientUploadDTO>> getListOfDoctorsAssignedReports()
+    {
+        System.out.println("Controller was hit!");
+        List<PatientUploadDTO> assignedReportsList = reportDisplayService.getAllReportsForDoctor();
+
+        return ResponseEntity.ok(assignedReportsList);
     }
 
 }
