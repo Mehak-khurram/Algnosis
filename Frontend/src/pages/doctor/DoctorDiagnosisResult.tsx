@@ -25,7 +25,7 @@ const recentReports = [
     { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC', file: 'https://via.placeholder.com/100x120?text=Lab+Report' },
 ];
 
-const recommendations = [
+const defaultRecommendations = [
     'Schedule a follow-up X-ray in 2 weeks.',
     'Advise patient to monitor symptoms and report any changes.',
     'Consider additional blood tests if symptoms persist.',
@@ -37,10 +37,43 @@ const DoctorDiagnosisResult: React.FC = () => {
     const result = location.state?.result || { diagnosis: 'Pneumonia', confidence: 0.92 };
     const [doctorReport, setDoctorReport] = useState('');
     const [reportSaved, setReportSaved] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [generatedReport, setGeneratedReport] = useState('');
+    const [recommendations, setRecommendations] = useState(defaultRecommendations);
 
-    const handleSaveReport = () => {
-        setReportSaved(true);
-        setTimeout(() => setReportSaved(false), 2000);
+    const handleSaveReport = async () => {
+        setLoading(true);
+        setReportSaved(false);
+        setGeneratedReport('');
+        try {
+            const response = await fetch('http://localhost:5001/api/generate-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorReport }),
+            });
+            const data = await response.json();
+            if (data.generatedReport) {
+                setGeneratedReport(data.generatedReport);
+                // Try to extract summary points if present (split by lines starting with '-')
+                if (data.summaryPoints) {
+                    setRecommendations(data.summaryPoints);
+                } else {
+                    // Try to extract bullet points from the generated report
+                    const summaryMatches = data.generatedReport.match(/\n[-*] (.+)/g);
+                    if (summaryMatches) {
+                        setRecommendations(summaryMatches.map(s => s.replace(/^\n[-*] /, '')));
+                    }
+                }
+                setReportSaved(true);
+                setTimeout(() => setReportSaved(false), 2000);
+            } else {
+                alert('Failed to generate report');
+            }
+        } catch (error) {
+            alert('Failed to generate report');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -116,14 +149,22 @@ const DoctorDiagnosisResult: React.FC = () => {
                             placeholder="Write your diagnosis, notes, or recommendations here..."
                             value={doctorReport}
                             onChange={e => setDoctorReport(e.target.value)}
+                            disabled={loading}
                         />
                         <button
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-60"
                             onClick={handleSaveReport}
+                            disabled={loading || !doctorReport.trim()}
                         >
-                            Generate & Save Report
+                            {loading ? 'Generating...' : 'Generate & Save Report'}
                         </button>
                         {reportSaved && <div className="mt-2 text-green-700 font-semibold">Report saved!</div>}
+                        {generatedReport && (
+                            <div className="mt-4 w-full">
+                                <div className="font-semibold text-green-800 mb-1">Generated Report:</div>
+                                <div className="bg-green-50 border border-green-200 rounded p-3 whitespace-pre-line text-gray-900 text-sm">{generatedReport}</div>
+                            </div>
+                        )}
                     </div>
                     {/* Recommendations Tile */}
                     <div className="col-span-3 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-orange-400 animate-fadein">
