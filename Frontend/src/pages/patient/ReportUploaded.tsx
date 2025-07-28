@@ -70,7 +70,7 @@ export default function MedicalDiagnosisReport() {
         if (report?.doctorID) {
             setDoctorLoading(true);
             const token = localStorage.getItem('token');
-            fetch(`http://localhost:11000/doctor/get/${report.doctorID}`, {
+            fetch(`http://localhost:9900/doctor/get/${report.doctorID}`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : ''
                 }

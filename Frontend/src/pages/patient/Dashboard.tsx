@@ -175,16 +175,23 @@ export default function PatientDashboard() {
     const [reportsLoading, setReportsLoading] = useState(true);
     const [reportsError, setReportsError] = useState<string | null>(null);
     const [currentAdviceIndex, setCurrentAdviceIndex] = useState(0);
+    // Edit Profile Modal State
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editForm, setEditForm] = useState<Partial<PatientData>>({});
+    const [editLoading, setEditLoading] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
+    const [editSuccess, setEditSuccess] = useState(false);
 
     // Ref to manage the auto-slider interval
-    const adviceIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    // Use 'any' for browser compatibility (NodeJS.Timeout is not available in browser)
+    const adviceIntervalRef = useRef<any>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
 
         const fetchPatientData = async () => {
             try {
-                const response = await fetch("http://localhost:11000/patient/profile", {
+                const response = await fetch("http://localhost:9900/patient/profile", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -273,6 +280,63 @@ export default function PatientDashboard() {
         };
     }, []);
 
+    // --- Edit Profile Handlers ---
+    const openEditModal = () => {
+        if (patientData) {
+            setEditForm({ ...patientData });
+            setEditError(null);
+            setEditSuccess(false);
+            setEditModalOpen(true);
+        }
+    };
+
+    const closeEditModal = () => {
+        setEditModalOpen(false);
+        setEditError(null);
+        setEditSuccess(false);
+    };
+
+    const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setEditForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setEditLoading(true);
+        setEditError(null);
+        setEditSuccess(false);
+        const token = localStorage.getItem("token");
+        try {
+            // Only send token in Authorization header, not in body
+            // Use PUT, only send token in header, and send correct DTO fields
+            // Split name into firstName and lastName for backend
+            const { name, ...rest } = editForm;
+            const [firstName, ...lastArr] = (name || '').split(' ');
+            const lastName = lastArr.join(' ');
+            const payload = { firstName, lastName, ...rest };
+            const response = await fetch("http://localhost:9900/patient/update", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) throw new Error("Failed to update profile");
+            setEditSuccess(true);
+            // Optionally update patientData in UI
+            setPatientData((prev) => ({ ...prev!, ...editForm } as PatientData));
+            setTimeout(() => {
+                closeEditModal();
+            }, 1200);
+        } catch (err) {
+            setEditError("Could not update profile. Please try again.");
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-600">
             <div className="flex flex-col items-center">
@@ -322,9 +386,63 @@ export default function PatientDashboard() {
                             Your personalized health journey, simplified.
                         </p>
                     </div>
-                    <Button variant="outline" icon={Edit} className="w-fit text-blue-600 border-blue-200">
+                    <Button variant="outline" icon={Edit} className="w-fit text-blue-600 border-blue-200" onClick={openEditModal}>
                         Edit Profile
                     </Button>
+            {/* --- Edit Profile Modal --- */}
+            {editModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn">
+                        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700" onClick={closeEditModal} aria-label="Close">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                        <h2 className="text-2xl font-bold mb-4 text-blue-700 flex items-center"><Edit className="w-5 h-5 mr-2" />Edit Profile</h2>
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">First Name</label>
+                                    <input type="text" name="firstName" value={editForm.name?.split(' ')[0] || ''} onChange={e => setEditForm(f => ({...f, name: e.target.value + (f.name?.split(' ')[1] ? ' ' + f.name?.split(' ')[1] : '')}))} className="w-full border rounded px-3 py-2" required />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">Last Name</label>
+                                    <input type="text" name="lastName" value={editForm.name?.split(' ')[1] || ''} onChange={e => setEditForm(f => ({...f, name: (f.name?.split(' ')[0] || '') + ' ' + e.target.value}))} className="w-full border rounded px-3 py-2" required />
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">Age</label>
+                                    <input type="number" name="age" value={editForm.age || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" min="0" required />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">Gender</label>
+                                    <select name="gender" value={editForm.gender || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required>
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">Email</label>
+                                    <input type="email" name="email" value={editForm.email || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium mb-1">Phone Number</label>
+                                    <input type="text" name="phoneNumber" value={editForm.phoneNumber || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required />
+                                </div>
+                            </div>
+                            {/* Add more fields as needed */}
+                            {editError && <div className="text-red-600 text-sm mt-2">{editError}</div>}
+                            {editSuccess && <div className="text-green-600 text-sm mt-2">Profile updated successfully!</div>}
+                            <div className="flex justify-end mt-4">
+                                <Button type="submit" variant="primary" className="px-6" disabled={editLoading}>{editLoading ? 'Saving...' : 'Save Changes'}</Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
                 </div>
 
                 {/* Medical Overview & Health Insights */}
