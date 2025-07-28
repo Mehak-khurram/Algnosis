@@ -96,4 +96,40 @@ public class PatientService {
         // 3. Map to DTO
         return PatientSignUpMapper.toPatientResponseDTO(patient);
     }
+
+    public PatientResponseDTO updatePatientProfile(PatientResponseDTO updatedData) {
+        // 1. Get logged-in user's email from token
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        // 2. Fetch patient by email
+        Patient existing = (Patient) patientRepo.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFound("No patient found with email: " + email
+                + ". This error is thrown by updatePatientProfile function in PatientService class of auth-service."));
+
+        existing.setFirstName(updatedData.getFirstName());
+        existing.setLastName(updatedData.getLastName());
+        existing.setPhoneNumber(updatedData.getPhoneNumber());
+
+        existing.setAge(updatedData.getAge());
+        existing.setGender(updatedData.getGender());
+
+        existing.setAllergies(updatedData.getAllergies());
+        existing.setRestrictions(updatedData.getRestrictions());
+        existing.setCurrentMedications(updatedData.getCurrentMedications());
+        existing.setMedicalDevices(updatedData.getMedicalDevices());
+        existing.setRecentSurgery(updatedData.getRecentSurgery());
+
+        existing.setPrimaryContactName(updatedData.getPrimaryContactName());
+        existing.setPrimaryContactPhone(updatedData.getPrimaryContactPhone());
+        existing.setSecondaryContactName(updatedData.getSecondaryContactName());
+        existing.setPrimaryContactPhone(updatedData.getSecondaryContactPhone());
+
+
+        // 4. Save updated patient
+        Patient saved = patientRepo.save(existing);
+
+        // 5. Return DTO
+        return PatientSignUpMapper.toPatientResponseDTO(saved);
+    }
 }
