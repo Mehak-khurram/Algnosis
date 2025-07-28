@@ -62,12 +62,12 @@ const DoctorDiagnosisResult: React.FC = () => {
         }
     };
 
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = async () => {
         const doc = new jsPDF();
         const logo = new Image();
         logo.src = `${window.location.origin}/Logo.png`;
 
-        logo.onload = () => {
+        logo.onload = async () => {
             doc.addImage(logo, 'PNG', 14, 10, 30, 30);
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
@@ -142,6 +142,28 @@ const DoctorDiagnosisResult: React.FC = () => {
             doc.text(`Page 1`, 190, 290, { align: 'right' });
 
             doc.save(`Medical_Report_${patientProfile.name.replace(/\s/g, '_')}.pdf`);
+            
+            const pdfBlob = doc.output('blob');
+            const formData = new FormData();
+            formData.append('file', pdfBlob, 'Medical_Report.pdf');
+            try {
+        const res = await fetch('http://localhost:13000/upload-pdf', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const cloudData = await res.json();
+        if (res.ok) {
+          console.log('Cloudinary PDF URL:', cloudData.url);
+          alert(`PDF uploaded successfully!\nLink: ${cloudData.url}`);
+        } else {
+          throw new Error(cloudData.error || 'Upload failed');
+        }
+      } catch (err) {
+        console.error('Upload failed:', err);
+        alert('Cloudinary upload failed.');
+      }
+
         };
     };
     return (
