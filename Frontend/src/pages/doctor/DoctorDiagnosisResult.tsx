@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
 
@@ -25,12 +26,6 @@ const recentReports = [
     { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC', file: 'https://via.placeholder.com/100x120?text=Lab+Report' },
 ];
 
-const defaultRecommendations = [
-    'Schedule a follow-up X-ray in 2 weeks.',
-    'Advise patient to monitor symptoms and report any changes.',
-    'Consider additional blood tests if symptoms persist.',
-];
-
 const DoctorDiagnosisResult: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -39,7 +34,7 @@ const DoctorDiagnosisResult: React.FC = () => {
     const [reportSaved, setReportSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [generatedReport, setGeneratedReport] = useState('');
-    const [recommendations, setRecommendations] = useState(defaultRecommendations);
+    const [recommendations, setRecommendations] = useState<string[]>([]);
 
     const handleSaveReport = async () => {
         setLoading(true);
@@ -54,16 +49,7 @@ const DoctorDiagnosisResult: React.FC = () => {
             const data = await response.json();
             if (data.generatedReport) {
                 setGeneratedReport(data.generatedReport);
-                // Try to extract summary points if present (split by lines starting with '-')
-                if (data.summaryPoints) {
-                    setRecommendations(data.summaryPoints);
-                } else {
-                    // Try to extract bullet points from the generated report
-                    const summaryMatches = data.generatedReport.match(/\n[-*] (.+)/g);
-                    if (summaryMatches) {
-                        setRecommendations(summaryMatches.map(s => s.replace(/^\n[-*] /, '')));
-                    }
-                }
+                setRecommendations(data.summaryPoints || []);
                 setReportSaved(true);
                 setTimeout(() => setReportSaved(false), 2000);
             } else {
@@ -76,6 +62,88 @@ const DoctorDiagnosisResult: React.FC = () => {
         }
     };
 
+    const handleDownloadPDF = () => {
+        const doc = new jsPDF();
+        const logo = new Image();
+        logo.src = `${window.location.origin}/Logo.png`;
+
+        logo.onload = () => {
+            doc.addImage(logo, 'PNG', 14, 10, 30, 30);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
+
+            doc.setLineWidth(0.5);
+            doc.line(14, 36, 196, 36);
+
+            let y = 42;
+
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Patient Information', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Name: ${patientProfile.name}`, 14, y);
+            doc.text(`Age: ${patientProfile.age}`, 105, y);
+            y += 6;
+            doc.text(`DOB: ${patientProfile.dob}`, 14, y);
+            doc.text(`Gender: ${patientProfile.gender}`, 105, y);
+            y += 6;
+            doc.text(`Email: ${patientProfile.email}`, 14, y);
+            doc.text(`Phone: ${patientProfile.phone}`, 105, y);
+            y += 6;
+            doc.text(`Address: ${patientProfile.address}`, 14, y);
+            y += 6;
+            doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
+            y += 6;
+            doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
+            y += 6;
+            doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
+            doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
+
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Diagnosis', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${result.diagnosis}%)`, 14, y);
+
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Doctor's Notes", 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
+            doc.text(reportLines, 14, y);
+            y += reportLines.length * 6 + 4;
+
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Recommendations', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            recommendations.forEach((rec, idx) => {
+                doc.text(`• ${rec}`, 18, y + idx * 6);
+            });
+
+            y += recommendations.length * 6 + 10;
+            const date = new Date().toLocaleDateString();
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${date}`, 14, 290);
+            doc.text(`Page 1`, 190, 290, { align: 'right' });
+
+            doc.save(`Medical_Report_${patientProfile.name.replace(/\s/g, '_')}.pdf`);
+        };
+    };
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-pink-50 flex flex-col">
             <DoctorNavBar />
@@ -90,7 +158,6 @@ const DoctorDiagnosisResult: React.FC = () => {
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-teal-400 animate-fadein">
                         <div className="text-2xl font-bold text-teal-700 mb-2">Diagnosis</div>
                         <div className="text-3xl font-bold text-blue-900 mb-4">{result.diagnosis}</div>
-                        <div className="text-xl text-gray-700 mb-2">Confidence: <span className="font-semibold text-teal-700">{(result.confidence * 100).toFixed(2)}%</span></div>
                     </div>
                     {/* Patient Profile Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-purple-400 animate-fadein">
@@ -163,6 +230,12 @@ const DoctorDiagnosisResult: React.FC = () => {
                             <div className="mt-4 w-full">
                                 <div className="font-semibold text-green-800 mb-1">Generated Report:</div>
                                 <div className="bg-green-50 border border-green-200 rounded p-3 whitespace-pre-line text-gray-900 text-sm">{generatedReport}</div>
+                                <button
+                                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                    onClick={handleDownloadPDF}
+                                >
+                                    Download PDF
+                                </button>
                             </div>
                         )}
                     </div>
@@ -198,4 +271,4 @@ const DoctorDiagnosisResult: React.FC = () => {
     );
 };
 
-export default DoctorDiagnosisResult; 
+export default DoctorDiagnosisResult;
