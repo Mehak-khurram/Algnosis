@@ -1,50 +1,63 @@
+
 import React, { useState, useEffect } from "react";
 import { FileText, Calendar, ChevronRight, User, Search } from "lucide-react";
 import DoctorNavBar from "../../components/DoctorNavBar.tsx";
 import { useNavigate } from "react-router-dom";
 
-const allReports = [
-    {
-        id: 1,
-        patient: 'John Doe',
-        diagnosis: 'Pneumonia',
-        date: '2025-07-25',
-        preview: 'https://via.placeholder.com/400x250?text=X-ray+Preview',
-    },
-    {
-        id: 2,
-        patient: 'Jane Smith',
-        diagnosis: 'Tuberculosis',
-        date: '2025-07-24',
-        preview: 'https://via.placeholder.com/400x250?text=CT+Scan+Preview',
-    },
-    {
-        id: 3,
-        patient: 'Ali Khan',
-        diagnosis: 'Brain Tumor',
-        date: '2025-07-22',
-        preview: 'https://via.placeholder.com/400x250?text=MRI+Preview',
-    },
-    {
-        id: 4,
-        patient: 'Maria Garcia',
-        diagnosis: 'Anemia',
-        date: '2025-07-20',
-        preview: 'https://via.placeholder.com/400x250?text=Blood+Report',
-    },
-];
+interface Report {
+    id: string;
+    email: string;
+    createdAt: string;
+    status: string;
+    disease: string;
+    fileUrl: string;
+    fileName: string;
+    fileType: string;
+    doctorID: string;
+    diagnosis: string;
+    diagnosisSummary: string;
+    diagnosisUrl: string;
+}
+
 
 const RecentReports: React.FC = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredReports, setFilteredReports] = useState(allReports);
+    const [reports, setReports] = useState<Report[]>([]);
+    const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch("http://localhost:8020/reports/doctor/list", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch reports");
+                const data = await response.json();
+                setReports(data);
+                setFilteredReports(data);
+            } catch (err) {
+                setError("Could not load reports.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReports();
+    }, []);
 
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         setFilteredReports(
-            allReports.filter((r) => r.patient.toLowerCase().includes(lower))
+            reports.filter((r) => r.email.toLowerCase().includes(lower))
         );
-    }, [searchTerm]);
+    }, [searchTerm, reports]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -59,7 +72,7 @@ const RecentReports: React.FC = () => {
                     <div className="relative w-full sm:w-96">
                         <input
                             type="text"
-                            placeholder="Search by patient name..."
+                            placeholder="Search by patient email..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -68,33 +81,37 @@ const RecentReports: React.FC = () => {
                     </div>
                 </div>
 
-                {filteredReports.length > 0 ? (
+                {loading ? (
+                    <div className="text-center py-8 text-lg text-gray-600">Loading reports...</div>
+                ) : error ? (
+                    <div className="text-red-500 text-center py-8">{error}</div>
+                ) : filteredReports.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {filteredReports.map((report) => (
                             <div
                                 key={report.id}
-                                onClick={() => navigate(`/doctor/reports/${report.id}`)}
+                                onClick={() => navigate(`/doctor/notifications/${report.id}`, { state: { report } })}
                                 className="bg-white shadow-md hover:shadow-xl transition-shadow duration-300 rounded-2xl overflow-hidden cursor-pointer group"
                             >
                                 <img
-                                    src={report.preview}
+                                    src={report.fileUrl || 'https://via.placeholder.com/400x250?text=No+Preview'}
                                     alt="Report Preview"
                                     className="w-full h-48 object-cover"
                                 />
                                 <div className="p-5 space-y-2">
                                     <div className="flex items-center text-blue-800 font-semibold text-lg">
                                         <User className="w-4 h-4 mr-2 text-blue-600" />
-                                        {report.patient}
+                                        {report.email}
                                     </div>
 
                                     <div className="text-gray-700 flex items-center">
                                         <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                                        Diagnosis: <span className="ml-1 font-medium">{report.diagnosis}</span>
+                                        Diagnosis: <span className="ml-1 font-medium">{report.diagnosis || 'Pending'}</span>
                                     </div>
 
                                     <div className="text-gray-600 flex items-center">
                                         <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                                        Submitted: {report.date}
+                                        Submitted: {report.createdAt ? new Date(report.createdAt).toLocaleString() : 'N/A'}
                                     </div>
 
                                     <div className="flex items-center justify-end pt-2 text-blue-600 font-medium">

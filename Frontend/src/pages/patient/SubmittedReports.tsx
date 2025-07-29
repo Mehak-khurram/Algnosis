@@ -19,7 +19,7 @@ export default function SubmittedReports() {
     useEffect(() => {
         const token = localStorage.getItem('token');
 
-        fetch("http://localhost:8083/reports/list", {
+        fetch("http://localhost:8020/reports/list", {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

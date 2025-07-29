@@ -97,7 +97,7 @@ export default function Reports() {
             formData.append("file", uploadedFile);
 
             const endpoints: Record<string, string> = {
-                pneumonia: "http://localhost:8083/patient/upload/pneumonia"
+                pneumonia: "http://localhost:3000/patient/upload/pneumonia"
             };
 
             const endpoint = endpoints[selectedDisease];

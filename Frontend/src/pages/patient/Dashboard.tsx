@@ -247,7 +247,7 @@ export default function PatientDashboard() {
 
         const fetchReports = async () => {
             try {
-                const response = await fetch("http://localhost:8083/reports/list", {
+                const response = await fetch("http://localhost:8020/reports/list", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 const notifications = [
     { id: '1', patient: 'John Doe', message: 'Uploaded a new X-ray report.', detail: 'John Doe has uploaded a new X-ray report for your review. Please check the report and provide feedback.', file: 'https://via.placeholder.com/300x400?text=X-ray+Image', profile: { name: 'John Doe', age: 45, dob: '1979-01-01', gender: 'Male', email: 'john.doe@email.com', phone: '555-1234', address: '123 Main St, City', emergencyContact: 'Jane Doe (Wife) - 555-5678', insurance: 'HealthPlus', allergies: 'Penicillin', conditions: 'Asthma' }, history: [{ date: '2024-05-01', type: 'X-ray', summary: 'Normal' }, { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC' }] },
@@ -12,7 +12,38 @@ const notifications = [
 const NotificationDetail: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const notif = notifications.find(n => n.id === id);
+    const location = useLocation();
+    // State for dynamic report loading
+    const [notif, setNotif] = useState<any>(location.state?.report || null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        // If notif is already set (from navigation state or static), do nothing
+        if (notif) return;
+        if (!id) return;
+        setLoading(true);
+        setError(null);
+        const token = localStorage.getItem('token');
+        fetch(`http://localhost:8020/reports/doctor/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Report not found');
+                return res.json();
+            })
+            .then(data => {
+                setNotif(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError('Notification not found.');
+                setLoading(false);
+            });
+    }, [id]);
+
     const [diagnosisResult, setDiagnosisResult] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -20,6 +51,27 @@ const NotificationDetail: React.FC = () => {
     const [tbResult, setTBResult] = useState<string | null>(null);
     const [selectedDisease, setSelectedDisease] = useState<'pneumonia' | 'tb' | 'anemia' | 'brain_tumor'>('pneumonia');
     const [file, setFile] = useState<File | null>(null);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-pink-50 flex flex-col">
+                <DoctorNavBar />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="text-2xl font-bold text-blue-700">Loading notification...</div>
+                </div>
+            </div>
+        );
+    }
+    if (error || !notif) {
+        return (
+            <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-pink-50 flex flex-col">
+                <DoctorNavBar />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                    <div className="text-2xl font-bold text-red-700">{error || 'Notification not found.'}</div>
+                </div>
+            </div>
+        );
+    }
 
     const handleDiseaseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedDisease(e.target.value as 'pneumonia' | 'tb' | 'anemia' | 'brain_tumor');
@@ -160,17 +212,23 @@ const NotificationDetail: React.FC = () => {
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-purple-400 animate-fadein"
                         style={{ gridColumn: '4 / span 2', gridRow: '1 / span 2' }}>
                         <div className="text-xl font-bold text-purple-700 mb-2">Patient Profile</div>
-                        <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{notif.profile.name}</span></div>
-                        <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{notif.profile.age}</span></div>
-                        <div className="text-blue-900 font-semibold">Date of Birth: <span className="font-normal text-gray-800">{notif.profile.dob}</span></div>
-                        <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{notif.profile.gender}</span></div>
-                        <div className="text-blue-900 font-semibold">Email: <span className="font-normal text-gray-800">{notif.profile.email}</span></div>
-                        <div className="text-blue-900 font-semibold">Phone: <span className="font-normal text-gray-800">{notif.profile.phone}</span></div>
-                        <div className="text-blue-900 font-semibold">Address: <span className="font-normal text-gray-800">{notif.profile.address}</span></div>
-                        <div className="text-blue-900 font-semibold">Emergency Contact: <span className="font-normal text-gray-800">{notif.profile.emergencyContact}</span></div>
-                        <div className="text-blue-900 font-semibold">Insurance: <span className="font-normal text-gray-800">{notif.profile.insurance}</span></div>
-                        <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{notif.profile.allergies}</span></div>
-                        <div className="text-blue-900 font-semibold">Medical Conditions: <span className="font-normal text-gray-800">{notif.profile.conditions}</span></div>
+                        {notif.profile ? (
+                            <>
+                                <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{notif.profile.name}</span></div>
+                                <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{notif.profile.age}</span></div>
+                                <div className="text-blue-900 font-semibold">Date of Birth: <span className="font-normal text-gray-800">{notif.profile.dob}</span></div>
+                                <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{notif.profile.gender}</span></div>
+                                <div className="text-blue-900 font-semibold">Email: <span className="font-normal text-gray-800">{notif.profile.email}</span></div>
+                                <div className="text-blue-900 font-semibold">Phone: <span className="font-normal text-gray-800">{notif.profile.phone}</span></div>
+                                <div className="text-blue-900 font-semibold">Address: <span className="font-normal text-gray-800">{notif.profile.address}</span></div>
+                                <div className="text-blue-900 font-semibold">Emergency Contact: <span className="font-normal text-gray-800">{notif.profile.emergencyContact}</span></div>
+                                <div className="text-blue-900 font-semibold">Insurance: <span className="font-normal text-gray-800">{notif.profile.insurance}</span></div>
+                                <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{notif.profile.allergies}</span></div>
+                                <div className="text-blue-900 font-semibold">Medical Conditions: <span className="font-normal text-gray-800">{notif.profile.conditions}</span></div>
+                            </>
+                        ) : (
+                            <div className="text-gray-500">No patient profile data available.</div>
+                        )}
                     </div>
                     {/* Patient History Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-pink-400 animate-fadein"
