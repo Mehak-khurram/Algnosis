@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportDisplayService {
@@ -84,30 +85,33 @@ public class ReportDisplayService {
     }
 
 
-//    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
-//        System.out.println("I am inside Controller!!!!!");
-//        //EXTRACTING EMAIL FROM TOKEN
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//
-//        //UPLOADING FILE TO CLOUDINARY
-//        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-//        String fileUrl = (String) uploadResults.get("secure_url");
-//        String fileType = (String) uploadResults.get("resource_type");
-//        String fileName = (String) uploadResults.get("original_filename");
-//
-//        PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
-//                () -> new NoReportsFound("No report with ID "+
-//                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
-//                        "in ReportDisplayService of ReportService.")
-//        );
-//
-//        patientUpload.setDiagnosisUrl(fileUrl);
-//        patientUploadRepository.save(patientUpload);
-//
-//        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
-//        return patientUploadDTO;
-//    }
+    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
+        System.out.println("I am inside Controller!!!!!");
+        //EXTRACTING EMAIL FROM TOKEN
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        //UPLOADING FILE TO CLOUDINARY
+        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String fileUrl = (String) uploadResults.get("secure_url");
+        String fileType = (String) uploadResults.get("resource_type");
+        String fileName = (String) uploadResults.get("original_filename");
+
+        System.out.println("Uploaded file name: " + file.getOriginalFilename());
+
+
+        PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
+                () -> new NoReportsFound("No report with ID "+
+                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
+                        "in ReportDisplayService of ReportService.")
+        );
+
+        patientUpload.setDiagnosisUrl(fileUrl);
+        patientUploadRepository.save(patientUpload);
+
+        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
+        return patientUploadDTO;
+    }
 
 
     public PatientUploadDTO findReportByID(String reportID){
@@ -119,5 +123,21 @@ public class ReportDisplayService {
 
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
         return patientUploadDTO;
+    }
+
+    public List<PatientUploadDTO> findReportByEmail(String email) {
+        List<PatientUpload> reports = patientUploadRepository.findByEmail(email);
+
+        // If no reports are found, optionally throw an exception or return an empty list
+        if (reports.isEmpty()) {
+            throw new NoReportsFound("No reports found for email: " + email +
+                    ". This error is thrown by findReportsByEmail function in ReportDisplayService class of Report-service");
+        }
+
+        // Convert entity list to DTO list using your mapper
+        return reports.stream()
+                .map(PatientUploadMapper::toDTO)
+                .collect(Collectors.toList());
+
     }
 }

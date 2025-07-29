@@ -26,24 +26,22 @@ def upload_pdf():
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
 
-        # ✅ Save to temp path as a real binary file
-        temp_path = os.path.join(tempfile.gettempdir(), file.filename)
-        file.save(temp_path)
+        # # ✅ Save to temp path as a real binary file
+        # temp_path = os.path.join(tempfile.gettempdir(), file.filename)
+        # file.save(temp_path)
 
         # ✅ Upload to Cloudinary as raw resource
         upload_result = cloudinary.uploader.upload(
-            temp_path,
-            resource_type='auto',
-            public_id='medical_reports/' + os.path.splitext(file.filename)[0],
-            use_filename=True,
-            unique_filename=False
+            # temp_path,
+            # resource_type='auto',
+            # public_id='medical_reports/' + os.path.splitext(file.filename)[0],
+            # use_filename=True,
+            # unique_filename=False
+            file
         )
 
         # ✅ Force Cloudinary to serve as downloadable PDF
-        pdf_url = upload_result['secure_url'] + '?fl_attachment=Medical_Report.pdf'
-
-        # ✅ Clean up temp file
-        os.remove(temp_path)
+        pdf_url = upload_result.get('secure_url')
 
         return jsonify({'url': pdf_url})
 

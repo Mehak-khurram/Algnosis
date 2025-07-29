@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 ).hasRole("PATIENT")
                         .requestMatchers("/doctor/**",
                                 "/reports/doctor/list",
-                                "/reports/get").hasRole("DOCTOR")
+                                "/reports/get",
+                                "/reports/diagnosis/update").hasRole("DOCTOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
