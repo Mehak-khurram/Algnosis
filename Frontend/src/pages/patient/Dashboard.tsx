@@ -191,7 +191,7 @@ export default function PatientDashboard() {
 
         const fetchPatientData = async () => {
             try {
-                const response = await fetch("http://localhost:9900/patient/profile", {
+                const response = await fetch("http://localhost:17000/patient/profile", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -315,7 +315,7 @@ export default function PatientDashboard() {
             const [firstName, ...lastArr] = (name || '').split(' ');
             const lastName = lastArr.join(' ');
             const payload = { firstName, lastName, ...rest };
-            const response = await fetch("http://localhost:9900/patient/update", {
+            const response = await fetch("http://localhost:17000/patient/update", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
