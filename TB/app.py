@@ -9,15 +9,15 @@ CORS(app, origins=['http://localhost:3000'])
 
 app.register_blueprint(diagnosis_api, url_prefix="")
 
-@app.route('/upload/', methods=['POST'])
-def upload():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    # Here you would process the file and return your result
-    return jsonify({'message': 'Upload received!', 'diagnosis': 'TB Negative', 'confidence': 0.97})
+# @app.route('/upload/', methods=['POST'])
+# def upload():
+#     if 'image' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
+#     file = request.files['image']
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
+#     # Here you would process the file and return your result
+#     return jsonify({'message': 'Upload received!', 'diagnosis': 'TB Negative', 'confidence': 0.97})
 
 if __name__ == "__main__":
     app.run(debug=False, use_reloader=False, port=9000)

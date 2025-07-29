@@ -1,11 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FileText, Clock, CheckCircle, Download, Stethoscope, UserCheck, ChevronRight, Activity, HeartPulse, ClipboardCheck, Bell, Calendar, Settings, Search, MessageSquare, User, BookOpen } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 
 
+
 type ReportStatus = "In Review" | "Received";
 const reportStatus: ReportStatus = "In Review";
+
+type Doctor = {
+    id: string;
+    assignedReports: string[];
+    specialization: string;
+    yearsOfExperience: number;
+    qualifications: string;
+    hospitalName: string;
+    medicalLicenseNumber: string;
+    shortBio: string;
+    role: string;
+    firstName?: string;
+    lastName?: string;
+};
 
 export default function MedicalDiagnosisReport() {
     const location = useLocation();
@@ -22,19 +37,59 @@ export default function MedicalDiagnosisReport() {
     }, [report, navigate]);
 
     // Fallbacks for static demo if no data
-    const diagnosis = report?.diagnosis || `Chest X-ray shows clear lung fields with no signs of pneumonia or other abnormalities. 
-Heart size appears normal. No evidence of fracture or consolidation. The cardiomediastinal silhouette is within normal limits. 
-No pleural effusion or pneumothorax is identified. The imaged upper abdomen is unremarkable.`;
+    const diagnosis = report?.diagnosisSummary || "No diagnosis summary available.";
     const recommendations = report?.recommendations || [
-        "Follow-up chest X-ray recommended in 6 months",
-        "Continue current medication regimen",
-        "Monitor for any respiratory symptoms",
-        "Schedule annual physical examination"
+        "No recommendations available."
     ];
-    const imageUrl = previewUrl || report?.cloudinaryUrl || report?.imageUrl || "https://images.unsplash.com/photo-1581595219318-4d9ba8e4b69d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80";
+    const imageUrl = previewUrl || report?.fileUrl || report?.cloudinaryUrl || report?.imageUrl || "https://images.unsplash.com/photo-1581595219318-4d9ba8e4b69d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80";
+    const createdAtDisplay = report?.createdAt ? new Date(report.createdAt).toLocaleDateString() : "Unknown date";
+    const fileTypeDisplay = report?.fileType || "Unknown type";
 
     const [animatedStep, setAnimatedStep] = React.useState(0);
-    const status = report?.status || reportStatus; // Use backend status if available
+    const createdAt = report?.createdAt;
+    const diagnosisSummary = report?.diagnosisSummary;
+    const diagnosisUrl = report?.diagnosisUrl;
+    const doctorID = report?.doctorID;
+    const email = report?.email;
+    const fileType = report?.fileType;
+    const fileUrl = report?.fileUrl;
+    const id = report?.id;
+    const status = report?.status;
+
+    // Timeline step dates
+    const uploadedDate = report?.createdAt ? new Date(report.createdAt).toLocaleString() : "Unknown";
+    const resultsDate = (report?.completedAt || report?.reviewedAt)
+        ? new Date(report.completedAt || report.reviewedAt).toLocaleString()
+        : (status === "Received" ? "Completed" : "Pending");
+
+    const [doctor, setDoctor] = useState<Doctor | null>(null);
+    const [doctorLoading, setDoctorLoading] = useState(false);
+    const [doctorError, setDoctorError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (report?.doctorID) {
+            setDoctorLoading(true);
+            const token = localStorage.getItem('token');
+            fetch(`http://localhost:9900/doctor/get/${report.doctorID}`, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch doctor');
+                    return res.json();
+                })
+                .then(data => {
+                    setDoctor(data);
+                    setDoctorLoading(false);
+                })
+                .catch(err => {
+                    setDoctorError('Could not load doctor information.');
+                    setDoctorLoading(false);
+                });
+        }
+    }, [report?.doctorID]);
+
 
     // Animate timeline progress
     React.useEffect(() => {
@@ -52,12 +107,14 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
     }, [status]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+        <>
+        <PatientNavBar />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pt-16">
             {/* Navigation */}
             <PatientNavBar />
 
             {/* Main Content */}
-            <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="container mx-auto px-4 pt-24 pb-8 max-w-7xl">
                 {/* Breadcrumb and Header */}
                 <div className="mb-8">
                     <div className="flex items-center text-sm text-gray-500 mb-4">
@@ -97,7 +154,7 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
                                 </h2>
                                 <div className="flex items-center text-sm">
                                     <Calendar className="w-4 h-4 mr-1 text-gray-500" />
-                                    <span className="text-gray-600">Uploaded: {new Date().toLocaleDateString()}</span>
+                                    <span className="text-gray-600">Uploaded: {createdAtDisplay}</span>
                                 </div>
                             </div>
                             <div className="p-6">
@@ -125,7 +182,7 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
                                     </div>
                                     <div className="flex items-center">
                                         <span className="font-medium">Format:</span>
-                                        <span className="ml-2">DICOM</span>
+                                        <span className="ml-2">{fileTypeDisplay}</span>
                                     </div>
                                 </div>
                             </div>
@@ -164,8 +221,8 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
                                         <div className="absolute left-1/2 -translate-x-1/2 top-6 bottom-6 w-2 bg-gray-200 rounded-full z-0" />
                                         {/* Steps */}
                                         {[
-                                            { label: "Report Uploaded", date: "July 22, 2023 · 10:30 AM" },
-                                            { label: "Results Available", date: status === "Received" ? "Completed July 23, 2023 · 3:45 PM" : "Pending" },
+                                            { label: "Report Uploaded", date: uploadedDate },
+                                            { label: "Results Available", date: resultsDate },
                                         ].map((step, idx) => {
                                             const isActive = idx < animatedStep;
                                             const isCurrent = idx === animatedStep - 1;
@@ -245,33 +302,37 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
                                 </h2>
                             </div>
                             <div className="p-6">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold mb-4 overflow-hidden border-4 border-white shadow-lg">
-                                        <img
-                                            src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
-                                            alt="Dr. Sarah Johnson"
-                                            className="object-cover w-full h-full"
-                                        />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-800">Dr. Sarah Johnson</h3>
-                                    <p className="text-blue-600 font-medium">Radiology Specialist</p>
-
-                                    <div className="mt-4 flex flex-wrap justify-center gap-2">
-                                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                                            Board Certified
-                                        </span>
-                                        <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                                            15+ years experience
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-6 w-full bg-gray-50 rounded-xl p-4">
-                                        <h4 className="font-medium text-gray-800 mb-2">Qualification</h4>
-                                        <div className="space-y-2 text-sm">
-                                            <p className="text-gray-700">MD, Radiology, Harvard Medical School</p>
+                                {doctorLoading ? (
+                                    <div className="text-gray-500 text-center">Loading doctor information...</div>
+                                ) : doctorError ? (
+                                    <div className="text-red-500 text-center">{doctorError}</div>
+                                ) : doctor ? (
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold mb-4 overflow-hidden border-4 border-white shadow-lg">
+                                            <User className="w-16 h-16" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-800">{doctor.firstName + " " + doctor.lastName || doctor.id}</h3>
+                                        <p className="text-blue-600 font-medium">{doctor.specialization}</p>
+                                        <div className="mt-4 flex flex-wrap justify-center gap-2">
+                                            <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                                {doctor.qualifications}
+                                            </span>
+                                            <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                                {doctor.yearsOfExperience}+ years experience
+                                            </span>
+                                        </div>
+                                        <div className="mt-6 w-full bg-gray-50 rounded-xl p-4">
+                                            <h4 className="font-medium text-gray-800 mb-2">About</h4>
+                                            <div className="space-y-2 text-sm">
+                                                <p className="text-gray-700">{doctor.shortBio}</p>
+                                                <p className="text-gray-700">Hospital: {doctor.hospitalName}</p>
+                                                <p className="text-gray-700">License: {doctor.medicalLicenseNumber}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="text-gray-500 text-center">No doctor information available.</div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -284,5 +345,6 @@ No pleural effusion or pneumothorax is identified. The imaged upper abdomen is u
             {/* Footer */}
 
         </div>
+        </>
     );
 }
