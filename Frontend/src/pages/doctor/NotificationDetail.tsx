@@ -17,6 +17,10 @@ const NotificationDetail: React.FC = () => {
     const [notif, setNotif] = useState<any>(location.state?.report || null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // Patient profile state
+    const [patientProfile, setPatientProfile] = useState<any>(null);
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileError, setProfileError] = useState<string | null>(null);
 
     useEffect(() => {
         // If notif is already set (from navigation state or static), do nothing
@@ -25,7 +29,7 @@ const NotificationDetail: React.FC = () => {
         setLoading(true);
         setError(null);
         const token = localStorage.getItem('token');
-        fetch(`http://localhost:8020/reports/doctor/${id}`, {
+        fetch(`http://localhost:8020/reports/report-serviceget?reportID=${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -43,6 +47,31 @@ const NotificationDetail: React.FC = () => {
                 setLoading(false);
             });
     }, [id]);
+
+    // Fetch patient profile using email from notif
+    useEffect(() => {
+        if (!notif || !notif.email) return;
+        setProfileLoading(true);
+        setProfileError(null);
+        const token = localStorage.getItem('token');
+        fetch(`http://localhost:17000/patient/get/profile?email=${notif.email}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Patient profile not found');
+                return res.json();
+            })
+            .then(data => {
+                setPatientProfile(data);
+                setProfileLoading(false);
+            })
+            .catch(err => {
+                setProfileError('Patient profile not found.');
+                setProfileLoading(false);
+            });
+    }, [notif]);
 
     const [diagnosisResult, setDiagnosisResult] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -174,45 +203,32 @@ const NotificationDetail: React.FC = () => {
             <div className="flex-1 flex flex-col items-center justify-center w-full">
                 <div className="w-full max-w-7xl px-8 pt-8 pb-2">
                     <div className="text-2xl font-bold text-blue-900 animate-fadein-left z-10 text-left mb-4">
-                        Notification from {notif.patient}
+                        Report Details
                     </div>
                 </div>
                 <div className="grid grid-cols-6 grid-rows-4 gap-8 w-full max-w-7xl p-8">
-                    {/* X-ray/Report Tile */}
-                    <div
-                        className="col-span-3 row-span-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-blue-400 animate-fadein cursor-zoom-in"
-                        onClick={() => notif.file && isImage(notif.file) && setShowModal(true)}
-                        tabIndex={notif.file && isImage(notif.file) ? 0 : -1}
-                        onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && notif.file && isImage(notif.file)) setShowModal(true); }}
-                        aria-label="Zoom X-ray/Report"
-                        style={{ gridColumn: '1 / span 3', gridRow: '1 / span 3' }}
-                    >
-                        <div className="text-xl font-bold text-blue-900 mb-4">Submitted X-ray / Report</div>
-                        {notif.file ? (
-                            <img src={notif.file} alt="Report/X-ray" className="rounded-lg shadow mb-4 max-h-96" />
-                        ) : (
-                            <div className="text-gray-500 mb-4">No report or X-ray submitted.</div>
-                        )}
-                        {notif.file && isImage(notif.file) && <div className="text-xs text-blue-400">Click to zoom</div>}
-                    </div>
-                    {/* Download Report/X-ray Tile */}
-                    <div className="col-span-1 row-span-1 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 border-l-8 border-green-400 animate-fadein"
-                        style={{ gridColumn: '6', gridRow: '1' }}>
-                        <div className="text-lg font-bold text-green-700 mb-2">Download Report/X-ray</div>
-                        <button
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                            disabled={!notif.file}
-                            onClick={() => { if (notif.file) window.open(notif.file, '_blank'); }}
-                        >
-                            Download
-                        </button>
-                        {!notif.file && <div className="text-gray-400 text-xs mt-2">No file available</div>}
-                    </div>
-                    {/* Patient Profile Tile */}
+                    {/* Patient Profile Tile (API + fallback to static profile) */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-purple-400 animate-fadein"
                         style={{ gridColumn: '4 / span 2', gridRow: '1 / span 2' }}>
                         <div className="text-xl font-bold text-purple-700 mb-2">Patient Profile</div>
-                        {notif.profile ? (
+                        {profileLoading ? (
+                            <div className="text-blue-700">Loading patient profile...</div>
+                        ) : profileError ? (
+                            <div className="text-red-700">{profileError}</div>
+                        ) : patientProfile ? (
+                            <>
+                                <div className="text-blue-900 font-semibold">Email: <span className="font-normal text-gray-800">{patientProfile.email}</span></div>
+                                <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{patientProfile.age}</span></div>
+                                <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{patientProfile.gender}</span></div>
+                                <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{patientProfile.allergies}</span></div>
+                                <div className="text-blue-900 font-semibold">Restrictions: <span className="font-normal text-gray-800">{patientProfile.restrictions}</span></div>
+                                <div className="text-blue-900 font-semibold">Medical Devices: <span className="font-normal text-gray-800">{patientProfile.medicalDevices}</span></div>
+                                <div className="text-blue-900 font-semibold">Recent Surgery: <span className="font-normal text-gray-800">{patientProfile.recentSurgery}</span></div>
+                                <div className="text-blue-900 font-semibold">Current Medications: <span className="font-normal text-gray-800">{patientProfile.currentMedications}</span></div>
+                                <div className="text-blue-900 font-semibold">Primary Contact: <span className="font-normal text-gray-800">{patientProfile.primaryContactName} ({patientProfile.primaryContactPhone})</span></div>
+                                <div className="text-blue-900 font-semibold">Secondary Contact: <span className="font-normal text-gray-800">{patientProfile.secondaryContactName} ({patientProfile.secondaryContactPhone})</span></div>
+                            </>
+                        ) : notif.profile ? (
                             <>
                                 <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{notif.profile.name}</span></div>
                                 <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{notif.profile.age}</span></div>
@@ -230,21 +246,56 @@ const NotificationDetail: React.FC = () => {
                             <div className="text-gray-500">No patient profile data available.</div>
                         )}
                     </div>
-                    {/* Patient History Tile */}
+                    {/* X-ray/Report Tile - Improved preview layout */}
+                    <div
+                        className="col-span-3 row-span-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-blue-400 animate-fadein cursor-zoom-in"
+                        onClick={() => notif.fileUrl && isImage(notif.fileUrl) && setShowModal(true)}
+                        tabIndex={notif.fileUrl && isImage(notif.fileUrl) ? 0 : -1}
+                        onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && notif.fileUrl && isImage(notif.fileUrl)) setShowModal(true); }}
+                        aria-label="Zoom X-ray/Report"
+                        style={{ gridColumn: '1 / span 3', gridRow: '1 / span 3' }}
+                    >
+                        <div className="text-xl font-bold text-blue-900 mb-4">Submitted X-ray / Report</div>
+                        <div className="w-full flex-1 flex items-center justify-center">
+                            {notif.fileUrl ? (
+                                isImage(notif.fileUrl) ? (
+                                    <div className="w-full h-[350px] flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                                        <img 
+                                            src={notif.fileUrl} 
+                                            alt="Report/X-ray" 
+                                            className="object-contain max-h-full max-w-full w-auto h-auto" 
+                                            style={{ maxHeight: '330px', maxWidth: '100%' }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <a href={notif.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View File</a>
+                                )
+                            ) : (
+                                <div className="text-gray-500 mb-4">No report or X-ray submitted.</div>
+                            )}
+                        </div>
+                        {notif.fileUrl && isImage(notif.fileUrl) && <div className="text-xs text-blue-400 mt-2">Click to zoom</div>}
+                    </div>
+                    {/* Download Report/X-ray Tile */}
+                    <div className="col-span-1 row-span-1 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 border-l-8 border-green-400 animate-fadein"
+                        style={{ gridColumn: '6', gridRow: '1' }}>
+                        <div className="text-lg font-bold text-green-700 mb-2">Download Report/X-ray</div>
+                        <button
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                            disabled={!notif.fileUrl}
+                            onClick={() => { if (notif.fileUrl) window.open(notif.fileUrl, '_blank'); }}
+                        >
+                            Download
+                        </button>
+                        {!notif.fileUrl && <div className="text-gray-400 text-xs mt-2">No file available</div>}
+                    </div>
+                    {/* Diagnosis Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-pink-400 animate-fadein"
                         style={{ gridColumn: '4 / span 2', gridRow: '3 / span 2' }}>
-                        <div className="text-xl font-bold text-pink-700 mb-2">Patient History</div>
-                        {notif.history && notif.history.length > 0 ? (
-                            <ul className="w-full">
-                                {notif.history.map((h, idx) => (
-                                    <li key={idx} className="mb-2 p-2 bg-pink-50 rounded-lg">
-                                        <span className="font-semibold text-blue-900">{h.date}</span> - <span className="text-gray-700">{h.type}</span>: <span className="text-gray-800">{h.summary}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div className="text-gray-500">No previous reports.</div>
-                        )}
+                        <div className="text-xl font-bold text-pink-700 mb-2">Diagnosis</div>
+                        <div className="text-blue-900 font-semibold">Diagnosis: <span className="font-normal text-gray-800">{notif.diagnosis}</span></div>
+                        <div className="text-blue-900 font-semibold">Summary: <span className="font-normal text-gray-800">{notif.diagnosisSummary}</span></div>
+                        <div className="text-blue-900 font-semibold">Diagnosis Report: {notif.diagnosisUrl ? (<a href={notif.diagnosisUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View</a>) : (<span className="text-gray-500">N/A</span>)}</div>
                     </div>
                     {/* Upload to ML Model Tile */}
                     <div className="col-span-3 row-span-1 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-teal-400 animate-fadein"
