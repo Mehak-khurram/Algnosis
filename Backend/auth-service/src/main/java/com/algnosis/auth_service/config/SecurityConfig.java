@@ -39,10 +39,13 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**",
                                 "/protected/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/patient/**",
-                                "/doctor/get/**"
+                        .requestMatchers(
+                                "/doctor/get/**",
+                                "/patient/profile",
+                                "/patient/update"
                                 ).hasRole("PATIENT")
-                        .requestMatchers("/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/doctor/**",
+                                "/patient/get/profile").hasRole("DOCTOR")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

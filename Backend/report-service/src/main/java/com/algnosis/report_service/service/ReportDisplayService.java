@@ -8,13 +8,18 @@ import com.algnosis.report_service.feign.AuthServiceClient;
 import com.algnosis.report_service.mapper.PatientUploadMapper;
 import com.algnosis.report_service.repository.PatientUploadRepository;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ReportDisplayService {
@@ -23,11 +28,14 @@ public class ReportDisplayService {
     private final PatientUploadRepository patientUploadRepository;
     @Autowired
     private final AuthServiceClient authServiceClient;
+    @Autowired
+    private final Cloudinary cloudinary;
 
     public ReportDisplayService(PatientUploadRepository patientUploadRepository,
-                                AuthServiceClient authServiceClient) {
+                                AuthServiceClient authServiceClient, Cloudinary cloudinary) {
         this.patientUploadRepository = patientUploadRepository;
         this.authServiceClient = authServiceClient;
+        this.cloudinary = cloudinary;
     }
 
     //GETTING REPORTS FOR VIEW ALL REPORTS PAGE FOR PATIENT
@@ -75,4 +83,41 @@ public class ReportDisplayService {
         return reportDTOs;
     }
 
+
+//    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
+//        System.out.println("I am inside Controller!!!!!");
+//        //EXTRACTING EMAIL FROM TOKEN
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String email = authentication.getName();
+//
+//        //UPLOADING FILE TO CLOUDINARY
+//        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+//        String fileUrl = (String) uploadResults.get("secure_url");
+//        String fileType = (String) uploadResults.get("resource_type");
+//        String fileName = (String) uploadResults.get("original_filename");
+//
+//        PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
+//                () -> new NoReportsFound("No report with ID "+
+//                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
+//                        "in ReportDisplayService of ReportService.")
+//        );
+//
+//        patientUpload.setDiagnosisUrl(fileUrl);
+//        patientUploadRepository.save(patientUpload);
+//
+//        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
+//        return patientUploadDTO;
+//    }
+
+
+    public PatientUploadDTO findReportByID(String reportID){
+        PatientUpload patientUpload = patientUploadRepository.findByid(reportID).orElseThrow(
+                () -> new NoReportsFound("No report with ID "+
+                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
+                        "in ReportDisplayService of ReportService.")
+        );
+
+        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
+        return patientUploadDTO;
+    }
 }

@@ -32,4 +32,14 @@ public class PatientController {
         PatientResponseDTO updatedPatient = patientService.updatePatientProfile(updatedData);
         return ResponseEntity.ok(updatedPatient);
     }
+
+    //GET PATIENT DATA BY EMAIL, THIS IS FOR DOCTOR SIDE DIAGNOSIS PAGE FOR PATIENT INFORMATION
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/get/profile")
+    public ResponseEntity<PatientResponseDTO> getPatientData(@RequestParam String email){
+
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        PatientResponseDTO patient = patientService.getPatientDetailsByEmail(email);
+        return ResponseEntity.ok(patient);
+    }
 }
