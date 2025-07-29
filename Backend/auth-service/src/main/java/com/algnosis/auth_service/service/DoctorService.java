@@ -16,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DoctorService {
@@ -89,6 +91,18 @@ public class DoctorService {
 
 
         return doctorDTOs;
+    }
+
+    public DoctorResponseDTO getDoctorBasedOnEmail(String email){
+        Doctor doctor = (Doctor) doctorRepo.findByEmail(email).orElseThrow(
+                ()-> new DoctorNotFound("No doctor found against email " +
+                        "address " + email + ". this error is thrown by" +
+                        " getDoctorsBasedOnEmail function in DoctorService class of " +
+                        "auth-service.")
+        );
+       DoctorResponseDTO doctorDTO = DoctorSignUpMapper.toDoctorResponseDTO(doctor);
+
+        return doctorDTO;
     }
 
     public void assignReport(String doctorId, String reportId) {

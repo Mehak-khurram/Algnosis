@@ -37,10 +37,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**",
-                                "/protected/**").permitAll() // allow public
-                                                                                                      // access to
-                                                                                                      // register and
-                                                                                                      // login
+                                "/protected/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/patient/**",
                                 "/doctor/get/**"
