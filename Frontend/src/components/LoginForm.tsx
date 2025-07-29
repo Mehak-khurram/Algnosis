@@ -22,7 +22,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
         setError('');
         try {
             const { email, password, userType } = formData;
-            const apiUrl = `http://localhost:9900/auth/${userType}/login`;
+            const apiUrl = `http://localhost:17000/auth/${userType}/login`;
             const response = await axios.post(apiUrl, { email, password });
             if (response.status === 200 && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -77,7 +77,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
                             className="w-full px-3 py-2 border border-gray-200 bg-gray-50 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                         >
                             <option value="patient">Patient</option>
-                            <option value="provider">Healthcare Provider</option>
+                            <option value="doctor">Healthcare Provider</option>
                             <option value="admin">Administrator</option>
                         </select>
                     </div>
