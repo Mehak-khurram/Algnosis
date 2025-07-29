@@ -29,7 +29,7 @@ const recentReports = [
 const DoctorDiagnosisResult: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const result = location.state?.id;//.result || { diagnosis: 'Pneumonia', confidence: 0.92 };
+    const result = location.state?.result || { diagnosis: 'Pneumonia', confidence: 0.92 };
     const [doctorReport, setDoctorReport] = useState('');
     const [reportSaved, setReportSaved] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -145,32 +145,24 @@ const DoctorDiagnosisResult: React.FC = () => {
             
             const pdfBlob = doc.output('blob');
             const formData = new FormData();
-            formData.append('file', pdfBlob);         // selectedFile = from input
-            formData.append('reportId', result);           // result = your report ID
-
-            const token = localStorage.getItem('token');
-
+            formData.append('file', pdfBlob, 'Medical_Report.pdf');
             try {
-            const res = await fetch('http://localhost:13000/reports/diagnosis/update', {
-                method: 'PUT',
-                body: formData,
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            });
+        const res = await fetch('http://localhost:13000/upload-pdf', {
+          method: 'POST',
+          body: formData,
+        });
 
-            if (res.ok) {
-                const data = await res.json();
-                console.log('Upload successful:', data);
-            } else {
-                const errorData = await res.json();
-                console.error('Upload failed:', res.status, errorData);
-            }
-
-        } catch (err) {
-            console.error('Upload failed:', err);
-            alert('Cloudinary upload failed.');
+        const cloudData = await res.json();
+        if (res.ok) {
+          console.log('Cloudinary PDF URL:', cloudData.url);
+          alert(`PDF uploaded successfully!\nLink: ${cloudData.url}`);
+        } else {
+          throw new Error(cloudData.error || 'Upload failed');
         }
+      } catch (err) {
+        console.error('Upload failed:', err);
+        alert('Cloudinary upload failed.');
+      }
 
         };
     };
