@@ -97,6 +97,16 @@ public class PatientService {
         return PatientSignUpMapper.toPatientResponseDTO(patient);
     }
 
+    public PatientResponseDTO getPatientDetailsByEmail(String email) {
+
+        Patient patient = (Patient) patientRepo.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFound("No patient found. This" +
+                        "error is thrown by getPatientDetailsByEmail function " +
+                        "in PatientService class by Auth-service."));
+
+        return PatientSignUpMapper.toPatientResponseDTO(patient);
+    }
+
     public PatientResponseDTO updatePatientProfile(PatientResponseDTO updatedData) {
         // 1. Get logged-in user's email from token
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
