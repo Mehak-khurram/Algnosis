@@ -84,30 +84,30 @@ public class ReportDisplayService {
     }
 
 
-//    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
-//        System.out.println("I am inside Controller!!!!!");
-//        //EXTRACTING EMAIL FROM TOKEN
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//
-//        //UPLOADING FILE TO CLOUDINARY
-//        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-//        String fileUrl = (String) uploadResults.get("secure_url");
-//        String fileType = (String) uploadResults.get("resource_type");
-//        String fileName = (String) uploadResults.get("original_filename");
-//
-//        PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
-//                () -> new NoReportsFound("No report with ID "+
-//                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
-//                        "in ReportDisplayService of ReportService.")
-//        );
-//
-//        patientUpload.setDiagnosisUrl(fileUrl);
-//        patientUploadRepository.save(patientUpload);
-//
-//        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
-//        return patientUploadDTO;
-//    }
+    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
+        System.out.println("I am inside Controller!!!!!");
+        //EXTRACTING EMAIL FROM TOKEN
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        //UPLOADING FILE TO CLOUDINARY
+        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String fileUrl = (String) uploadResults.get("secure_url");
+        String fileType = (String) uploadResults.get("resource_type");
+        String fileName = (String) uploadResults.get("original_filename");
+
+        PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
+                () -> new NoReportsFound("No report with ID "+
+                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
+                        "in ReportDisplayService of ReportService.")
+        );
+
+        patientUpload.setDiagnosisUrl(fileUrl);
+        patientUploadRepository.save(patientUpload);
+
+        PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
+        return patientUploadDTO;
+    }
 
 
     public PatientUploadDTO findReportByID(String reportID){

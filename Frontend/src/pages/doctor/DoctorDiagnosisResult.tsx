@@ -63,109 +63,123 @@ const DoctorDiagnosisResult: React.FC = () => {
     };
 
     const handleDownloadPDF = async () => {
-        const doc = new jsPDF();
-        const logo = new Image();
-        logo.src = `${window.location.origin}/Logo.png`;
+    console.log('Download PDF button clicked');
 
-        logo.onload = async () => {
-            doc.addImage(logo, 'PNG', 14, 10, 30, 30);
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
+    const doc = new jsPDF();
+    const logo = new Image();
+    logo.src = `${window.location.origin}/Logo.png`;
 
-            doc.setLineWidth(0.5);
-            doc.line(14, 36, 196, 36);
-
-            let y = 42;
-
-            doc.setFontSize(13);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Patient Information', 14, y);
-            y += 8;
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Name: ${patientProfile.name}`, 14, y);
-            doc.text(`Age: ${patientProfile.age}`, 105, y);
-            y += 6;
-            doc.text(`DOB: ${patientProfile.dob}`, 14, y);
-            doc.text(`Gender: ${patientProfile.gender}`, 105, y);
-            y += 6;
-            doc.text(`Email: ${patientProfile.email}`, 14, y);
-            doc.text(`Phone: ${patientProfile.phone}`, 105, y);
-            y += 6;
-            doc.text(`Address: ${patientProfile.address}`, 14, y);
-            y += 6;
-            doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
-            y += 6;
-            doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
-            y += 6;
-            doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
-            doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
-
-            y += 12;
-            doc.setFontSize(13);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Diagnosis', 14, y);
-            y += 8;
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`${result.diagnosis}%)`, 14, y);
-
-            y += 12;
-            doc.setFontSize(13);
-            doc.setFont('helvetica', 'bold');
-            doc.text("Doctor's Notes", 14, y);
-            y += 8;
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
-            doc.text(reportLines, 14, y);
-            y += reportLines.length * 6 + 4;
-
-            doc.setFontSize(13);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Recommendations', 14, y);
-            y += 8;
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'normal');
-            recommendations.forEach((rec, idx) => {
-                doc.text(`• ${rec}`, 18, y + idx * 6);
-            });
-
-            y += recommendations.length * 6 + 10;
-            const date = new Date().toLocaleDateString();
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${date}`, 14, 290);
-            doc.text(`Page 1`, 190, 290, { align: 'right' });
-
-            doc.save(`Medical_Report_${patientProfile.name.replace(/\s/g, '_')}.pdf`);
-            
-            const pdfBlob = doc.output('blob');
-            const formData = new FormData();
-            formData.append('file', pdfBlob, 'Medical_Report.pdf');
-            try {
-        const res = await fetch('http://localhost:13000/upload-pdf', {
-          method: 'POST',
-          body: formData,
+    try {
+        // Wait until logo loads
+        await new Promise((resolve, reject) => {
+            logo.onload = resolve;
+            logo.onerror = reject;
         });
 
-        const cloudData = await res.json();
-        if (res.ok) {
-          console.log('Cloudinary PDF URL:', cloudData.url);
-          alert(`PDF uploaded successfully!\nLink: ${cloudData.url}`);
-        } else {
-          throw new Error(cloudData.error || 'Upload failed');
-        }
-      } catch (err) {
-        console.error('Upload failed:', err);
-        alert('Cloudinary upload failed.');
-      }
+        doc.addImage(logo, 'PNG', 14, 10, 30, 30);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
 
-        };
-    };
+        doc.setLineWidth(0.5);
+        doc.line(14, 36, 196, 36);
+
+        let y = 42;
+
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Patient Information', 14, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Name: ${patientProfile.name}`, 14, y);
+        doc.text(`Age: ${patientProfile.age}`, 105, y);
+        y += 6;
+        doc.text(`DOB: ${patientProfile.dob}`, 14, y);
+        doc.text(`Gender: ${patientProfile.gender}`, 105, y);
+        y += 6;
+        doc.text(`Email: ${patientProfile.email}`, 14, y);
+        doc.text(`Phone: ${patientProfile.phone}`, 105, y);
+        y += 6;
+        doc.text(`Address: ${patientProfile.address}`, 14, y);
+        y += 6;
+        doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
+        y += 6;
+        doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
+        y += 6;
+        doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
+        doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
+
+        y += 12;
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Diagnosis', 14, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${result.diagnosis}`, 14, y); // removed stray '%)'
+
+        y += 12;
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Doctor's Notes", 14, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
+        doc.text(reportLines, 14, y);
+        y += reportLines.length * 6 + 4;
+
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Recommendations', 14, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        recommendations.forEach((rec, idx) => {
+            doc.text(`• ${rec}`, 18, y + idx * 6);
+        });
+
+        y += recommendations.length * 6 + 10;
+        const date = new Date().toLocaleDateString();
+        doc.setFontSize(10);
+        doc.text(`Generated on: ${date}`, 14, 290);
+        doc.text(`Page 1`, 190, 290, { align: 'right' });
+
+        // Save locally
+        doc.save(`Medical_Report_${patientProfile.name.replace(/\s/g, '_')}.pdf`);
+
+        // Upload to backend
+        const pdfBlob = doc.output('blob');
+        const formData = new FormData();
+        formData.append('file', pdfBlob);
+        formData.append('reportId', result.id);
+
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:13000/reports/diagnosis/update', {
+            method: 'PUT',
+            body: formData,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            console.log('Upload successful:', data);
+        } else {
+            const errorData = await res.json();
+            console.error('Upload failed:', res.status, errorData);
+            alert('Report upload failed');
+        }
+    } catch (err) {
+        console.error('Error during PDF generation or upload:', err);
+        alert('An error occurred during report generation or upload.');
+    }
+};
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-pink-50 flex flex-col">
             <DoctorNavBar />

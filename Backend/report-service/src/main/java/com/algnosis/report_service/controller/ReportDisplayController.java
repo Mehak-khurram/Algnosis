@@ -47,14 +47,14 @@ public class ReportDisplayController {
 
 //    //THIS API IS FOR UPDATING THE DIAGNOSISURL OR AN EXISTING REPORT
 //    //THIS IS CALLED WHEN THE USER CLICKS ON DOWNLOAD PDF AND A DIAGNOSIS SUMMARY IS GENERATED TO BE DOWNLOADED
-//    @PutMapping("/diagnosis/update")
-//    public ResponseEntity<PatientUploadDTO> uploadDiagnosisReport(
-//            @RequestParam("file") MultipartFile file,
-//            @RequestParam("reportId") String reportId) throws IOException {
-//
-//            PatientUploadDTO updatedReport = reportDisplayService.uploadDiagnosisReport(file, reportId);
-//            return ResponseEntity.ok(updatedReport);
-//    }
+    @PutMapping("/diagnosis/update")
+    public ResponseEntity<PatientUploadDTO> uploadDiagnosisReport(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("reportId") String reportId) throws IOException {
+
+            PatientUploadDTO updatedReport = reportDisplayService.uploadDiagnosisReport(file, reportId);
+            return ResponseEntity.ok(updatedReport);
+    }
 
 
     //this is for doctor side diagnosis page to display report information

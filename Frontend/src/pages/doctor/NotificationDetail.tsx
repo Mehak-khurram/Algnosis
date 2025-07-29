@@ -246,7 +246,7 @@ const NotificationDetail: React.FC = () => {
                             <div className="text-gray-500">No patient profile data available.</div>
                         )}
                     </div>
-                    {/* X-ray/Report Tile - Improved preview layout */}
+                    {/* X-ray/Report Tile - Auto-size to image/file preview */}
                     <div
                         className="col-span-3 row-span-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-blue-400 animate-fadein cursor-zoom-in"
                         onClick={() => notif.fileUrl && isImage(notif.fileUrl) && setShowModal(true)}
@@ -256,15 +256,15 @@ const NotificationDetail: React.FC = () => {
                         style={{ gridColumn: '1 / span 3', gridRow: '1 / span 3' }}
                     >
                         <div className="text-xl font-bold text-blue-900 mb-4">Submitted X-ray / Report</div>
-                        <div className="w-full flex-1 flex items-center justify-center">
+                        <div className="w-full flex flex-col items-center justify-center">
                             {notif.fileUrl ? (
                                 isImage(notif.fileUrl) ? (
-                                    <div className="w-full h-[350px] flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                                    <div className="flex items-center justify-center bg-gray-50 rounded-lg overflow-auto border border-gray-200 max-w-full max-h-[600px]">
                                         <img 
                                             src={notif.fileUrl} 
                                             alt="Report/X-ray" 
-                                            className="object-contain max-h-full max-w-full w-auto h-auto" 
-                                            style={{ maxHeight: '330px', maxWidth: '100%' }}
+                                            className="object-contain"
+                                            style={{ maxWidth: '100%', maxHeight: '600px', width: 'auto', height: 'auto', display: 'block' }}
                                         />
                                     </div>
                                 ) : (
