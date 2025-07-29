@@ -28,13 +28,15 @@ const recentReports = [
 
 const DoctorDiagnosisResult: React.FC = () => {
     const location = useLocation();
+
     const navigate = useNavigate();
-    const result = location.state?.result || { diagnosis: 'Pneumonia', confidence: 0.92 };
+    const result = location.state?.result;
     const [doctorReport, setDoctorReport] = useState('');
     const [reportSaved, setReportSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [generatedReport, setGeneratedReport] = useState('');
     const [recommendations, setRecommendations] = useState<string[]>([]);
+    
 
     const handleSaveReport = async () => {
         setLoading(true);
@@ -156,10 +158,11 @@ const DoctorDiagnosisResult: React.FC = () => {
         const pdfBlob = doc.output('blob');
         const formData = new FormData();
         formData.append('file', pdfBlob);
+        console.log(result.id)
         formData.append('reportId', result.id);
 
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:13000/reports/diagnosis/update', {
+        const res = await fetch('http://localhost:8020/reports/diagnosis/update', {
             method: 'PUT',
             body: formData,
             headers: {

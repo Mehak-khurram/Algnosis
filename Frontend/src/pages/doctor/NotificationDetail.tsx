@@ -21,6 +21,7 @@ const NotificationDetail: React.FC = () => {
     const [patientProfile, setPatientProfile] = useState<any>(null);
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileError, setProfileError] = useState<string | null>(null);
+    
 
     useEffect(() => {
         // If notif is already set (from navigation state or static), do nothing
@@ -151,15 +152,23 @@ const NotificationDetail: React.FC = () => {
                 return;
             }
             const data = await response.json();
+            // Pass reportId (notif.id) to diagnosis-result page
+            const reportId = notif?.id || notif?._id || data?.id;
+
+
+            
+            console.log("this is the id" + id);
+            console.log(data)
+
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data } });
+                navigate('/doctor/diagnosis-result', { state: { result: id} } );
             } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data } });
+                navigate('/doctor/diagnosis-result', { state: { result: id } });
             } else if (selectedDisease === 'anemia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: data } });
+                navigate('/doctor/diagnosis-result', { state: { result: id} });
             }
         } catch (error) {
             if (selectedDisease === 'pneumonia' || selectedDisease === 'anemia' || selectedDisease === 'brain_tumor') setUploading(false);
