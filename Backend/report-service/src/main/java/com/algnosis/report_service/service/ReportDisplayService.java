@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportDisplayService {
@@ -32,13 +33,13 @@ public class ReportDisplayService {
     private final Cloudinary cloudinary;
 
     public ReportDisplayService(PatientUploadRepository patientUploadRepository,
-                                AuthServiceClient authServiceClient, Cloudinary cloudinary) {
+            AuthServiceClient authServiceClient, Cloudinary cloudinary) {
         this.patientUploadRepository = patientUploadRepository;
         this.authServiceClient = authServiceClient;
         this.cloudinary = cloudinary;
     }
 
-    //GETTING REPORTS FOR VIEW ALL REPORTS PAGE FOR PATIENT
+    // GETTING REPORTS FOR VIEW ALL REPORTS PAGE FOR PATIENT
     public List<PatientUploadDTO> getAllReports() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -47,7 +48,7 @@ public class ReportDisplayService {
         // 2. Fetch reports by email
         List<PatientUpload> reports = patientUploadRepository.findByEmail(email);
 
-        if(reports.isEmpty() || reports == null){
+        if (reports.isEmpty() || reports == null) {
             throw new NoReportsFound("No Reports have been added by patient yet." +
                     "This error is thrown by ReportDisplayService, function getAllReports.");
         }
@@ -72,7 +73,7 @@ public class ReportDisplayService {
 
         for (String reportId : reportIds) {
             PatientUpload report = patientUploadRepository.findById(reportId)
-                    .orElseThrow(() -> new NoReportsFound("Report not found with ID: " + reportId+
+                    .orElseThrow(() -> new NoReportsFound("Report not found with ID: " + reportId +
                             ". This error is thrown by getAllReportsForDoctor function" +
                             "inside ReportDisplayService class in Report-service."));
 
@@ -83,24 +84,24 @@ public class ReportDisplayService {
         return reportDTOs;
     }
 
-
     public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
         System.out.println("I am inside Controller!!!!!");
-        //EXTRACTING EMAIL FROM TOKEN
+        // EXTRACTING EMAIL FROM TOKEN
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
-        //UPLOADING FILE TO CLOUDINARY
-        Map<?,?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        // UPLOADING FILE TO CLOUDINARY
+        Map<?, ?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String fileUrl = (String) uploadResults.get("secure_url");
         String fileType = (String) uploadResults.get("resource_type");
         String fileName = (String) uploadResults.get("original_filename");
 
+        System.out.println("Uploaded file name: " + file.getOriginalFilename());
+
         PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
-                () -> new NoReportsFound("No report with ID "+
+                () -> new NoReportsFound("No report with ID " +
                         reportID + " found. This error is thrown by uploadDiagnosisReport function " +
-                        "in ReportDisplayService of ReportService.")
-        );
+                        "in ReportDisplayService of ReportService."));
 
         patientUpload.setDiagnosisUrl(fileUrl);
         patientUploadRepository.save(patientUpload);
@@ -109,15 +110,30 @@ public class ReportDisplayService {
         return patientUploadDTO;
     }
 
-
-    public PatientUploadDTO findReportByID(String reportID){
+    public PatientUploadDTO findReportByID(String reportID) {
         PatientUpload patientUpload = patientUploadRepository.findByid(reportID).orElseThrow(
-                () -> new NoReportsFound("No report with ID "+
+                () -> new NoReportsFound("No report with ID " +
                         reportID + " found. This error is thrown by uploadDiagnosisReport function " +
-                        "in ReportDisplayService of ReportService.")
-        );
+                        "in ReportDisplayService of ReportService."));
 
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
         return patientUploadDTO;
+    }
+
+    public List<PatientUploadDTO> findReportByEmail(String email) {
+        List<PatientUpload> reports = patientUploadRepository.findByEmail(email);
+
+        // If no reports are found, optionally throw an exception or return an empty
+        // list
+        if (reports.isEmpty()) {
+            throw new NoReportsFound("No reports found for email: " + email +
+                    ". This error is thrown by findReportsByEmail function in ReportDisplayService class of Report-service");
+        }
+
+        // Convert entity list to DTO list using your mapper
+        return reports.stream()
+                .map(PatientUploadMapper::toDTO)
+                .collect(Collectors.toList());
+
     }
 }

@@ -2,7 +2,8 @@ import subprocess
 import os
 import signal
 
-PYTHON_PATH = "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
+PYTHON_PATH = r"C:\Users\Welcome\AppData\Local\Programs\Python\Python311\python.exe"
+
 
 services = [
     "anemia/app.py",

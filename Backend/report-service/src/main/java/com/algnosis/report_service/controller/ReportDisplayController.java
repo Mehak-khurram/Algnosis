@@ -45,8 +45,8 @@ public class ReportDisplayController {
         return ResponseEntity.ok(assignedReportsList);
     }
 
-//    //THIS API IS FOR UPDATING THE DIAGNOSISURL OR AN EXISTING REPORT
-//    //THIS IS CALLED WHEN THE USER CLICKS ON DOWNLOAD PDF AND A DIAGNOSIS SUMMARY IS GENERATED TO BE DOWNLOADED
+    //THIS API IS FOR UPDATING THE DIAGNOSISURL OR AN EXISTING REPORT
+    //THIS IS CALLED WHEN THE USER CLICKS ON DOWNLOAD PDF AND A DIAGNOSIS SUMMARY IS GENERATED TO BE DOWNLOADED
     @PutMapping("/diagnosis/update")
     public ResponseEntity<PatientUploadDTO> uploadDiagnosisReport(
             @RequestParam("file") MultipartFile file,
@@ -65,5 +65,15 @@ public class ReportDisplayController {
     ){
             PatientUploadDTO patientUploadDTO = reportDisplayService.findReportByID(reportID);
             return ResponseEntity.ok(patientUploadDTO);
+    }
+
+    //this is for doctor side diagnosis page to display report information
+    @GetMapping("/get/email")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<List<PatientUploadDTO>> getReportByReportEmail(
+            @RequestParam String email
+    ){
+        List<PatientUploadDTO> patientUploadDTO = reportDisplayService.findReportByEmail(email);
+        return ResponseEntity.ok(patientUploadDTO);
     }
 }
