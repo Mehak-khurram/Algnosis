@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaRegHandPointRight } from 'react-icons/fa';
 
-const notifications = [
-    { id: '1', patient: 'John Doe', message: 'Uploaded a new X-ray report.', detail: 'John Doe has uploaded a new X-ray report for your review. Please check the report and provide feedback.', file: 'https://via.placeholder.com/300x400?text=X-ray+Image', profile: { name: 'John Doe', age: 45, dob: '1979-01-01', gender: 'Male', email: 'john.doe@email.com', phone: '555-1234', address: '123 Main St, City', emergencyContact: 'Jane Doe (Wife) - 555-5678', insurance: 'HealthPlus', allergies: 'Penicillin', conditions: 'Asthma' }, history: [{ date: '2024-05-01', type: 'X-ray', summary: 'Normal' }, { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC' }] },
-    { id: '2', patient: 'Jane Smith', message: 'Sent a follow-up question.', detail: 'Jane Smith has sent a follow-up question regarding her last diagnosis.', file: '', profile: { name: 'Jane Smith', age: 38, dob: '1986-02-14', gender: 'Female', email: 'jane.smith@email.com', phone: '555-5678', address: '456 Oak Ave, City', emergencyContact: 'John Smith (Husband) - 555-8765', insurance: 'MediCare', allergies: 'None', conditions: 'None' }, history: [{ date: '2024-04-10', type: 'X-ray', summary: 'Mild pneumonia' }] },
-    { id: '3', patient: 'Ali Khan', message: 'Requested appointment reschedule.', detail: 'Ali Khan has requested to reschedule his upcoming appointment.', file: '', profile: { name: 'Ali Khan', age: 52, dob: '1972-07-22', gender: 'Male', email: 'ali.khan@email.com', phone: '555-8765', address: '789 Pine Rd, City', emergencyContact: 'Sara Khan (Daughter) - 555-4321', insurance: 'CarePlus', allergies: 'Sulfa drugs', conditions: 'Diabetes' }, history: [] },
-    { id: '4', patient: 'Maria Garcia', message: 'Uploaded lab results.', detail: 'Maria Garcia has uploaded new lab results for your review.', file: 'https://via.placeholder.com/300x400?text=Lab+Report', profile: { name: 'Maria Garcia', age: 29, dob: '1995-11-03', gender: 'Female', email: 'maria.garcia@email.com', phone: '555-4321', address: '321 Maple St, City', emergencyContact: 'Carlos Garcia (Brother) - 555-1234', insurance: 'HealthFirst', allergies: 'None', conditions: 'None' }, history: [{ date: '2024-02-20', type: 'Lab Report', summary: 'All normal' }] },
-];
+
 
 const NotificationDetail: React.FC = () => {
     const { id } = useParams();
@@ -15,12 +11,15 @@ const NotificationDetail: React.FC = () => {
     const location = useLocation();
     // State for dynamic report loading
     const [notif, setNotif] = useState<any>(location.state?.report || null);
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     // Patient profile state
     const [patientProfile, setPatientProfile] = useState<any>(null);
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileError, setProfileError] = useState<string | null>(null);
+    const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+    const [patientHistory, setPatientHistory] = useState<any>(null);
     
 
     useEffect(() => {
@@ -71,6 +70,27 @@ const NotificationDetail: React.FC = () => {
             .catch(err => {
                 setProfileError('Patient profile not found.');
                 setProfileLoading(false);
+            });
+    }, [notif]);
+
+    // Fetch patient history using email from notif
+    useEffect(() => {
+        if (!notif || !notif.email) return;
+        const token = localStorage.getItem('token');
+        fetch(`http://localhost:8020/reports/list?email=${notif.email}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch patient history');
+                return res.json();
+            })
+            .then(data => {
+                setPatientHistory(data);
+            })
+            .catch(err => {
+                console.error(err);
             });
     }, [notif]);
 
@@ -146,29 +166,25 @@ const NotificationDetail: React.FC = () => {
                 // For brain tumor, get the blob (image)
                 const blob = await response.blob();
                 const segmentedUrl = URL.createObjectURL(blob);
-                // Pass both original and segmented image URLs to the result page
                 const originalUrl = URL.createObjectURL(file);
                 navigate('/doctor/brain-tumor-result', { state: { originalUrl, segmentedUrl } });
                 return;
             }
             const data = await response.json();
-            // Pass reportId (notif.id) to diagnosis-result page
-            const reportId = notif?.id || notif?._id || data?.id;
-
-
+           
             
-            console.log("this is the id" + id);
             console.log(data)
+            console.log("this is the id" + notif.id);
 
             if (selectedDisease === 'pneumonia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: id} } );
+                navigate('/doctor/diagnosis-result', { state: { result: data , profile: patientProfile , reportID : notif.id} } );
             } else if (selectedDisease === 'tb') {
                 setUploadingTB(false);
-                navigate('/doctor/diagnosis-result', { state: { result: id } });
+                navigate('/doctor/diagnosis-result', { state: { result: data , profile: patientProfile , reportID : notif.id} } );
             } else if (selectedDisease === 'anemia') {
                 setUploading(false);
-                navigate('/doctor/diagnosis-result', { state: { result: id} });
+                navigate('/doctor/diagnosis-result', { state: { result: data , profile: patientProfile , reportID : notif.id} } );
             }
         } catch (error) {
             if (selectedDisease === 'pneumonia' || selectedDisease === 'anemia' || selectedDisease === 'brain_tumor') setUploading(false);
@@ -177,10 +193,6 @@ const NotificationDetail: React.FC = () => {
         }
     };
 
-    // // Helper to check if file is an image (for modal zoom)
-    // const isImage = (fileUrl: string) => {
-    //     return fileUrl.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i) || fileUrl.includes('placeholder.com');
-    // };
 
     const isImage = (fileUrl: string) => {
         if (!fileUrl) return false;
@@ -226,7 +238,7 @@ const NotificationDetail: React.FC = () => {
                             <div className="text-red-700">{profileError}</div>
                         ) : patientProfile ? (
                             <>
-                                <div className="text-blue-900 font-semibold">Email: <span className="font-normal text-gray-800">{patientProfile.email}</span></div>
+                                <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{patientProfile.firstName + ' ' + patientProfile.lastName}</span></div>
                                 <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{patientProfile.age}</span></div>
                                 <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{patientProfile.gender}</span></div>
                                 <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{patientProfile.allergies}</span></div>
@@ -298,13 +310,21 @@ const NotificationDetail: React.FC = () => {
                         </button>
                         {!notif.fileUrl && <div className="text-gray-400 text-xs mt-2">No file available</div>}
                     </div>
-                    {/* Diagnosis Tile */}
+                    {/* Patient History Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-pink-400 animate-fadein"
                         style={{ gridColumn: '4 / span 2', gridRow: '3 / span 2' }}>
-                        <div className="text-xl font-bold text-pink-700 mb-2">Diagnosis</div>
-                        <div className="text-blue-900 font-semibold">Diagnosis: <span className="font-normal text-gray-800">{notif.diagnosis}</span></div>
-                        <div className="text-blue-900 font-semibold">Summary: <span className="font-normal text-gray-800">{notif.diagnosisSummary}</span></div>
-                        <div className="text-blue-900 font-semibold">Diagnosis Report: {notif.diagnosisUrl ? (<a href={notif.diagnosisUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View</a>) : (<span className="text-gray-500">N/A</span>)}</div>
+                        <div className="text-xl font-bold text-pink-700 mb-2">Patient History</div>
+                        {patientHistory && patientHistory.length > 0 ? (
+                            <ul className="w-full">
+                                {patientHistory.map((report, idx) => (
+                                    <li key={idx} className="mb-2 p-2 bg-pink-50 rounded-lg">
+                                        <span className="font-semibold text-blue-900">{report.date}</span> - <span className="text-gray-700">{report.type}</span>: <span className="text-gray-800">{report.summary}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-gray-500">No previous reports available.</div>
+                        )}
                     </div>
                     {/* Upload to ML Model Tile */}
                     <div className="col-span-3 row-span-1 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-teal-400 animate-fadein"
@@ -344,7 +364,7 @@ const NotificationDetail: React.FC = () => {
                 <button onClick={() => navigate(-1)} className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Back to Notifications</button>
             </div>
             {/* Modal for zoomed-in X-ray/Report */}
-            {showModal && notif.file && isImage(notif.file) && (
+            {showModal && notif.fileUrl && isImage(notif.fileUrl) && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
                     onClick={() => setShowModal(false)}
@@ -353,7 +373,11 @@ const NotificationDetail: React.FC = () => {
                         className="relative max-w-3xl max-h-[90vh] flex items-center justify-center"
                         onClick={e => e.stopPropagation()}
                     >
-                        <img src={notif.file} alt="Zoomed X-ray/Report" className="rounded-lg shadow-2xl max-h-[80vh] max-w-full" />
+                        <img 
+                            src={notif.fileUrl} 
+                            alt="Zoomed X-ray/Report" 
+                            className="rounded-lg shadow-2xl max-h-[80vh] max-w-full transform transition-transform duration-300 scale-105 hover:scale-110"
+                        />
                         <button
                             className="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-2 text-xl text-gray-700 hover:text-red-600 focus:outline-none"
                             onClick={() => setShowModal(false)}
@@ -384,4 +408,4 @@ const NotificationDetail: React.FC = () => {
     );
 };
 
-export default NotificationDetail; 
+export default NotificationDetail;

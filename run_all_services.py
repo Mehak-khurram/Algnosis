@@ -2,7 +2,7 @@ import subprocess
 import os
 import signal
 
-PYTHON_PATH = r"C:\Users\Welcome\AppData\Local\Programs\Python\Python311\python.exe"
+PYTHON_PATH = r"/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
 
 
 services = [

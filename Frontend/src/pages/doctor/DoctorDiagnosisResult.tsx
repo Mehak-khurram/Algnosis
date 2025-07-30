@@ -3,20 +3,9 @@ import jsPDF from 'jspdf';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
 
-// Placeholder patient data
-const patientProfile = {
-    name: 'John Doe',
-    age: 45,
-    dob: '1979-01-01',
-    gender: 'Male',
-    email: 'john.doe@email.com',
-    phone: '555-1234',
-    address: '123 Main St, City',
-    emergencyContact: 'Jane Doe (Wife) - 555-5678',
-    insurance: 'HealthPlus',
-    allergies: 'Penicillin',
-    conditions: 'Asthma',
-};
+
+
+
 const patientHistory = [
     { date: '2024-05-01', type: 'X-ray', summary: 'Normal' },
     { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC' },
@@ -27,10 +16,12 @@ const recentReports = [
 ];
 
 const DoctorDiagnosisResult: React.FC = () => {
-    const location = useLocation();
-
     const navigate = useNavigate();
-    const result = location.state?.result;
+    const location = useLocation();
+    const { result , profile , reportID } = location.state || {};
+    console.log('Result:', result);
+    const patientProfile = profile || {}
+    
     const [doctorReport, setDoctorReport] = useState('');
     const [reportSaved, setReportSaved] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -97,7 +88,7 @@ const DoctorDiagnosisResult: React.FC = () => {
         y += 8;
         doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Name: ${patientProfile.name}`, 14, y);
+        doc.text(`Name: ${patientProfile.firstName}`, 14, y);
         doc.text(`Age: ${patientProfile.age}`, 105, y);
         y += 6;
         doc.text(`DOB: ${patientProfile.dob}`, 14, y);
@@ -152,14 +143,14 @@ const DoctorDiagnosisResult: React.FC = () => {
         doc.text(`Page 1`, 190, 290, { align: 'right' });
 
         // Save locally
-        doc.save(`Medical_Report_${patientProfile.name.replace(/\s/g, '_')}.pdf`);
+        doc.save(`Medical_Report_${patientProfile.firstName.replace(/\s/g, '_')}.pdf`);
 
         // Upload to backend
         const pdfBlob = doc.output('blob');
         const formData = new FormData();
         formData.append('file', pdfBlob);
-        console.log(result.id)
-        formData.append('reportId', result.id);
+        console.log(reportID)
+        formData.append('reportId', reportID);
 
         const token = localStorage.getItem('token');
         const res = await fetch('http://localhost:8020/reports/diagnosis/update', {
@@ -201,17 +192,18 @@ const DoctorDiagnosisResult: React.FC = () => {
                     {/* Patient Profile Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-purple-400 animate-fadein">
                         <div className="text-xl font-bold text-purple-700 mb-2">Patient Profile</div>
-                        <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{patientProfile.name}</span></div>
-                        <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{patientProfile.age}</span></div>
-                        <div className="text-blue-900 font-semibold">Date of Birth: <span className="font-normal text-gray-800">{patientProfile.dob}</span></div>
-                        <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{patientProfile.gender}</span></div>
-                        <div className="text-blue-900 font-semibold">Email: <span className="font-normal text-gray-800">{patientProfile.email}</span></div>
-                        <div className="text-blue-900 font-semibold">Phone: <span className="font-normal text-gray-800">{patientProfile.phone}</span></div>
-                        <div className="text-blue-900 font-semibold">Address: <span className="font-normal text-gray-800">{patientProfile.address}</span></div>
-                        <div className="text-blue-900 font-semibold">Emergency Contact: <span className="font-normal text-gray-800">{patientProfile.emergencyContact}</span></div>
-                        <div className="text-blue-900 font-semibold">Insurance: <span className="font-normal text-gray-800">{patientProfile.insurance}</span></div>
-                        <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{patientProfile.allergies}</span></div>
-                        <div className="text-blue-900 font-semibold">Medical Conditions: <span className="font-normal text-gray-800">{patientProfile.conditions}</span></div>
+                         <>
+                                <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{patientProfile.firstName + ' ' + patientProfile.lastName}</span></div>
+                                <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{patientProfile.age}</span></div>
+                                <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{patientProfile.gender}</span></div>
+                                <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{patientProfile.allergies}</span></div>
+                                <div className="text-blue-900 font-semibold">Restrictions: <span className="font-normal text-gray-800">{patientProfile.restrictions}</span></div>
+                                <div className="text-blue-900 font-semibold">Medical Devices: <span className="font-normal text-gray-800">{patientProfile.medicalDevices}</span></div>
+                                <div className="text-blue-900 font-semibold">Recent Surgery: <span className="font-normal text-gray-800">{patientProfile.recentSurgery}</span></div>
+                                <div className="text-blue-900 font-semibold">Current Medications: <span className="font-normal text-gray-800">{patientProfile.currentMedications}</span></div>
+                                <div className="text-blue-900 font-semibold">Primary Contact: <span className="font-normal text-gray-800">{patientProfile.primaryContactName} ({patientProfile.primaryContactPhone})</span></div>
+                                <div className="text-blue-900 font-semibold">Secondary Contact: <span className="font-normal text-gray-800">{patientProfile.secondaryContactName} ({patientProfile.secondaryContactPhone})</span></div>
+                            </>
                     </div>
                     {/* Patient History Tile */}
                     <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-pink-400 animate-fadein">
