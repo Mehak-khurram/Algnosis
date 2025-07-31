@@ -16,7 +16,7 @@ public class PatientNotification {
     @Id
     private String id;
 
-    private String patientID;//this is doctor id
+    private String patientID;
     private String reportID;
 
     private String disease;

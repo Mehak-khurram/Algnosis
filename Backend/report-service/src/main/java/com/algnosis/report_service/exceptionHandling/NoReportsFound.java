@@ -5,5 +5,6 @@ public class NoReportsFound extends RuntimeException{
 
     public NoReportsFound(String msg){
         super(msg);
+        this.msg = msg;
     }
 }

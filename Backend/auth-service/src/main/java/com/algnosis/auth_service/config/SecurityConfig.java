@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**",
                                 "/protected/**",
                                 "/patient/get/data",
-                                "/doctor/data").permitAll()
+                                "/doctor/data",
+                                "/doctor/get/email").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/doctor/get/**",
