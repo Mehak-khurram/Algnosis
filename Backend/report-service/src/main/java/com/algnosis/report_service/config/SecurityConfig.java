@@ -36,7 +36,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/patient/register",
-                                "/protected/**").permitAll() // allow public access to login/signup
+                                "/protected/**",
+                                "/notif/patient/",
+                                "/patient/get/profile").permitAll() // allow public access to login/signup
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/patient/upload/pneumonia",
                                 "/patient/upload/tb",

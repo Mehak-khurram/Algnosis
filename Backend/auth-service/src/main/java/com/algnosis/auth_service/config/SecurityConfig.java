@@ -37,15 +37,18 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**",
-                                "/protected/**").permitAll()
+                                "/protected/**",
+                                "/patient/get/data",
+                                "/doctor/data").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/doctor/get/**",
                                 "/patient/profile",
                                 "/patient/update"
                                 ).hasRole("PATIENT")
-                        .requestMatchers("/doctor/**",
-                                "/patient/get/profile").hasRole("DOCTOR")
+                        .requestMatchers(
+                                "/patient/get/profile",
+                                "/doctor/get/**").hasRole("DOCTOR")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
