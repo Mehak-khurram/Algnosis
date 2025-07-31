@@ -5,7 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 const navItems = [
     { name: 'Dashboard', to: '/patient/dashboard' },
     { name: 'Doctors', to: '/patient/doctors' },
-    { name: 'Reports', to: '/patient/reports' },
+    { name: 'Upload', to: '/patient/reports' },
+    { name: 'Report', to: '/patient/submitted-reports' },
     { name: 'Logout', to: '/logout', isLogout: true },
 ];
 
@@ -89,4 +90,4 @@ const PatientNavBar: React.FC = () => {
     );
 };
 
-export default PatientNavBar; 
+export default PatientNavBar;

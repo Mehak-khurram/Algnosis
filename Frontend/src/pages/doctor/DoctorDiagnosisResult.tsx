@@ -3,13 +3,11 @@ import jsPDF from 'jspdf';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
 
-
-
-
 const patientHistory = [
     { date: '2024-05-01', type: 'X-ray', summary: 'Normal' },
     { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC' },
 ];
+
 const recentReports = [
     { date: '2024-05-01', type: 'X-ray', summary: 'Normal', file: 'https://via.placeholder.com/100x120?text=X-ray' },
     { date: '2024-03-15', type: 'Lab Report', summary: 'Elevated WBC', file: 'https://via.placeholder.com/100x120?text=Lab+Report' },
@@ -18,16 +16,15 @@ const recentReports = [
 const DoctorDiagnosisResult: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { result , profile , reportID } = location.state || {};
-    console.log('Result:', result);
-    const patientProfile = profile || {}
-    
+    const { result, profile, reportID } = location.state || {};
+    const patientProfile = profile || {};
+
     const [doctorReport, setDoctorReport] = useState('');
     const [reportSaved, setReportSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [generatedReport, setGeneratedReport] = useState('');
     const [recommendations, setRecommendations] = useState<string[]>([]);
-    
+    const [pdfSubmitted, setPdfSubmitted] = useState(false);
 
     const handleSaveReport = async () => {
         setLoading(true);
@@ -56,248 +53,365 @@ const DoctorDiagnosisResult: React.FC = () => {
     };
 
     const handleDownloadPDF = async () => {
-    console.log('Download PDF button clicked');
+        const doc = new jsPDF();
+        const logo = new Image();
+        logo.src = `${window.location.origin}/Logo.png`;
 
-    const doc = new jsPDF();
-    const logo = new Image();
-    logo.src = `${window.location.origin}/Logo.png`;
+        try {
+            await new Promise((resolve, reject) => {
+                logo.onload = resolve;
+                logo.onerror = reject;
+            });
 
-    try {
-        // Wait until logo loads
-        await new Promise((resolve, reject) => {
-            logo.onload = resolve;
-            logo.onerror = reject;
-        });
+            doc.addImage(logo, 'PNG', 14, 10, 30, 30);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
 
-        doc.addImage(logo, 'PNG', 14, 10, 30, 30);
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
+            doc.setLineWidth(0.5);
+            doc.line(14, 36, 196, 36);
 
-        doc.setLineWidth(0.5);
-        doc.line(14, 36, 196, 36);
+            let y = 42;
 
-        let y = 42;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Patient Information', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Name: ${patientProfile.firstName}`, 14, y);
+            doc.text(`Age: ${patientProfile.age}`, 105, y);
+            y += 6;
+            doc.text(`DOB: ${patientProfile.dob}`, 14, y);
+            doc.text(`Gender: ${patientProfile.gender}`, 105, y);
+            y += 6;
+            doc.text(`Email: ${patientProfile.email}`, 14, y);
+            doc.text(`Phone: ${patientProfile.phone}`, 105, y);
+            y += 6;
+            doc.text(`Address: ${patientProfile.address}`, 14, y);
+            y += 6;
+            doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
+            y += 6;
+            doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
+            y += 6;
+            doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
+            doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
 
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Patient Information', 14, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Name: ${patientProfile.firstName}`, 14, y);
-        doc.text(`Age: ${patientProfile.age}`, 105, y);
-        y += 6;
-        doc.text(`DOB: ${patientProfile.dob}`, 14, y);
-        doc.text(`Gender: ${patientProfile.gender}`, 105, y);
-        y += 6;
-        doc.text(`Email: ${patientProfile.email}`, 14, y);
-        doc.text(`Phone: ${patientProfile.phone}`, 105, y);
-        y += 6;
-        doc.text(`Address: ${patientProfile.address}`, 14, y);
-        y += 6;
-        doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
-        y += 6;
-        doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
-        y += 6;
-        doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
-        doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Diagnosis', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${result.diagnosis}`, 14, y);
 
-        y += 12;
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Diagnosis', 14, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`${result.diagnosis}`, 14, y); // removed stray '%)'
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Doctor's Notes", 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
+            doc.text(reportLines, 14, y);
+            y += reportLines.length * 6 + 4;
 
-        y += 12;
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text("Doctor's Notes", 14, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
-        doc.text(reportLines, 14, y);
-        y += reportLines.length * 6 + 4;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Recommendations', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            recommendations.forEach((rec, idx) => {
+                doc.text(`• ${rec}`, 18, y + idx * 6);
+            });
 
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Recommendations', 14, y);
-        y += 8;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        recommendations.forEach((rec, idx) => {
-            doc.text(`• ${rec}`, 18, y + idx * 6);
-        });
+            y += recommendations.length * 6 + 10;
+            const date = new Date().toLocaleDateString();
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${date}`, 14, 290);
+            doc.text(`Page 1`, 190, 290, { align: 'right' });
 
-        y += recommendations.length * 6 + 10;
-        const date = new Date().toLocaleDateString();
-        doc.setFontSize(10);
-        doc.text(`Generated on: ${date}`, 14, 290);
-        doc.text(`Page 1`, 190, 290, { align: 'right' });
+            doc.save(`Medical_Report_${patientProfile.firstName.replace(/\s/g, '_')}.pdf`);
 
-        // Save locally
-        doc.save(`Medical_Report_${patientProfile.firstName.replace(/\s/g, '_')}.pdf`);
-
-        // Upload to backend
-        const pdfBlob = doc.output('blob');
-        const formData = new FormData();
-        formData.append('file', pdfBlob);
-        console.log(reportID)
-        formData.append('reportId', reportID);
-
-        const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:8020/reports/diagnosis/update', {
-            method: 'PUT',
-            body: formData,
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            console.log('Upload successful:', data);
-        } else {
-            const errorData = await res.json();
-            console.error('Upload failed:', res.status, errorData);
-            alert('Report upload failed');
+        } catch (err) {
+            console.error('Error during PDF generation or upload:', err);
+            alert('An error occurred during report generation or upload.');
         }
-    } catch (err) {
-        console.error('Error during PDF generation or upload:', err);
-        alert('An error occurred during report generation or upload.');
-    }
-};
+    };
+
+    const handleUploadPDF = async () => {
+        const doc = new jsPDF();
+        const logo = new Image();
+        logo.src = `${window.location.origin}/Logo.png`;
+
+        try {
+            await new Promise((resolve, reject) => {
+                logo.onload = resolve;
+                logo.onerror = reject;
+            });
+
+            doc.addImage(logo, 'PNG', 14, 10, 30, 30);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Algnosis Medical Center', 105, 18, { align: 'center' });
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Phone: +1 (800) 555-0123 | Email: info@algnosis.com', 105, 31, { align: 'center' });
+
+            doc.setLineWidth(0.5);
+            doc.line(14, 36, 196, 36);
+
+            let y = 42;
+
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Patient Information', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Name: ${patientProfile.firstName}`, 14, y);
+            doc.text(`Age: ${patientProfile.age}`, 105, y);
+            y += 6;
+            doc.text(`DOB: ${patientProfile.dob}`, 14, y);
+            doc.text(`Gender: ${patientProfile.gender}`, 105, y);
+            y += 6;
+            doc.text(`Email: ${patientProfile.email}`, 14, y);
+            doc.text(`Phone: ${patientProfile.phone}`, 105, y);
+            y += 6;
+            doc.text(`Address: ${patientProfile.address}`, 14, y);
+            y += 6;
+            doc.text(`Emergency Contact: ${patientProfile.emergencyContact}`, 14, y);
+            y += 6;
+            doc.text(`Insurance: ${patientProfile.insurance}`, 14, y);
+            y += 6;
+            doc.text(`Allergies: ${patientProfile.allergies}`, 14, y);
+            doc.text(`Conditions: ${patientProfile.conditions}`, 105, y);
+
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Diagnosis', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${result.diagnosis}`, 14, y);
+
+            y += 12;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Doctor's Notes", 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            const reportLines = doc.splitTextToSize(generatedReport || 'No report generated.', 180);
+            doc.text(reportLines, 14, y);
+            y += reportLines.length * 6 + 4;
+
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Recommendations', 14, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            recommendations.forEach((rec, idx) => {
+                doc.text(`• ${rec}`, 18, y + idx * 6);
+            });
+
+            y += recommendations.length * 6 + 10;
+            const date = new Date().toLocaleDateString();
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${date}`, 14, 290);
+            doc.text(`Page 1`, 190, 290, { align: 'right' });
+
+
+        } catch (err) {
+            console.error('Error during PDF generation or upload:', err);
+            alert('An error occurred during report generation or upload.');
+            return;
+        }
+
+        try {
+            const pdfBlob = doc.output('blob');
+            const formData = new FormData();
+            formData.append('file', pdfBlob);
+            formData.append('reportId', reportID);
+
+            const token = localStorage.getItem('token');
+            const res = await fetch('http://localhost:8020/reports/diagnosis/update', {
+                method: 'PUT',
+                body: formData,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                console.log('Upload successful:', data);
+                setPdfSubmitted(true);
+            } else {
+                const errorData = await res.json();
+                console.error('Upload failed:', res.status, errorData);
+                alert('Report upload failed');
+            }
+        } catch (err) {
+            console.error('Error during PDF upload:', err);
+            alert('An error occurred during report upload.');
+        }
+    };
+
+    const isImage = (url: string) => {
+        return (/\.(jpg|jpeg|png|gif|bmp|webp)$/i).test(url);
+    };
+
+    const tileClasses = "bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-400";
+    const headerClasses = "text-xl font-semibold text-blue-800 mb-4 border-b pb-2 border-blue-200";
+    const textBoldClasses = "font-semibold text-blue-900";
+    const textNormalClasses = "font-normal text-gray-700";
+
+    console.log('Location State:', location.state); // Debugging the navigation state
+
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-pink-50 flex flex-col">
+        <div className="min-h-screen bg-blue-50 flex flex-col">
             <DoctorNavBar />
-            <div className="flex-1 flex flex-col items-center justify-center w-full">
-                <div className="w-full max-w-7xl px-8 pt-8 pb-2">
-                    <div className="text-2xl font-bold text-blue-900 animate-fadein-left z-10 text-left mb-4">
-                        Diagnosis Result
+            <div className="flex-1 w-full max-w-7xl mx-auto p-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-3xl font-bold text-blue-900">Diagnosis Result for {patientProfile.firstName}</h1>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors"
+                    >
+                        Back
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {/* Diagnosis Result Tile */}
+                    <div className={`${tileClasses} border-blue-600`}>
+                        <h2 className={headerClasses}>Diagnosis</h2>
+                        <div className="text-3xl font-bold text-blue-800 text-center">{result.diagnosis}</div>
+                    </div>
+
+                    {/* Patient Profile Tile */}
+                    <div className={`${tileClasses} col-span-1 md:col-span-2`}>
+                        <h2 className={headerClasses}>Patient Profile</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-6 text-sm">
+                            <div><span className={textBoldClasses}>Name:</span> <span className={textNormalClasses}>{patientProfile.firstName} {patientProfile.lastName}</span></div>
+                            <div><span className={textBoldClasses}>Age:</span> <span className={textNormalClasses}>{patientProfile.age}</span></div>
+                            <div><span className={textBoldClasses}>Gender:</span> <span className={textNormalClasses}>{patientProfile.gender}</span></div>
+                            <div><span className={textBoldClasses}>Allergies:</span> <span className={textNormalClasses}>{patientProfile.allergies}</span></div>
+                            <div><span className={textBoldClasses}>Restrictions:</span> <span className={textNormalClasses}>{patientProfile.restrictions}</span></div>
+                            <div><span className={textBoldClasses}>Medications:</span> <span className={textNormalClasses}>{patientProfile.currentMedications}</span></div>
+                            <div><span className={textBoldClasses}>Primary Contact:</span> <span className={textNormalClasses}>{patientProfile.primaryContactName} ({patientProfile.primaryContactPhone})</span></div>
+                            <div><span className={textBoldClasses}>Recent Surgery:</span> <span className={textNormalClasses}>{patientProfile.recentSurgery}</span></div>
+                        </div>
+                    </div>
+
+                    {/* Patient History Tile */}
+                    <div className={tileClasses}>
+                        <h2 className={headerClasses}>Patient History</h2>
+                        {patientHistory.length > 0 ? (
+                            <ul className="space-y-3">
+                                {patientHistory.map((h, idx) => (
+                                    <li key={idx} className="p-3 bg-blue-50 rounded-lg border-l-2 border-blue-300">
+                                        <div className="text-sm">
+                                            <span className={textBoldClasses}>{h.date}</span> - <span className={textNormalClasses}>{h.type}</span>
+                                        </div>
+                                        <div className="text-sm text-gray-600 mt-1">{h.summary}</div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-gray-500 text-center">No previous history.</div>
+                        )}
                     </div>
                 </div>
-                <div className="grid grid-cols-6 grid-rows-4 gap-8 w-full max-w-7xl p-8">
-                    {/* Diagnosis Result Tile */}
-                    <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-8 border-l-8 border-teal-400 animate-fadein">
-                        <div className="text-2xl font-bold text-teal-700 mb-2">Diagnosis</div>
-                        <div className="text-3xl font-bold text-blue-900 mb-4">{result.diagnosis}</div>
-                    </div>
-                    {/* Patient Profile Tile */}
-                    <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-purple-400 animate-fadein">
-                        <div className="text-xl font-bold text-purple-700 mb-2">Patient Profile</div>
-                         <>
-                                <div className="text-blue-900 font-semibold">Name: <span className="font-normal text-gray-800">{patientProfile.firstName + ' ' + patientProfile.lastName}</span></div>
-                                <div className="text-blue-900 font-semibold">Age: <span className="font-normal text-gray-800">{patientProfile.age}</span></div>
-                                <div className="text-blue-900 font-semibold">Gender: <span className="font-normal text-gray-800">{patientProfile.gender}</span></div>
-                                <div className="text-blue-900 font-semibold">Allergies: <span className="font-normal text-gray-800">{patientProfile.allergies}</span></div>
-                                <div className="text-blue-900 font-semibold">Restrictions: <span className="font-normal text-gray-800">{patientProfile.restrictions}</span></div>
-                                <div className="text-blue-900 font-semibold">Medical Devices: <span className="font-normal text-gray-800">{patientProfile.medicalDevices}</span></div>
-                                <div className="text-blue-900 font-semibold">Recent Surgery: <span className="font-normal text-gray-800">{patientProfile.recentSurgery}</span></div>
-                                <div className="text-blue-900 font-semibold">Current Medications: <span className="font-normal text-gray-800">{patientProfile.currentMedications}</span></div>
-                                <div className="text-blue-900 font-semibold">Primary Contact: <span className="font-normal text-gray-800">{patientProfile.primaryContactName} ({patientProfile.primaryContactPhone})</span></div>
-                                <div className="text-blue-900 font-semibold">Secondary Contact: <span className="font-normal text-gray-800">{patientProfile.secondaryContactName} ({patientProfile.secondaryContactPhone})</span></div>
-                            </>
-                    </div>
-                    {/* Patient History Tile */}
-                    <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-pink-400 animate-fadein">
-                        <div className="text-xl font-bold text-pink-700 mb-2">Patient History</div>
-                        {patientHistory.length > 0 ? (
-                            <ul className="w-full">
-                                {patientHistory.map((h, idx) => (
-                                    <li key={idx} className="mb-2 p-2 bg-pink-50 rounded-lg">
-                                        <span className="font-semibold text-blue-900">{h.date}</span> - <span className="text-gray-700">{h.type}</span>: <span className="text-gray-800">{h.summary}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div className="text-gray-500">No previous reports.</div>
-                        )}
-                    </div>
-                    {/* Recent Reports Tile */}
-                    <div className="col-span-2 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-blue-400 animate-fadein">
-                        <div className="text-xl font-bold text-blue-700 mb-2">Recent Reports</div>
-                        {recentReports.length > 0 ? (
-                            <ul className="w-full flex flex-col gap-2">
-                                {recentReports.map((r, idx) => (
-                                    <li key={idx} className="flex items-center gap-4 bg-blue-50 rounded-lg p-2">
-                                        <img src={r.file} alt={r.type} className="w-12 h-16 object-cover rounded shadow" />
-                                        <div>
-                                            <div className="font-semibold text-blue-900">{r.type}</div>
-                                            <div className="text-gray-700 text-sm">{r.date} - {r.summary}</div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div className="text-gray-500">No recent reports.</div>
-                        )}
-                    </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Doctor's Report Tile */}
-                    <div className="col-span-3 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-green-400 animate-fadein">
-                        <div className="text-xl font-bold text-green-700 mb-2">Doctor's Report</div>
+                    <div className={`${tileClasses} col-span-1 md:col-span-1 border-blue-600`}>
+                        <h2 className={headerClasses}>Doctor's Report</h2>
                         <textarea
-                            className="w-full min-h-[100px] rounded-lg border border-gray-300 p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                            className="w-full min-h-[120px] rounded-lg border border-blue-200 p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors bg-blue-50 text-gray-800"
                             placeholder="Write your diagnosis, notes, or recommendations here..."
                             value={doctorReport}
                             onChange={e => setDoctorReport(e.target.value)}
                             disabled={loading}
                         />
                         <button
-                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-60"
+                            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleSaveReport}
                             disabled={loading || !doctorReport.trim()}
                         >
                             {loading ? 'Generating...' : 'Generate & Save Report'}
                         </button>
-                        {reportSaved && <div className="mt-2 text-green-700 font-semibold">Report saved!</div>}
-                        {generatedReport && (
-                            <div className="mt-4 w-full">
-                                <div className="font-semibold text-green-800 mb-1">Generated Report:</div>
-                                <div className="bg-green-50 border border-green-200 rounded p-3 whitespace-pre-line text-gray-900 text-sm">{generatedReport}</div>
+                        {reportSaved && <div className="mt-4 text-green-600 font-semibold text-center">Report saved!</div>}
+                    </div>
+
+                    {/* Generated Report & Recommendations Tile */}
+                    <div className={`${tileClasses} col-span-1 md:col-span-1 border-blue-600`}>
+                        <h2 className={headerClasses}>Generated Report</h2>
+                        {generatedReport ? (
+                            <>
+                                <div className="bg-blue-50 border border-blue-200 rounded p-4 text-gray-800 whitespace-pre-line mb-4 text-sm">
+                                    {generatedReport}
+                                </div>
+                                <h3 className="font-semibold text-blue-800 mb-2">Recommendations</h3>
+                                <ul className="list-disc list-inside space-y-2 text-gray-700 text-sm">
+                                    {recommendations.map((rec, idx) => (
+                                        <li key={idx}>{rec}</li>
+                                    ))}
+                                </ul>
                                 <button
-                                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                    className="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors"
                                     onClick={handleDownloadPDF}
                                 >
                                     Download PDF
                                 </button>
-                            </div>
+                                <button
+                                    className={`mt-6 w-full px-4 py-2 rounded-lg shadow-md transition-colors ${pdfSubmitted ? 'bg-green-400 text-white' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                                    onClick={handleUploadPDF}
+                                    disabled={pdfSubmitted}
+                                >
+                                    {pdfSubmitted ? 'Submitted' : 'Submit PDF'}
+                                </button>
+                            </>
+                        ) : (
+                            <div className="text-gray-500 text-center p-8">Generated report will appear here after you save.</div>
                         )}
                     </div>
-                    {/* Recommendations Tile */}
-                    <div className="col-span-3 row-span-2 bg-white rounded-2xl shadow-xl flex flex-col items-start justify-center p-8 border-l-8 border-orange-400 animate-fadein">
-                        <div className="text-xl font-bold text-orange-700 mb-2">Next Steps / Recommendations</div>
-                        <ul className="list-disc pl-6">
-                            {recommendations.map((rec, idx) => (
-                                <li key={idx} className="mb-2 text-gray-800">{rec}</li>
-                            ))}
-                        </ul>
+
+                    {/* Report Preview Tile */}
+                    <div className={`${tileClasses} col-span-1 md:col-span-2`}>
+                        <h2 className={headerClasses}>Report Preview</h2>
+                        {location.state?.fileUrl ? (
+                            isImage(location.state.fileUrl) ? (
+                                <img
+                                    src={location.state.fileUrl}
+                                    alt="Report/X-ray"
+                                    className="object-contain max-h-[500px] w-full rounded-lg border border-gray-200"
+                                />
+                            ) : (
+                                <a
+                                    href={location.state.fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline text-center block mt-4"
+                                >
+                                    View Report File
+                                </a>
+                            )
+                        ) : (
+                            <div className="text-gray-500 text-center p-8">No report file available.</div>
+                        )}
                     </div>
                 </div>
-                <button onClick={() => navigate(-1)} className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Back</button>
             </div>
-            <style>{`
-        @keyframes fadein {
-          from { opacity: 0; transform: translateY(32px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadein {
-          animation: fadein 0.8s cubic-bezier(.4,0,.2,1) both;
-        }
-        @keyframes fadein-left {
-          from { opacity: 0; transform: translateX(-32px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-fadein-left {
-          animation: fadein-left 1s cubic-bezier(.4,0,.2,1) both;
-        }
-      `}</style>
         </div>
     );
 };

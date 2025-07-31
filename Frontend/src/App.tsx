@@ -16,6 +16,7 @@ import BrainTumorResult from './pages/doctor/BrainTumorResult.tsx';
 import Reports from './pages/patient/Reports.tsx';
 import ReportUploaded from './pages/patient/ReportUploaded.tsx';
 import SubmittedReports from './pages/patient/SubmittedReports.tsx';
+import DoctorsReportAnalysis from './pages/patient/DoctorsReportAnalysis.tsx';
 
 function App() {
     return (
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/doctor/brain-tumor-result" element={<BrainTumorResult />} />
                 <Route path="/patient/report-uploaded" element={<ReportUploaded />} />
                 <Route path="/patient/submitted-reports" element={<SubmittedReports />} />
+                <Route path="/patient/doctors-report-analysis" element={<DoctorsReportAnalysis />} />
                 {/* Add more routes here as needed */}
             </Routes>
         </Router>
