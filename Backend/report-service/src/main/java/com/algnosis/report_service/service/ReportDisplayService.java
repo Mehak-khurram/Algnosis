@@ -1,10 +1,13 @@
 package com.algnosis.report_service.service;
 
 import com.algnosis.report_service.dto.DoctorResponseDTO;
+import com.algnosis.report_service.dto.PatientNotificationDTO;
+import com.algnosis.report_service.dto.PatientResponseDTO;
 import com.algnosis.report_service.dto.PatientUploadDTO;
 import com.algnosis.report_service.entity.PatientUpload;
 import com.algnosis.report_service.exceptionHandling.NoReportsFound;
 import com.algnosis.report_service.feign.AuthServiceClient;
+import com.algnosis.report_service.feign.NotificationServiceClient;
 import com.algnosis.report_service.mapper.PatientUploadMapper;
 import com.algnosis.report_service.repository.PatientUploadRepository;
 import com.cloudinary.Cloudinary;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +34,15 @@ public class ReportDisplayService {
     @Autowired
     private final AuthServiceClient authServiceClient;
     @Autowired
+    private final NotificationServiceClient notificationServiceClient;
+    @Autowired
     private final Cloudinary cloudinary;
 
     public ReportDisplayService(PatientUploadRepository patientUploadRepository,
-                                AuthServiceClient authServiceClient, Cloudinary cloudinary) {
+                                AuthServiceClient authServiceClient, NotificationServiceClient notificationServiceClient, Cloudinary cloudinary) {
         this.patientUploadRepository = patientUploadRepository;
         this.authServiceClient = authServiceClient;
+        this.notificationServiceClient = notificationServiceClient;
         this.cloudinary = cloudinary;
     }
 
@@ -107,7 +114,33 @@ public class ReportDisplayService {
         );
 
         patientUpload.setDiagnosisUrl(fileUrl);
+        patientUpload.setStatus("Completed");
         patientUploadRepository.save(patientUpload);
+
+
+        //GETTING PATIENT DATA TO EXTRACT PATIENT ID TO GENERATE NOTIFICATION
+        PatientResponseDTO patientResponseDTO = new PatientResponseDTO();
+        patientResponseDTO = authServiceClient.getPatientDataWithoutAuthentication(patientUpload.getEmail());
+
+        //GETTING DOCTOR NAME FOR GENERATING NOTIFICATION
+        DoctorResponseDTO doctorResponseDTO = authServiceClient.getDoctorByIDWithoutAuthentication(
+                patientUpload.getDoctorID()
+        );
+
+        //GENERATING NOTIFICATION TO BE SENT TO PATIENT TO TELL HIM THAT HIS DIAGNOSIS IS READY
+        PatientNotificationDTO patientNotificationDTO = new PatientNotificationDTO();
+
+        patientNotificationDTO.setPatientID(patientResponseDTO.getId());
+        patientNotificationDTO.setReportID(reportID);
+        patientNotificationDTO.setRead("false");
+        patientNotificationDTO.setDisease(patientUpload.getDisease());
+        patientNotificationDTO.setTimestamp(LocalDateTime.now());
+        patientNotificationDTO.setMessage("Your diagnosis report for "
+                + patientNotificationDTO.getDisease() + " prepared by Dr. " + doctorResponseDTO.getFirstName()
+                + " " + doctorResponseDTO.getLastName() +" is now available.");
+
+        //SAVING THE PATIENT NOTIFICATION TO DATABASE
+        notificationServiceClient.sendNotificationToPatient(patientNotificationDTO);
 
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(patientUpload);
         return patientUploadDTO;

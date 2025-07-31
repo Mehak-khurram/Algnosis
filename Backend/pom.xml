@@ -54,7 +54,7 @@
 
 	<modules>
 		<module>auth-service</module>
-		<module>diagnosis-service</module>
+		<module>notification-service</module>
 		<module>report-service</module>
 	</modules>
 

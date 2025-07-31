@@ -1,10 +1,10 @@
 package com.algnosis.report_service.service;
 
-import com.algnosis.report_service.dto.DoctorResponseDTO;
-import com.algnosis.report_service.dto.PatientUploadDTO;
+import com.algnosis.report_service.dto.*;
 import com.algnosis.report_service.entity.PatientUpload;
 import com.algnosis.report_service.exceptionHandling.NoDoctorAvailable;
 import com.algnosis.report_service.feign.AuthServiceClient;
+import com.algnosis.report_service.feign.NotificationServiceClient;
 import com.algnosis.report_service.mapper.PatientUploadMapper;
 import com.algnosis.report_service.repository.PatientUploadRepository;
 import com.cloudinary.Cloudinary;
@@ -30,11 +30,14 @@ public class PatientUploadService {
     private final PatientUploadRepository patientUploadRepository;
     @Autowired
     private final AuthServiceClient authServiceClient;
+    @Autowired
+    private final NotificationServiceClient notificationServiceClient;
 
-    public PatientUploadService(Cloudinary cloudinary, PatientUploadRepository patientUploadRepository, AuthServiceClient authServiceClient) {
+    public PatientUploadService(Cloudinary cloudinary, PatientUploadRepository patientUploadRepository, AuthServiceClient authServiceClient, NotificationServiceClient notificationServiceClient) {
         this.cloudinary = cloudinary;
         this.patientUploadRepository = patientUploadRepository;
         this.authServiceClient = authServiceClient;
+        this.notificationServiceClient = notificationServiceClient;
     }
 
     public PatientUploadDTO uploadPatientFile(MultipartFile file,
@@ -82,6 +85,25 @@ public class PatientUploadService {
         PatientUploadDTO patientUploadDTO = PatientUploadMapper.toDTO(upload);
                                             //DOCTOR ID AND REPORT ID
         authServiceClient.assignReportToDoctor(doctors.get(index).getId(), patientUploadDTO.getId());
+
+
+        //GENERATING NOTIFICATION HERE FOR DOCTOR
+        //FIRST WE NEED TO GET PATIENT ID
+        PatientResponseDTO patientResponseDTO = authServiceClient.getPatientDataWithoutAuthentication(email);
+
+        DoctorNotificationDTO doctorNotificationDTO = new DoctorNotificationDTO();
+
+        doctorNotificationDTO.setDoctorID(doctors.get(index).getId());//SETTING DOCTOR ID HERE
+        doctorNotificationDTO.setReportID(patientUploadDTO.getId());
+        doctorNotificationDTO.setDisease(patientUploadDTO.getDisease());
+        doctorNotificationDTO.setRead("false");
+        doctorNotificationDTO.setTimestamp(LocalDateTime.now());
+        doctorNotificationDTO.setMessage("You have received a new diagnosis report for " + patientUploadDTO.getDisease()
+                + " submitted by patient "
+        + patientResponseDTO.getFirstName() + " " + patientResponseDTO.getLastName() + ".");
+
+
+        notificationServiceClient.sendNotificationToDoctor(doctorNotificationDTO);
 
         return patientUploadDTO;
     }

@@ -4,10 +4,7 @@ import com.algnosis.auth_service.dto.DoctorResponseDTO;
 import com.algnosis.auth_service.service.DoctorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/doctor")
@@ -21,6 +18,12 @@ public class DoctorController {
     @PreAuthorize("hasRole('PATIENT')")
     @GetMapping("/get/{doctorID}")
     public ResponseEntity<DoctorResponseDTO> getDoctorByID(@PathVariable String doctorID){
+        DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorByID(doctorID);
+        return ResponseEntity.ok(doctorResponseDTO);
+    }
+
+    @GetMapping("/data")
+    public ResponseEntity<DoctorResponseDTO> getDoctorByIDWithoutAuthentication(@RequestParam String doctorID){
         DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorByID(doctorID);
         return ResponseEntity.ok(doctorResponseDTO);
     }

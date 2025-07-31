@@ -42,4 +42,12 @@ public class PatientController {
         PatientResponseDTO patient = patientService.getPatientDetailsByEmail(email);
         return ResponseEntity.ok(patient);
     }
+
+    @GetMapping("/get/data")
+    public ResponseEntity<PatientResponseDTO> getPatientDataWithoutAuthentication(@RequestParam String email){
+
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        PatientResponseDTO patient = patientService.getPatientDetailsByEmail(email);
+        return ResponseEntity.ok(patient);
+    }
 }

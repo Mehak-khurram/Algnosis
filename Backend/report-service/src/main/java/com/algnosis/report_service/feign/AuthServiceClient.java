@@ -2,7 +2,9 @@ package com.algnosis.report_service.feign;
 
 import com.algnosis.report_service.config.FeignClientInterceptor;
 import com.algnosis.report_service.dto.DoctorResponseDTO;
+import com.algnosis.report_service.dto.PatientResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,4 +24,10 @@ public interface AuthServiceClient {
 
     @GetMapping("/protected/doctors/email")
     DoctorResponseDTO getDoctorByEmail(@RequestParam String email);
+
+    @GetMapping("/patient/get/data")
+    PatientResponseDTO getPatientDataWithoutAuthentication(@RequestParam String email);
+
+    @GetMapping("/doctor/data")
+    DoctorResponseDTO getDoctorByIDWithoutAuthentication(@RequestParam String doctorID);
 }
