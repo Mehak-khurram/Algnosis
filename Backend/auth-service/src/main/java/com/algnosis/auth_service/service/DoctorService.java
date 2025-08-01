@@ -13,6 +13,8 @@ import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -131,4 +133,18 @@ public class DoctorService {
         return doctorResponseDTO;
     }
 
+    public DoctorResponseDTO getDoctorData() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // This gives the subject of JWT (usually email)
+
+        // Fetch doctor by email
+        Doctor doctor = (Doctor) doctorRepo.findByEmail(email)
+                .orElseThrow(() -> new DoctorNotFound("No doctor found with email: " + email+
+                        ". This error is thrown by function getDoctorData in DoctorService by Auth-service."));
+
+
+        DoctorResponseDTO doctorResponseDTO = DoctorSignUpMapper.toDoctorResponseDTO(doctor);
+
+        return doctorResponseDTO;
+    }
 }
