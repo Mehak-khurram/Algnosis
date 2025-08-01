@@ -2,7 +2,9 @@ package com.algnosis.auth_service.service;
 
 
 import com.algnosis.auth_service.dto.*;
+import com.algnosis.auth_service.entity.Doctor;
 import com.algnosis.auth_service.entity.Patient;
+import com.algnosis.auth_service.exceptionHandling.DoctorNotFound;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
 import com.algnosis.auth_service.exceptionHandling.PatientNotFound;
@@ -141,5 +143,19 @@ public class PatientService {
 
         // 5. Return DTO
         return PatientSignUpMapper.toPatientResponseDTO(saved);
+    }
+
+    public PatientResponseDTO getPatientDetailsByID(String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // This gives the subject of JWT (usually email)
+
+        // Fetch doctor by email
+        Patient patient = patientRepo.findById(id)
+                .orElseThrow(() -> new PatientNotFound("No doctor found with email: " + email+
+                        ". This error is thrown by function getDoctorData in DoctorService by Auth-service."));
+
+        PatientResponseDTO patientResponseDTO = PatientSignUpMapper.toPatientResponseDTO(patient);
+
+        return  patientResponseDTO;
     }
 }
