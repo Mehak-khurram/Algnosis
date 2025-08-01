@@ -33,4 +33,12 @@ public class DoctorController {
         DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorBasedOnEmail(email);
         return ResponseEntity.ok(doctorResponseDTO);
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<DoctorResponseDTO> getDoctorData(){
+        DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorData();
+        return ResponseEntity.ok(doctorResponseDTO);
+    }
+
+
 }
