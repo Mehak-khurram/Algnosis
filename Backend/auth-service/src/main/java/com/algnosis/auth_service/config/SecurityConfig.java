@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/doctor/get/**",
                                 "/patient/profile",
-                                "/patient/update"
+                                "/patient/update",
+                                "/patient/data"
                                 ).hasRole("PATIENT")
                         .requestMatchers(
                                 "/patient/get/profile",

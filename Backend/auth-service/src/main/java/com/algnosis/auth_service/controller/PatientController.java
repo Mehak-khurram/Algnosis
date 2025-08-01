@@ -50,4 +50,14 @@ public class PatientController {
         PatientResponseDTO patient = patientService.getPatientDetailsByEmail(email);
         return ResponseEntity.ok(patient);
     }
+
+    @PreAuthorize("hasRole('PATIENT')")
+    @GetMapping("/data")
+    public ResponseEntity<PatientResponseDTO> getPatientDataWithId(@RequestParam String id){
+
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        PatientResponseDTO patient = patientService.getPatientDetailsByID(id);
+        return ResponseEntity.ok(patient);
+    }
+
 }
