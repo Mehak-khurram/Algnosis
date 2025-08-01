@@ -38,13 +38,15 @@ public class SecurityConfig {
                         .requestMatchers("/auth/patient/register",
                                 "/protected/**",
                                 "/notif/patient/",
-                                "/patient/get/profile").permitAll() // allow public access to login/signup
+                                "/patient/get/profile",
+                                "/patient/emails").permitAll() // allow public access to login/signup
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/patient/upload/pneumonia",
                                 "/patient/upload/tb",
                                 "/patient/upload/braintumor",
                                 "/patient/upload/anemia",
-                                "/reports/list"
+                                "/reports/list",
+                                "/reports/get"
                                 ).hasRole("PATIENT")
                         .requestMatchers("/doctor/**",
                                 "/reports/doctor/list",

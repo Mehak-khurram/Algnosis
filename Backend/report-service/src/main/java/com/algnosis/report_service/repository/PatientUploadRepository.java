@@ -12,4 +12,6 @@ public interface PatientUploadRepository extends MongoRepository<PatientUpload, 
 
     List<PatientUpload> findByEmail(String email);
     Optional<PatientUpload> findByid(String id);
+
+    List<PatientUpload> findByDoctorID(String doctorID);
 }

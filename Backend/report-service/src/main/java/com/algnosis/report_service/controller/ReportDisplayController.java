@@ -55,7 +55,7 @@ public class ReportDisplayController {
 
     // this is for doctor side diagnosis page to display report information
     @GetMapping("/get")
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'PATIENT')")
     public ResponseEntity<PatientUploadDTO> getReportByReportID(
             @RequestParam String reportID) {
         PatientUploadDTO patientUploadDTO = reportDisplayService.findReportByID(reportID);

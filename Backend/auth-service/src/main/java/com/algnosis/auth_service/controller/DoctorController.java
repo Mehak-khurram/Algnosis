@@ -1,10 +1,13 @@
 package com.algnosis.auth_service.controller;
 
 import com.algnosis.auth_service.dto.DoctorResponseDTO;
+import com.algnosis.auth_service.dto.PatientResponseDTO;
 import com.algnosis.auth_service.service.DoctorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/doctor")
@@ -41,5 +44,11 @@ public class DoctorController {
         return ResponseEntity.ok(doctorResponseDTO);
     }
 
-
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<List<PatientResponseDTO>> getListOfPatientsAssignedToDoctor(){
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        List<PatientResponseDTO> patient = doctorService.getPatientList();
+        return ResponseEntity.ok(patient);
+    }
 }
