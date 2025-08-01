@@ -39,10 +39,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/notif/patient/",
-                                "/notif/doctor/").permitAll()
+                                "/notif/doctor/",
+                                "/patient/get/data").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/patient/**").hasRole("PATIENT")
-                        .requestMatchers("/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/notif/patient/get").hasRole("PATIENT")
+                        .requestMatchers("/notif/doctor/get").hasRole("DOCTOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

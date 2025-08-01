@@ -5,5 +5,6 @@ public class NoDoctorAvailable extends RuntimeException{
 
     public NoDoctorAvailable(String msg){
         super(msg);
+        this.msg = msg;
     }
 }

@@ -4,12 +4,11 @@ import com.algnosis.notification_service.dto.PatientNotificationDTO;
 import com.algnosis.notification_service.entity.PatientNotification;
 import com.algnosis.notification_service.service.PatientNotificationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/notif/patient")
@@ -26,6 +25,13 @@ public class PatientNotificationController {
         notification.setTimestamp(LocalDateTime.now());
         notification.setRead("false");
         return ResponseEntity.ok(patientNotificationService.createNotification(notification));
+    }
+
+    @PreAuthorize("hasRole('PATIENT')")
+    @GetMapping("/get")
+    public ResponseEntity<List<PatientNotificationDTO>> getPatientNotifications(){
+        List<PatientNotificationDTO> notifs = patientNotificationService.getNotifications();
+        return ResponseEntity.ok(notifs);
     }
 
 }

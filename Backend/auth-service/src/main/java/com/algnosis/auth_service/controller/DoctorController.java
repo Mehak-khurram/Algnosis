@@ -27,4 +27,10 @@ public class DoctorController {
         DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorByID(doctorID);
         return ResponseEntity.ok(doctorResponseDTO);
     }
+
+    @GetMapping("/get/email")
+    public ResponseEntity<DoctorResponseDTO> getDoctorBasedOnEmail(@RequestParam String email){
+        DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorBasedOnEmail(email);
+        return ResponseEntity.ok(doctorResponseDTO);
+    }
 }
