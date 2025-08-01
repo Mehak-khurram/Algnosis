@@ -3,8 +3,6 @@ import { FaUserMd, FaFileMedical, FaEdit, FaLightbulb, FaBell, FaCalendarCheck, 
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
 import { useNavigate } from 'react-router-dom';
 
-const doctorName = 'Smith';
-
 const wellBeingTips = [
     'Encourage patients to stay hydrated and rest.',
     'Remind patients to follow up on their medications.',
@@ -21,8 +19,8 @@ const DoctorDashboard: React.FC = () => {
     const [doctorProfile, setDoctorProfile] = useState<any | null>(null);
     const navigate = useNavigate();
 
-    const nextTip = () => setTipIndex((tipIndex + 1) % wellBeingTips.length);
-    const prevTip = () => setTipIndex((tipIndex - 1 + wellBeingTips.length) % wellBeingTips.length);
+    const nextTip = () => setTipIndex((prevIndex) => (prevIndex + 1) % wellBeingTips.length);
+    const prevTip = () => setTipIndex((prevIndex) => (prevIndex - 1 + wellBeingTips.length) % wellBeingTips.length);
 
     useEffect(() => {
         const fetchRecentReports = async () => {
@@ -35,11 +33,14 @@ const DoctorDashboard: React.FC = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                if (!response.ok) throw new Error('Failed to fetch recent reports');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch recent reports');
+                }
                 const data = await response.json();
                 setRecentReports(data);
             } catch (error) {
                 setErrorReports('Could not load recent reports.');
+                console.error(error);
             } finally {
                 setLoadingReports(false);
             }
@@ -53,7 +54,9 @@ const DoctorDashboard: React.FC = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                if (!response.ok) throw new Error('Failed to fetch doctor profile');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch doctor profile');
+                }
                 const data = await response.json();
                 setDoctorProfile(data);
             } catch (error) {
@@ -69,32 +72,34 @@ const DoctorDashboard: React.FC = () => {
     const titleClasses = "text-xl font-semibold text-gray-800";
     const iconClasses = "text-3xl opacity-80";
 
+    const renderProfileDetail = (label, value) => (
+        <p className="text-gray-600 mb-2">
+            <span className="font-semibold">{label}:</span> {value || 'N/A'}
+        </p>
+    );
+
     return (
         <div className="min-h-screen bg-gray-100 font-sans flex flex-col">
             <DoctorNavBar />
             <div className="flex-1 flex flex-col p-6 lg:p-12 animate-fade-in-up">
                 <div className="w-full max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-8 animate-slide-in-left">
-                        Welcome, Dr. {doctorProfile?.name || 'Smith'}
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2 animate-slide-in-left">
+                        Welcome, Dr. {doctorProfile?.firstName + " " + doctorProfile?.lastName || 'Smith'}
                     </h1>
-                    <p className="text-gray-600 mb-4">
-                        Specialization: {doctorProfile?.specialization || 'N/A'}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                        Experience: {doctorProfile?.yearsOfExperience || 'N/A'} years
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                        Qualifications: {doctorProfile?.qualifications || 'N/A'}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                        Hospital: {doctorProfile?.hospitalName || 'N/A'}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                        License Number: {doctorProfile?.medicalLicenseNumber || 'N/A'}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                        Bio: {doctorProfile?.shortBio || 'N/A'}
-                    </p>
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                {renderProfileDetail('Specialization', doctorProfile?.specialization)}
+                                {renderProfileDetail('Experience', `${doctorProfile?.yearsOfExperience || 'N/A'} years`)}
+                                {renderProfileDetail('Qualifications', doctorProfile?.qualifications)}
+                            </div>
+                            <div>
+                                {renderProfileDetail('Hospital', doctorProfile?.hospitalName)}
+                                {renderProfileDetail('License Number', doctorProfile?.medicalLicenseNumber)}
+                                {renderProfileDetail('Bio', doctorProfile?.shortBio)}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -267,24 +272,19 @@ const DoctorDashboard: React.FC = () => {
                 </div>
             </div>
             <style>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                .animate-fade-in-up {
-                    animation: fadeInUp 0.6s ease-out forwards;
-                }
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.6s ease-out forwards;
+                }
                 .delay-100 { animation-delay: 0.1s; }
                 .delay-200 { animation-delay: 0.2s; }
                 .delay-300 { animation-delay: 0.3s; }
-
                 @keyframes slideInLeft {
                     from { opacity: 0; transform: translateX(-20px); }
-                    to { opacity: 1, transform: translateX(0); }
+                    to { opacity: 1; transform: translateX(0); }
                 }
                 .animate-slide-in-left {
                     animation: slideInLeft 0.7s ease-out forwards;
@@ -295,8 +295,3 @@ const DoctorDashboard: React.FC = () => {
 };
 
 export default DoctorDashboard;
-
-// To use this code, you'll need a few more icons.
-// `npm install react-icons`
-// And import them at the top of the file:
-// import { FaCalendarCheck, FaChartLine, FaUsers, FaClipboardList, FaStethoscope, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
