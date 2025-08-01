@@ -34,6 +34,7 @@ public class DoctorController {
         return ResponseEntity.ok(doctorResponseDTO);
     }
 
+    @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/profile")
     public ResponseEntity<DoctorResponseDTO> getDoctorData(){
         DoctorResponseDTO doctorResponseDTO = doctorService.getDoctorData();
