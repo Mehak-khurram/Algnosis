@@ -240,6 +240,8 @@ const DoctorDiagnosisResult: React.FC = () => {
             const formData = new FormData();
             formData.append('file', pdfBlob);
             formData.append('reportId', reportID);
+            formData.append('diagnosis', result.diagnosis); // Add diagnosis
+            formData.append('diagnosisSummary', recommendations.length > 0 ? recommendations.join('\n') : 'No recommendations available.'); // Add diagnosis summary with recommendations
 
             const token = localStorage.getItem('token');
             const res = await fetch('http://localhost:8020/reports/diagnosis/update', {

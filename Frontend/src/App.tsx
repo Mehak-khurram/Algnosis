@@ -37,6 +37,7 @@ function App() {
                 <Route path="/doctor/patient/:id" element={<PatientDetail />} />
                 <Route path="/doctor/brain-tumor-result" element={<BrainTumorResult />} />
                 <Route path="/patient/report-uploaded" element={<ReportUploaded />} />
+                <Route path="/patient/report-uploaded/:reportId" element={<ReportUploaded />} />
                 <Route path="/patient/submitted-reports" element={<SubmittedReports />} />
                 <Route path="/patient/doctors-report-analysis" element={<DoctorsReportAnalysis />} />
                 {/* Add more routes here as needed */}

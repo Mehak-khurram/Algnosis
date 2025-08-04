@@ -42,5 +42,4 @@ public class PatientUpload {
     private String diagnosis;//to store the one line diagnosis
     private String diagnosisSummary;
     private String diagnosisUrl;//to store the url of the diagnosis report sent by the doctor
-
 }

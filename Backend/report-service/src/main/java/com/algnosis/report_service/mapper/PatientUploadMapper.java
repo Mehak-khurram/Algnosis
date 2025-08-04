@@ -27,4 +27,27 @@ public class PatientUploadMapper {
 
         return patientUploadDTO;
     }
+
+    public static PatientUpload toEntity(PatientUploadDTO patientUploadDTO) {
+        PatientUpload patientUpload = new PatientUpload();
+
+        patientUpload.setId(patientUploadDTO.getId());
+
+        patientUpload.setDoctorID(patientUploadDTO.getDoctorID());
+
+        patientUpload.setDisease(patientUploadDTO.getDisease());
+        patientUpload.setEmail(patientUploadDTO.getEmail());
+        patientUpload.setStatus(patientUploadDTO.getStatus());
+        patientUpload.setCreatedAt(patientUploadDTO.getCreatedAt());
+
+        patientUpload.setFileType(patientUploadDTO.getFileType());
+        patientUpload.setFileName(patientUploadDTO.getFileName());
+        patientUpload.setFileUrl(patientUploadDTO.getFileUrl());
+
+        patientUpload.setDiagnosis(patientUploadDTO.getDiagnosis());
+        patientUpload.setDiagnosisSummary(patientUploadDTO.getDiagnosisSummary());
+        patientUpload.setDiagnosisUrl(patientUploadDTO.getDiagnosisUrl());
+
+        return patientUpload;
+    }
 }

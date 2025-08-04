@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { FileText, CheckCircle, Clock } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
@@ -29,7 +28,13 @@ export default function SubmittedReports() {
                 return res.json();
             })
             .then(data => {
-                setReports(data);
+                const enrichedReports = data.map((report: any) => ({
+                    ...report,
+                    diagnosis: report.diagnosis || "No diagnosis available",
+                    diagnosisSummary: report.diagnosisSummary ,
+                    diagnosisUrl: report.diagnosisUrl || "No URL available"
+                }));
+                setReports(enrichedReports);
                 setLoading(false);
             })
             .catch(err => {
@@ -87,7 +92,14 @@ export default function SubmittedReports() {
                                     <div className="mt-auto flex justify-end">
                                         <button
                                             className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
-                                            onClick={() => navigate(`/patient/report-uploaded`, { state: { report } })}
+                                            onClick={() => navigate(`/patient/report-uploaded/${report.id}`, { 
+                                                state: { 
+                                                    report, 
+                                                    diagnosisSummary: report.diagnosisSummary
+                                                        ? report.diagnosisSummary.split(/\.(?!\d)/).map(sentence => sentence.trim()).filter(Boolean)
+                                                        : []
+                                                } 
+                                            })}
                                         >
                                             View
                                         </button>

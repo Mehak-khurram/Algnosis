@@ -91,7 +91,7 @@ public class ReportDisplayService {
         return reportDTOs;
     }
 
-    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID) throws IOException {
+    public PatientUploadDTO uploadDiagnosisReport(MultipartFile file, String reportID, String diagnosis, String diagnosisSummary) throws IOException {
         System.out.println("I am inside Controller!!!!!");
         // EXTRACTING EMAIL FROM TOKEN
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -100,16 +100,13 @@ public class ReportDisplayService {
         // UPLOADING FILE TO CLOUDINARY
         Map<?, ?> uploadResults = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String fileUrl = (String) uploadResults.get("secure_url");
-        String fileType = (String) uploadResults.get("resource_type");
-        String fileName = (String) uploadResults.get("original_filename");
-
-        System.out.println("Uploaded file name: " + file.getOriginalFilename());
+        System.out.println("File uploaded successfully. URL: " + fileUrl);
 
         PatientUpload patientUpload = patientUploadRepository.findById(reportID).orElseThrow(
-                () -> new NoReportsFound("No report with ID " +
-                        reportID + " found. This error is thrown by uploadDiagnosisReport function " +
-                        "in ReportDisplayService of ReportService."));
+                () -> new NoReportsFound("No report with ID " + reportID + " found."));
 
+        patientUpload.setDiagnosis(diagnosis);
+        patientUpload.setDiagnosisSummary(diagnosisSummary);
         patientUpload.setDiagnosisUrl(fileUrl);
         patientUpload.setStatus("Completed");
         patientUploadRepository.save(patientUpload);
