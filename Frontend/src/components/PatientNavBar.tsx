@@ -61,6 +61,13 @@ const PatientNavBar: React.FC = () => {
         fetchReports();
     }, []);
 
+    // Sort notifications by date in descending order
+    useEffect(() => {
+        setNotifications((prevNotifications) =>
+            [...prevNotifications].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        );
+    }, [notifications]);
+
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,23 +113,37 @@ const PatientNavBar: React.FC = () => {
                             </button>
                             {showNotifications && (
                                 <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                                    <div className="p-4 border-b border-gray-100">
+                                        <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
+                                    </div>
                                     {notifications.length > 0 ? (
-                                        notifications.map((notif) => {
-                                            const report = reports.find((r) => r.id === notif.reportID);
-                                            return (
-                                                <div
-                                                    key={notif.id}
-                                                    className="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-100"
-                                                    onClick={() => navigate(`/patient/report-uploaded/${notif.reportID}`, { state: { notif, report } })}
-                                                >
-                                                    <p className="text-sm font-medium text-gray-800">{notif.message}</p>
-                                                    <p className="text-sm text-gray-600">Disease: {notif.disease}</p>
-                                                    <p className="text-xs text-gray-500">{new Date(notif.timestamp).toLocaleString()}</p>
-                                                </div>
-                                            );
-                                        })
+                                        <ul className="divide-y divide-gray-100">
+                                            {notifications.map((notif) => {
+                                                const report = reports.find((r) => r.id === notif.reportID);
+                                                return (
+                                                    <li
+                                                        key={notif.id}
+                                                        className="p-4 hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer flex items-start space-x-3"
+                                                        onClick={() => navigate(`/patient/report-uploaded/${notif.reportID}`, { state: { notif, report } })}
+                                                    >
+                                                        <div className="flex-shrink-0">
+                                                            {notif.read === 'false' && (
+                                                                <span className="w-3 h-3 bg-red-500 rounded-full block"></span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-medium text-gray-800">{notif.message}</p>
+                                                            <p className="text-sm text-gray-600">Disease: {notif.disease}</p>
+                                                            <p className="text-xs text-gray-500 mt-1">{new Date(notif.timestamp).toLocaleString()}</p>
+                                                        </div>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
                                     ) : (
-                                        <p className="p-4 text-sm text-gray-500">No notifications available.</p>
+                                        <div className="p-4 text-center text-sm text-gray-500">
+                                            No notifications available.
+                                        </div>
                                     )}
                                 </div>
                             )}

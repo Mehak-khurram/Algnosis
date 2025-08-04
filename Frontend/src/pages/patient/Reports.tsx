@@ -97,7 +97,10 @@ export default function Reports() {
             formData.append("file", uploadedFile);
 
             const endpoints: Record<string, string> = {
-                pneumonia: "http://localhost:8020/patient/upload/pneumonia"
+                pneumonia: "http://localhost:8020/patient/upload/pneumonia",
+                tb: "http://localhost:8020/patient/upload/tb",
+                "brain-tumor": "http://localhost:8020/patient/upload/braintumor",
+                anemia: "http://localhost:8020/patient/upload/anemia"
             };
 
             const endpoint = endpoints[selectedDisease];
@@ -304,4 +307,4 @@ export default function Reports() {
             </div>
         </div>
     );
-} 
+}
