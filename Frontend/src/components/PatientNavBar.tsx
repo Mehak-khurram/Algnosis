@@ -59,14 +59,14 @@ const PatientNavBar: React.FC = () => {
 
         fetchNotifications();
         fetchReports();
-    }, []);
+    }, []); // Add an empty dependency array to prevent infinite re-renders
 
     // Sort notifications by date in descending order
     useEffect(() => {
         setNotifications((prevNotifications) =>
             [...prevNotifications].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         );
-    }, [notifications]);
+    }, []); // Add an empty dependency array to prevent infinite re-renders
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
@@ -124,7 +124,29 @@ const PatientNavBar: React.FC = () => {
                                                     <li
                                                         key={notif.id}
                                                         className="p-4 hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer flex items-start space-x-3"
-                                                        onClick={() => navigate(`/patient/report-uploaded/${notif.reportID}`, { state: { notif, report } })}
+                                                        onClick={async () => {
+                                                            try {
+                                                                // Existing POST request
+                                                                await fetch(`http://localhost:8080/notif/patient/${notif.id}`, {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                                                                    },
+                                                                });
+
+                                                                // New PUT request to update the notification
+                                                                await fetch(`http://localhost:8080/notif/patient/update/${notif.id}`, {
+                                                                    method: 'PUT',
+                                                                    headers: {
+                                                                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                                                                    },
+                                                                });
+                                                            } catch (error) {
+                                                                console.error('Error updating notification:', error);
+                                                            }
+                                                            navigate(`/patient/report-uploaded/${notif.reportID}`, { state: { notif, report } });
+                                                            window.location.reload();
+                                                        }}
                                                     >
                                                         <div className="flex-shrink-0">
                                                             {notif.read === 'false' && (
