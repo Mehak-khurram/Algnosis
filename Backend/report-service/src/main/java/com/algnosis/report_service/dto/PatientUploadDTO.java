@@ -15,7 +15,7 @@ import java.util.Date;
 public class PatientUploadDTO {
     private String id;
 
-    //THE FILE UPLOADED BY PATIENT
+    // THE FILE UPLOADED BY PATIENT
     private String email;
     private LocalDateTime createdAt;
     private String status;
@@ -25,17 +25,41 @@ public class PatientUploadDTO {
     private String fileName;
     private String fileType;
 
-    //DOCTOR ASSIGNED TO THE REPORT
+    // DOCTOR ASSIGNED TO THE REPORT
     private String doctorID;
-//    private String firstName;
-//    private String lastName;
-//    private String specialization;
-//    private int yearsOfExperience;
-//    private String qualifications;
+    // private String firstName;
+    // private String lastName;
+    // private String specialization;
+    // private int yearsOfExperience;
+    // private String qualifications;
 
-    //DIAGNOSIS OF THE REPORT
-    private String diagnosis;//to store the one line diagnosis
+    // DIAGNOSIS OF THE REPORT
+    private String diagnosis;// to store the one line diagnosis
     private String diagnosisSummary;
-    private String diagnosisUrl;//to store the url of the diagnosis report sent by the doctor
+    private String diagnosisUrl;// to store the url of the diagnosis report sent by the doctor
 
+    // Getters and Setters
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    public String getDiagnosisSummary() {
+        return diagnosisSummary;
+    }
+
+    public void setDiagnosisSummary(String diagnosisSummary) {
+        this.diagnosisSummary = diagnosisSummary;
+    }
+
+    public String getDiagnosisUrl() {
+        return diagnosisUrl;
+    }
+
+    public void setDiagnosisUrl(String diagnosisUrl) {
+        this.diagnosisUrl = diagnosisUrl;
+    }
 }

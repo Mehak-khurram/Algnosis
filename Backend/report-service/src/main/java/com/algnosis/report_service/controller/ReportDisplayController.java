@@ -47,9 +47,11 @@ public class ReportDisplayController {
     @PutMapping("/diagnosis/update")
     public ResponseEntity<PatientUploadDTO> uploadDiagnosisReport(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("reportId") String reportId) throws IOException {
+            @RequestParam("reportId") String reportId,
+            @RequestParam("diagnosis") String diagnosis,
+            @RequestParam("diagnosisSummary") String diagnosisSummary) throws IOException {
 
-        PatientUploadDTO updatedReport = reportDisplayService.uploadDiagnosisReport(file, reportId);
+        PatientUploadDTO updatedReport = reportDisplayService.uploadDiagnosisReport(file, reportId, diagnosis, diagnosisSummary);
         return ResponseEntity.ok(updatedReport);
     }
 
