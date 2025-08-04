@@ -51,4 +51,11 @@ public class DoctorController {
         List<PatientResponseDTO> patient = doctorService.getPatientList();
         return ResponseEntity.ok(patient);
     }
+
+    @PutMapping("/update")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<DoctorResponseDTO> updateDoctor(@RequestBody DoctorResponseDTO updatedData) {
+        DoctorResponseDTO updatedDoctor = doctorService.updateDoctorProfile(updatedData);
+        return ResponseEntity.ok(updatedDoctor);
+    }
 }

@@ -36,4 +36,11 @@ public class DoctorNotificationController {
         List<DoctorNotificationDTO> notifs = doctorNotificationService.getNotifications();
         return ResponseEntity.ok(notifs);
     }
+
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<DoctorNotificationDTO> updateDoctorNotificationStatus(@PathVariable String id){
+        DoctorNotificationDTO notif = doctorNotificationService.updateNotificationStatus(id);
+        return ResponseEntity.ok(notif);
+    }
 }

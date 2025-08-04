@@ -6,6 +6,7 @@ import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.DoctorNotFound;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
+import com.algnosis.auth_service.exceptionHandling.PatientNotFound;
 import com.algnosis.auth_service.feignClient.ReportServiceClient;
 import com.algnosis.auth_service.mapper.DoctorSignUpMapper;
 import com.algnosis.auth_service.mapper.PatientSignUpMapper;
@@ -13,16 +14,13 @@ import com.algnosis.auth_service.repository.DoctorRepository;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -175,5 +173,30 @@ public class DoctorService {
                 .collect(Collectors.toList());
 
         return patientDTOs;
+    }
+
+    public DoctorResponseDTO updateDoctorProfile(DoctorResponseDTO updatedData) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        Doctor existing = (Doctor) doctorRepo.findByEmail(email)
+                .orElseThrow(() -> new DoctorNotFound("No doctor found with email: " + email
+                        + ". This error is thrown by updateDoctorProfile function in DoctorService class of auth-service."));
+
+        existing.setFirstName(updatedData.getFirstName());
+        existing.setLastName(updatedData.getLastName());
+        existing.setPhoneNumber(updatedData.getPhoneNumber());
+
+        existing.setYearsOfExperience(updatedData.getYearsOfExperience());
+        existing.setSpecialization(updatedData.getSpecialization());
+        existing.setQualifications(updatedData.getQualifications());
+        existing.setMedicalLicenseNumber(updatedData.getMedicalLicenseNumber());
+        existing.setHospitalName(updatedData.getHospitalName());
+        existing.setShortBio(updatedData.getShortBio());
+
+        Doctor saved = doctorRepo.save(existing);
+
+        return DoctorSignUpMapper.toDoctorResponseDTO(saved);
     }
 }

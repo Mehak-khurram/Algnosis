@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 "/patient/get/profile",
                                 "/doctor/get/**",
                                 "/doctor/profile",
-                                "/doctor/list").hasRole("DOCTOR")
+                                "/doctor/list",
+                                "/doctor/update").hasRole("DOCTOR")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -22,4 +22,14 @@ public class GlobalErrorHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
     }
+    @ExceptionHandler(NotificationNotFound.class)
+    public ResponseEntity<ErrorResponse> handleNotificationNotFound(NotificationNotFound ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "No Notification Found!",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }

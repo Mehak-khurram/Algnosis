@@ -42,8 +42,10 @@ public class SecurityConfig {
                                 "/notif/doctor/",
                                 "/patient/get/data").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/notif/patient/get").hasRole("PATIENT")
-                        .requestMatchers("/notif/doctor/get").hasRole("DOCTOR")
+                        .requestMatchers("/notif/patient/get",
+                                "/notif/patient/update/**").hasRole("PATIENT")
+                        .requestMatchers("/notif/doctor/get",
+                                "/notif/doctor/update/**").hasRole("DOCTOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

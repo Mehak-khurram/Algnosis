@@ -3,6 +3,7 @@ package com.algnosis.notification_service.service;
 import com.algnosis.notification_service.dto.PatientNotificationDTO;
 import com.algnosis.notification_service.dto.PatientResponseDTO;
 import com.algnosis.notification_service.entity.PatientNotification;
+import com.algnosis.notification_service.exceptionHandling.NotificationNotFound;
 import com.algnosis.notification_service.feign.AuthServiceClient;
 import com.algnosis.notification_service.mapper.PatientNotificationMapper;
 import com.algnosis.notification_service.repository.PatientNotificationRepository;
@@ -51,5 +52,17 @@ public class PatientNotificationService {
         return notifications.stream()
                 .map(PatientNotificationMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PatientNotificationDTO updateNotificationStatus(String id) {
+        PatientNotification notification = patientRepo.findById(id)
+                .orElseThrow(() -> new NotificationNotFound("Notification not found with ID: " + id +
+                        ". This error is thrown by updateNotificationStatus function in PatientNotificationService " +
+                        "class or NotificationService."));
+
+        notification.setRead("true");
+        patientRepo.save(notification);
+
+        return PatientNotificationMapper.toDTO(notification);
     }
 }
