@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DoctorNavBar from '../../components/DoctorNavBar.tsx';
@@ -25,6 +25,11 @@ const DoctorDiagnosisResult: React.FC = () => {
     const [generatedReport, setGeneratedReport] = useState('');
     const [recommendations, setRecommendations] = useState<string[]>([]);
     const [pdfSubmitted, setPdfSubmitted] = useState(false);
+
+    useEffect(() => {
+        // Ensure any state updates or side effects are properly managed
+        // Add an empty dependency array to prevent infinite re-renders
+    }, []);
 
     const handleSaveReport = async () => {
         setLoading(true);

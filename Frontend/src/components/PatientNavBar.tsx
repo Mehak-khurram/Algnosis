@@ -66,7 +66,7 @@ const PatientNavBar: React.FC = () => {
         setNotifications((prevNotifications) =>
             [...prevNotifications].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         );
-    }, []); // Add an empty dependency array to prevent infinite re-renders
+    }, [notifications]);
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
@@ -85,7 +85,10 @@ const PatientNavBar: React.FC = () => {
                                     key={item.name}
                                     href="#"
                                     className="text-gray-500 hover:text-blue-600 transition font-medium"
-                                    onClick={handleLogout}
+                                    onClick={(e) => {
+                                        handleLogout(e);
+                                        window.location.reload();
+                                    }}
                                 >
                                     {item.name}
                                 </a>
@@ -94,6 +97,10 @@ const PatientNavBar: React.FC = () => {
                                     key={item.name}
                                     to={item.to}
                                     className="text-gray-500 hover:text-blue-600 transition font-medium"
+                                    onClick={() => {
+                                        navigate(item.to);
+                                        window.location.reload();
+                                    }}
                                 >
                                     {item.name}
                                 </Link>
@@ -105,9 +112,9 @@ const PatientNavBar: React.FC = () => {
                                 className="relative text-gray-500 hover:text-blue-600 transition font-medium"
                             >
                                 <Bell className="w-6 h-6" />
-                                {notifications.length > 0 && (
+                                {notifications.filter(notif => notif.read === 'false').length > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
-                                        {notifications.length}
+                                        {notifications.filter(notif => notif.read === 'false').length}
                                     </span>
                                 )}
                             </button>

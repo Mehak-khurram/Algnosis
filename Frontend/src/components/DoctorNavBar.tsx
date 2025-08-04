@@ -9,6 +9,8 @@ interface Notification {
     timestamp: string;
     disease: string;
     reportID?: string; // Added reportID for navigation
+    read?: string; // Added read attribute to Notification interface
+    id: string; // Added id attribute to Notification interface
 }
 
 const DoctorNavBar: React.FC = () => {
@@ -37,7 +39,7 @@ const DoctorNavBar: React.FC = () => {
                 }
 
                 const text = await response.text();
-                const data: Notification[] = text ? JSON.parse(text) : [];
+                const data = text ? JSON.parse(text) : [];
                 setNotifications(data);
             } catch (error) {
                 console.error('Error fetching notifications:', error);
@@ -45,7 +47,7 @@ const DoctorNavBar: React.FC = () => {
         };
 
         fetchNotifications();
-    }, []);
+    }, []); // Add an empty dependency array to prevent infinite re-renders
 
     useEffect(() => {
         console.log('DoctorNavBar mounted on page:', window.location.pathname);
@@ -70,7 +72,7 @@ const DoctorNavBar: React.FC = () => {
             }
 
             console.log('Fetching report details for reportID:', reportID);
-            const response = await fetch(`http://localhost:8020/reports/get?reportID=${reportID}`, {
+            const response = await fetch(`http://localhost:8020/reports/getreport?reportID=${reportID}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -89,6 +91,12 @@ const DoctorNavBar: React.FC = () => {
             return null;
         }
     };
+
+    useEffect(() => {
+        setNotifications((prevNotifications) =>
+            [...prevNotifications].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        );
+    }, []); // Add an empty dependency array to prevent infinite re-renders
 
     return (
         <nav className="w-full bg-white/90 shadow flex items-center justify-between px-8 py-4 border-b border-blue-100">
@@ -110,9 +118,9 @@ const DoctorNavBar: React.FC = () => {
                     aria-label="View notifications"
                 >
                     <FaBell className="text-2xl text-red-400 hover:text-red-600 transition" />
-                    {notifications.length > 0 && (
+                    {notifications.filter(notif => notif.read === 'false').length > 0 && (
                         <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {notifications.length}
+                            {notifications.filter(notif => notif.read === 'false').length}
                         </span>
                     )}
                 </button>
@@ -123,19 +131,46 @@ const DoctorNavBar: React.FC = () => {
                             notifications.map((notif, index) => (
                                 <div
                                     key={index}
-                                    className="p-2 border-b last:border-none cursor-pointer hover:bg-gray-100 transition"
+                                    className="p-2 border-b last:border-none cursor-pointer hover:bg-gray-100 transition relative"
                                     onClick={async () => {
                                         console.log('Notification clicked:', notif);
+                                        try {
+                                            const token = localStorage.getItem('token');
+                                            if (!token) {
+                                                throw new Error('No token found');
+                                            }
+
+                                            // Update notification status
+                                            const updateResponse = await fetch(`http://localhost:8080/notif/doctor/update/${notif.id}`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                            });
+
+                                            if (!updateResponse.ok) {
+                                                throw new Error('Failed to update notification status');
+                                            }
+
+                                            console.log('Notification status updated successfully');
+                                        } catch (error) {
+                                            console.error('Error updating notification status:', error);
+                                        }
+
                                         const report = await fetchReportDetails(notif.reportID || '');
                                         if (report) {
                                             console.log('Navigating to:', `/doctor/notifications/${notif.reportID}`);
                                             console.log('Passing state:', { report });
                                             navigate(`/doctor/notifications/${notif.reportID}`, { state: { report } });
+                                            window.location.reload();
                                         } else {
                                             console.warn('Report is null, navigation aborted.');
                                         }
                                     }}
                                 >
+                                    {notif.read === 'false' && (
+                                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                                    )}
                                     <p className="text-sm font-semibold text-blue-800">{notif.message}</p>
                                     <p className="text-xs text-gray-600">Disease: {notif.disease}</p>
                                     <p className="text-xs text-gray-500">{new Date(notif.timestamp).toLocaleString()}</p>
