@@ -6,22 +6,23 @@ import com.algnosis.auth_service.entity.Patient;
 import com.algnosis.auth_service.exceptionHandling.DoctorNotFound;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
+import com.algnosis.auth_service.exceptionHandling.PatientNotFound;
+import com.algnosis.auth_service.feignClient.ReportServiceClient;
 import com.algnosis.auth_service.mapper.DoctorSignUpMapper;
 import com.algnosis.auth_service.mapper.PatientSignUpMapper;
 import com.algnosis.auth_service.repository.DoctorRepository;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorService {
@@ -30,16 +31,24 @@ public class DoctorService {
     private final DoctorRepository doctorRepo;
 
     @Autowired
+    private final PatientRepository patientRepo;
+
+    @Autowired
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private final JWTService jwtService;
 
+    @Autowired
+    private final ReportServiceClient reportServiceClient;
+
     //CONSTRUCTOR
-    public DoctorService(DoctorRepository doctorRepo, BCryptPasswordEncoder passwordEncoder, JWTService jwtService) {
+    public DoctorService(DoctorRepository doctorRepo, PatientRepository patientRepo, BCryptPasswordEncoder passwordEncoder, JWTService jwtService, ReportServiceClient reportServiceClient) {
         this.doctorRepo = doctorRepo;
+        this.patientRepo = patientRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.reportServiceClient = reportServiceClient;
     }
 
     //HANDLING DOCTOR REGISTRATION
@@ -146,5 +155,48 @@ public class DoctorService {
         DoctorResponseDTO doctorResponseDTO = DoctorSignUpMapper.toDoctorResponseDTO(doctor);
 
         return doctorResponseDTO;
+    }
+
+    public List<PatientResponseDTO> getPatientList() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // This gives the subject of JWT (usually email)
+
+        Doctor doctor = doctorRepo.findDoctorByEmail(email);
+
+        Set<String> emailsOfPatients = reportServiceClient.getEmailsOfPatientsAssignedToDoctor(doctor.getId());
+
+        List<Patient> patients = patientRepo.findByEmailIn(emailsOfPatients);
+
+        List<PatientResponseDTO> patientDTOs = patients.stream()
+                .map(PatientSignUpMapper::toPatientResponseDTO)
+                .collect(Collectors.toList());
+
+        return patientDTOs;
+    }
+
+    public DoctorResponseDTO updateDoctorProfile(DoctorResponseDTO updatedData) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        Doctor existing = (Doctor) doctorRepo.findByEmail(email)
+                .orElseThrow(() -> new DoctorNotFound("No doctor found with email: " + email
+                        + ". This error is thrown by updateDoctorProfile function in DoctorService class of auth-service."));
+
+        existing.setFirstName(updatedData.getFirstName());
+        existing.setLastName(updatedData.getLastName());
+        existing.setPhoneNumber(updatedData.getPhoneNumber());
+
+        existing.setYearsOfExperience(updatedData.getYearsOfExperience());
+        existing.setSpecialization(updatedData.getSpecialization());
+        existing.setQualifications(updatedData.getQualifications());
+        existing.setMedicalLicenseNumber(updatedData.getMedicalLicenseNumber());
+        existing.setHospitalName(updatedData.getHospitalName());
+        existing.setShortBio(updatedData.getShortBio());
+
+        Doctor saved = doctorRepo.save(existing);
+
+        return DoctorSignUpMapper.toDoctorResponseDTO(saved);
     }
 }

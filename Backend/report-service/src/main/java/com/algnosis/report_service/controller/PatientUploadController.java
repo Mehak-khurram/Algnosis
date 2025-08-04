@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/patient")
@@ -69,5 +70,12 @@ public class PatientUploadController {
         PatientUploadDTO patientUploadDTO = patientUploadService.uploadPatientFile(file, "ANEMIA",
                 "GENERAL PHYSICIAN");
         return ResponseEntity.ok(patientUploadDTO);
+    }
+
+    @GetMapping("/emails")
+    public ResponseEntity<Set<String>> getEmailsOfPatientsAssignedToDoctor(@RequestParam String doctorId){
+        System.out.println("Controller was hit!");
+        Set<String> emails = patientUploadService.getPatientsEmailsForDoctor(doctorId);
+        return ResponseEntity.ok(emails);
     }
 }

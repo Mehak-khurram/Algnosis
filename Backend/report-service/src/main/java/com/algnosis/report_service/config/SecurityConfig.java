@@ -21,54 +21,54 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-        @Bean
-        public BCryptPasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
 
-        @Autowired
-        private JWTAuthenticationFilter jwtAuthFilter;
+    @Autowired
+    private JWTAuthenticationFilter jwtAuthFilter;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                return http
-                                .csrf(csrf -> csrf.disable())
-                                .cors(Customizer.withDefaults())
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/auth/patient/register",
-                                                                "/protected/**",
-                                                                "/notif/patient/",
-                                                                "/patient/get/profile")
-                                                .permitAll() // allow public access to login/signup
-                                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .requestMatchers("/patient/upload/pneumonia",
-                                                                "/patient/upload/tb",
-                                                                "/patient/upload/braintumor",
-                                                                "/patient/upload/anemia",
-                                                                "/reports/list")
-                                                .hasRole("PATIENT")
-                                                .requestMatchers("/doctor/**",
-                                                                "/reports/doctor/list",
-                                                                "/reports/get",
-                                                                "/reports/diagnosis/update")
-                                                .hasRole("DOCTOR")
-                                                .anyRequest().authenticated())
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .build();
-        }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/patient/register",
+                                "/protected/**",
+                                "/notif/patient/",
+                                "/patient/get/profile",
+                                "/patient/emails").permitAll() // allow public access to login/signup
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/patient/upload/pneumonia",
+                                "/patient/upload/tb",
+                                "/patient/upload/braintumor",
+                                "/patient/upload/anemia",
+                                "/reports/list",
+                                "/reports/get"
+                                ).hasRole("PATIENT")
+                        .requestMatchers("/doctor/**",
+                                "/reports/doctor/list",
+                                "/reports/get",
+                                "/reports/diagnosis/update").hasRole("DOCTOR")
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(List.of("*"));
-                configuration.setAllowCredentials(true);
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", configuration);
-                return source;
-        }
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

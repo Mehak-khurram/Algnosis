@@ -34,4 +34,10 @@ public class PatientNotificationController {
         return ResponseEntity.ok(notifs);
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<PatientNotificationDTO> updatePatientNotificationStatus(@PathVariable String id){
+        PatientNotificationDTO notif = patientNotificationService.updateNotificationStatus(id);
+        return ResponseEntity.ok(notif);
+    }
 }

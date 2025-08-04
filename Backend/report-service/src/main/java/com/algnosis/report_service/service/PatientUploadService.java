@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientUploadService {
@@ -131,5 +133,17 @@ public class PatientUploadService {
         }
 
         return minIndex;
+    }
+
+    public Set<String> getPatientsEmailsForDoctor(String doctorId) {
+
+        //FIND REPORTS ASSIGNED TO A DOCTOR HAVING ID
+        List<PatientUpload> uploads = patientUploadRepository.findByDoctorID(doctorId);
+
+        Set<String> emailSet = uploads.stream()
+                .map(PatientUpload::getEmail)
+                .collect(Collectors.toSet());
+
+        return emailSet;
     }
 }
