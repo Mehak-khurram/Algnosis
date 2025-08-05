@@ -148,10 +148,13 @@
 //                         <div className="flex space-x-3">
 
 //                             <button 
-//                                 className="flex items-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90 transition-opacity"
+//                                 className={`flex items-center px-4 py-2.5 rounded-xl transition-opacity ${status === 'Completed' ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+//                                 disabled={status !== 'Completed'}
 //                                 onClick={() => {
-//                                     if (diagnosisUrl) {
+//                                     if (status === 'Completed' && diagnosisUrl) {
 //                                         window.location.href = diagnosisUrl;
+//                                     } else if (status !== 'Completed') {
+//                                         alert('The report is not yet completed.');
 //                                     } else {
 //                                         alert('Diagnosis URL is not available.');
 //                                     }
@@ -522,10 +525,13 @@ export default function MedicalDiagnosisReport() {
                         <div className="flex space-x-3">
 
                             <button 
-                                className="flex items-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90 transition-opacity"
+                                className={`flex items-center px-4 py-2.5 rounded-xl transition-opacity ${status === 'Completed' ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                                disabled={status !== 'Completed'}
                                 onClick={() => {
-                                    if (diagnosisUrl) {
+                                    if (status === 'Completed' && diagnosisUrl) {
                                         window.location.href = diagnosisUrl;
+                                    } else if (status !== 'Completed') {
+                                        alert('The report is not yet completed.');
                                     } else {
                                         alert('Diagnosis URL is not available.');
                                     }
