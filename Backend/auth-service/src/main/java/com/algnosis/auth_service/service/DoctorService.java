@@ -54,6 +54,8 @@ public class DoctorService {
     //HANDLING DOCTOR REGISTRATION
     public DoctorSignUpRequestDTO registerDoctor(DoctorSignUpRequestDTO request) {
 
+        request.setActive(true);
+
         Doctor doctor = DoctorSignUpMapper.toEntity(request);
 
         if(emailAlreadyExists(request.getEmail())){

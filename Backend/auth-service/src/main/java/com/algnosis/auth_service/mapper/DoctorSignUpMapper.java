@@ -15,6 +15,8 @@ public class DoctorSignUpMapper{
         doctor.setPassword(dto.getPassword());
         doctor.setPhoneNumber(dto.getPhoneNumber());
 
+        doctor.setActive(dto.getActive());
+
         doctor.setQualifications(dto.getQualifications());
         doctor.setHospitalName(dto.getHospitalName());
         doctor.setSpecialization(dto.getSpecialization());
@@ -36,6 +38,8 @@ public class DoctorSignUpMapper{
         doctorDTO.setEmail(entity.getEmail());
         doctorDTO.setPassword(entity.getPassword());
         doctorDTO.setPhoneNumber(entity.getPhoneNumber());
+
+        doctorDTO.setActive(entity.getActive());
 
         doctorDTO.setQualifications(entity.getQualifications());
         doctorDTO.setHospitalName(entity.getHospitalName());

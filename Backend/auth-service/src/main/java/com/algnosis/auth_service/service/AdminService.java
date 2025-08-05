@@ -14,4 +14,21 @@ public class AdminService {
         this.doctorRepo = doctorRepo;
         this.patientRepo = patientRepo;
     }
+
+    //DASHBOARD OF ADMIN: NUMBER OF USERS
+    public int getTotalNumberOfUsers(){
+        long num = 0;
+
+        num = (num + doctorRepo.countByActiveTrue());
+        num = (num + patientRepo.countByActiveTrue());
+        return (int) num;
+    }
+
+    public int getTotalNumberOfDoctors(){
+        return (int) doctorRepo.countByActiveTrue();
+    }
+
+    public int getTotalNumberOfPatients(){
+        return (int) patientRepo.countByActiveTrue();
+    }
 }

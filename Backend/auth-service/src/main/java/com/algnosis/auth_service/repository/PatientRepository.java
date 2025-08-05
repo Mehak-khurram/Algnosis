@@ -15,4 +15,6 @@ public interface PatientRepository extends MongoRepository<Patient, String> {
     Optional<Object> findByEmail(String email);
 
     List<Patient> findByEmailIn(Set<String> emails);
+
+    long countByActiveTrue();
 }

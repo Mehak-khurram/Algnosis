@@ -15,4 +15,6 @@ public interface DoctorRepository extends MongoRepository<Doctor, String> {
     Optional<Object> findByEmail(String email);
 
     Doctor findDoctorByEmail(String email);
+
+    long countByActiveTrue();
 }

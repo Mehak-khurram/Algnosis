@@ -17,4 +17,5 @@ public interface ReportServiceClient {
 
     @GetMapping("/patient/emails")
     Set<String> getEmailsOfPatientsAssignedToDoctor(@RequestParam String doctorId);
+
 }

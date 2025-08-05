@@ -12,4 +12,5 @@ public abstract class UserDTO {
     private String email;
     private String password;
     private String phoneNumber;
+    private Boolean active;
 }

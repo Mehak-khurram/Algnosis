@@ -43,6 +43,8 @@ public class PatientService {
     //HANDLING PATIENT REGISTRATION
     public PatientSignUpResponseDTO registerPatient(PatientSignUpRequestDTO request) {
 
+        request.setActive(true);
+
         Patient patient = PatientSignUpMapper.toEntity(request);
 
         if(emailAlreadyExists(request.getEmail())){
