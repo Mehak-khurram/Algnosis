@@ -14,9 +14,11 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 try:
-    # tb_model_path = os.path.join(BASE_DIR, 'model', 'tb_model.h5')
-    tb_model = load_model('/Users/salmanajmal/Desktop/NewAlgo/Algnosis/pneumonia_TB/model/tb_model.h5', compile=False)
-    print(f"TB model loaded successfully!")
+   # Load pre-trained model
+   print("Loading model...")
+   tb_model = load_model('C:/Netsol/Algnosis/Algnosis/TB/model/tb_model.h5', compile=False)
+   print(f"TB model loaded successfully!")
+   print("Model loaded successfully.")
 except Exception as e:
     tb_model = None
     print(f"Failed to load TB model: {e}")

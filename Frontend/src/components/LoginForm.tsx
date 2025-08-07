@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
     onClose: () => void;
+    onShowSignup?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose, onShowSignup }) => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -127,8 +128,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
                         Don't have an account?{' '}
-                        <button className="text-blue-600 hover:text-purple-600 font-medium">
-                            Sign up here
+                        <button
+                            type="button"
+                            className="text-blue-600 hover:text-purple-600 font-medium"
+                            onClick={() => {
+                                if (onShowSignup) onShowSignup();
+                                onClose();
+                            }}
+                        >    Sign up here
                         </button>
                     </p>
                 </div>

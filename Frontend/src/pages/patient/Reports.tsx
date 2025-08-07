@@ -143,7 +143,7 @@ export default function Reports() {
     const goToNext = () => setCurrentSlide((prev) => (prev === diseases.length - 1 ? 0 : prev + 1));
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-gray-100">
             <PatientNavBar />
             <div className="container mx-auto px-4 py-8 max-w-4xl pt-20">
                 {/* Disease Explanation Slider */}

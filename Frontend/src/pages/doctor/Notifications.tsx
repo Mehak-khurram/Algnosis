@@ -210,15 +210,22 @@ const RecentReports: React.FC = () => {
   useEffect(() => {
     let tempReports = reports;
 
+    // Debug: Log all unique statuses to understand what values exist
+    const uniqueStatuses = [...new Set(reports.map(r => r.status))];
+    console.log('All unique statuses in reports:', uniqueStatuses);
+    console.log('Current filter status:', filters.status);
+
     // Apply search filter first
     const lower = searchTerm.toLowerCase();
     if (lower) {
       tempReports = tempReports.filter((r) => r.email.toLowerCase().includes(lower));
     }
 
-    // Apply status filter
+    // Apply status filter (case-insensitive)
     if (filters.status !== "all") {
-      tempReports = tempReports.filter((r) => r.status === filters.status);
+      const beforeFilter = tempReports.length;
+      tempReports = tempReports.filter((r) => r.status.toLowerCase() === filters.status.toLowerCase());
+      console.log(`Status filter: ${beforeFilter} -> ${tempReports.length} reports`);
     }
 
     // Apply disease filter
@@ -226,22 +233,20 @@ const RecentReports: React.FC = () => {
       tempReports = tempReports.filter((r) => r.disease.toLowerCase() === filters.disease.toLowerCase());
     }
 
+    console.log('Final filtered reports:', tempReports.length);
     setFilteredReports(tempReports);
   }, [searchTerm, filters, reports]);
 
-  // Helper function to render status icons
-  const renderStatusIcon = (status: string) => {
-    switch (status) {
-      case "diagnosed":
+    const renderStatusIcon = (status: string) => {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
+      case "completed":
         return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "rejected":
-        return <XCircle className="w-5 h-5 text-red-500" />;
       case "pending":
       default:
         return <Clock className="w-5 h-5 text-yellow-500" />;
     }
   };
-
   // Extract unique disease types for the filter dropdown
   const uniqueDiseases = Array.from(new Set(reports.map((r) => r.disease.toLowerCase()))).filter(Boolean);
 
@@ -284,10 +289,10 @@ const RecentReports: React.FC = () => {
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                 className="block w-full py-2.5 pl-4 pr-10 text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
               >
-                <option value="all">All Statuses</option>
+                <option value="all">All</option>
                 <option value="pending">Pending</option>
-                <option value="diagnosed">Diagnosed</option>
-                <option value="rejected">Rejected</option>
+                {/*<option value="diagnosed">Diagnosed</option>*/}
+                <option value="completed">Completed</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <Filter className="h-5 w-5" />
@@ -295,7 +300,7 @@ const RecentReports: React.FC = () => {
             </div>
 
             {/* Disease Filter */}
-            <div className="relative">
+            {/* <div className="relative">
               <label htmlFor="disease-filter" className="sr-only">
                 Filter by Disease
               </label>
@@ -315,7 +320,7 @@ const RecentReports: React.FC = () => {
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <Filter className="h-5 w-5" />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -344,9 +349,9 @@ const RecentReports: React.FC = () => {
                     className={clsx(
                       "absolute top-4 right-4 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg",
                       {
-                        "bg-green-500": report.status === "diagnosed",
-                        "bg-red-500": report.status === "rejected",
-                        "bg-yellow-500": report.status === "pending",
+                        "bg-green-500": report.status.toLowerCase() === "completed",
+                        "bg-yellow-500": report.status.toLowerCase() === "pending",
+                        "bg-gray-500": report.status.toLowerCase() !== "completed" && report.status.toLowerCase() !== "pending",
                       }
                     )}
                   >
@@ -358,15 +363,17 @@ const RecentReports: React.FC = () => {
                 <div className="p-6 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-gray-900 font-semibold text-xl">
-                      <User className="w-5 h-5 mr-2 text-blue-600" />
-                      {report.email}
+                      {/* <User className="w-5 h-5 mr-2 text-blue-600" />
+                      {report.email} */}
+                      {renderStatusIcon(report.status)}
+                      <br></br>
+                      <span className="ml-2">{report.status}</span>
                     </div>
-                    {renderStatusIcon(report.status)}
                   </div>
 
                   <p className="text-gray-700 flex items-center">
                     <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                    <span className="font-medium text-blue-800">Diagnosis:</span>
+                    <span className="font-medium text-gray-800">Diagnosis:</span>
                     <span className="ml-2">{report.diagnosis || "Pending"}</span>
                   </p>
 

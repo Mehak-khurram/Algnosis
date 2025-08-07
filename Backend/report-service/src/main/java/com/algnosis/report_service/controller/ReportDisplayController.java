@@ -59,8 +59,9 @@ public class ReportDisplayController {
     @GetMapping("/get")
     @PreAuthorize("hasAnyRole('PATIENT')")
     public ResponseEntity<PatientUploadDTO> getReportByReportIDForPatient(
-            @RequestParam String reportID) {
-        PatientUploadDTO patientUploadDTO = reportDisplayService.findReportByID(reportID);
+            @RequestParam String reportId) {
+        PatientUploadDTO patientUploadDTO = reportDisplayService.findReportByID(reportId);
+        System.out.println("SUCCESSFUL: report from report ID!!!!!");
         return ResponseEntity.ok(patientUploadDTO);
     }
 

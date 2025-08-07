@@ -14,7 +14,7 @@ const DiagnosisResult: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-blue-50 to-pink-50">
+        <div className="min-h-screen w-full flex flex-col bg-gray-100">
             <PatientNavBar />
             <div className="flex-1 flex flex-col justify-center items-center py-12 px-4 animate-fadein">
                 <div className="bg-white/90 rounded-2xl shadow-xl p-8 max-w-lg w-full flex flex-col items-center border border-blue-100">

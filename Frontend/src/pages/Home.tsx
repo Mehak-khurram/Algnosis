@@ -103,7 +103,7 @@ const Navigation = ({ showLogin, setShowLogin, showSignup, setShowSignup }: { sh
 };
 
 // --- Hero Section ---
-const HeroSection = () => {
+const HeroSection = ({ setShowLogin }: { setShowLogin: (show: boolean) => void }) => {
     const [setRef, inView] = useInView({ threshold: 0.1 });
 
     return (
@@ -136,9 +136,17 @@ const HeroSection = () => {
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <Button className="text-lg shadow-xl hover:shadow-2xl"><a href="#signup" className="flex items-center">Start Diagnosis Now<ArrowRight className="w-5 h-5 ml-2" /></a></Button>
-                            <Button className="bg-gray-200 text-gray-900 text-lg shadow-md hover:shadow-lg active:scale-98 transition-all duration-200 ease-in-out">
-                                <Play className="w-5 h-5 mr-2" /> Watch Demo
+                            <Button onClick={() => setShowLogin(true)} className="text-lg shadow-xl hover:shadow-2xl">
+                                <span className="flex items-center justify-center">
+                                    Start Diagnosis Now
+                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                </span>
+                            </Button>
+                            <Button onClick={() => setShowLogin(true)} className="bg-gray-200 text-gray-900 text-lg shadow-md hover:shadow-lg active:scale-98 transition-all duration-200 ease-in-out">
+                                <span className="flex items-center justify-center">
+                                    <Play className="w-5 h-5 mr-2" />
+                                    Watch Demo
+                                </span>
                             </Button>
                         </div>
                     </div>
@@ -191,7 +199,7 @@ const HowItWorksStep = ({ step, index }: { step: typeof steps[0], index: number 
     );
 };
 
-const HowItWorksSection = () => (
+const HowItWorksSection = ({ setShowLogin }: { setShowLogin: (show: boolean) => void }) => (
     <section id="how-it-works" className="py-20 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -204,7 +212,12 @@ const HowItWorksSection = () => (
                 ))}
             </div>
             <div className="text-center">
-                <Button className="text-lg shadow-xl hover:shadow-2xl"><ArrowRight className="w-5 h-5 mr-2" />Try It Now - It's Free</Button>
+                <Button onClick={() => setShowLogin(true)} className="text-lg shadow-xl hover:shadow-2xl">
+                    <span className="flex items-center justify-center">
+                        <ArrowRight className="w-5 h-5 mr-2" />
+                        Try It Now - It's Free
+                    </span>
+                </Button>
                 <p className="text-sm text-gray-600 mt-3">No account required • Results in under 5 minutes</p>
             </div>
         </div>
@@ -220,7 +233,7 @@ const diagnosisTypes = [
 ];
 
 // New component for individual Diagnosis Type cards
-const DiagnosisTypeCard = ({ type, index }: { type: typeof diagnosisTypes[0], index: number }) => {
+const DiagnosisTypeCard = ({ type, index, setShowLogin }: { type: typeof diagnosisTypes[0], index: number, setShowLogin: (show: boolean) => void }) => {
     const [setRef, inView] = useInView({ threshold: 0.2 });
     return (
         <div key={index} ref={setRef} className={`transition-all duration-700 ease-out delay-${index * 150} ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -242,13 +255,18 @@ const DiagnosisTypeCard = ({ type, index }: { type: typeof diagnosisTypes[0], in
                         </div>
                     ))}
                 </div>
-                <Button className="w-full shadow-md hover:shadow-lg"><Stethoscope className="w-4 h-4 mr-2" />Start {type.title.split(' ')[0]} Diagnosis</Button>
+                <Button onClick={() => setShowLogin(true)} className="w-full shadow-md hover:shadow-lg">
+                    <span className="flex items-center justify-center">
+                        <Stethoscope className="w-4 h-4 mr-2" />
+                        Start {type.title.split(' ')[0]} Diagnosis
+                    </span>
+                </Button>
             </div>
         </div>
     );
 };
 
-const DiagnosisTypesSection = () => (
+const DiagnosisTypesSection = ({ setShowLogin }: { setShowLogin: (show: boolean) => void }) => (
     <section className="py-20 bg-gradient-to-br from-blue-50 to-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -257,14 +275,19 @@ const DiagnosisTypesSection = () => (
             </div>
             <div className="grid md:grid-cols-2 gap-8 mb-16">
                 {diagnosisTypes.map((type, index) => (
-                    <DiagnosisTypeCard key={index} type={type} index={index} />
+                    <DiagnosisTypeCard key={index} type={type} index={index} setShowLogin={setShowLogin} />
                 ))}
             </div>
             <div className="text-center">
                 <div className="bg-blue-600/10 rounded-3xl p-8 border border-blue-600/20 shadow-xl">
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Not Sure Which Diagnosis You Need?</h3>
                     <p className="text-gray-700 mb-6 max-w-2xl mx-auto">Our AI assistant will guide you through a comprehensive assessment to determine the most appropriate diagnostic path based on your symptoms and medical history.</p>
-                    <Button className="text-lg bg-purple-600 shadow-xl hover:shadow-2xl"><Brain className="w-5 h-5 mr-2" />Start General Assessment</Button>
+                    <Button onClick={() => setShowLogin(true)} className="text-lg bg-purple-600 shadow-xl hover:shadow-2xl">
+                        <span className="flex items-center justify-center">
+                            <Brain className="w-5 h-5 mr-2" />
+                            Start General Assessment
+                        </span>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -287,6 +310,8 @@ const DoctorsSliderSection = () => {
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [numVisibleDoctors, setNumVisibleDoctors] = useState(1); // Default for mobile
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Call useInView unconditionally at the top level
     const [setRef, inView] = useInView({ threshold: 0.1 });
@@ -312,14 +337,51 @@ const DoctorsSliderSection = () => {
 
     useEffect(() => {
         // Fetch doctors from the API
-        fetch("http://localhost:50000/api/doctors")
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    setDoctors(data.data);
-                }
+        console.log("Fetching doctors from API...");
+        
+        // First, let's test if the service is reachable
+        fetch("http://localhost:17000/", { method: 'GET' })
+            .then(response => {
+                console.log("Auth service is reachable:", response.status);
             })
-            .catch((error) => console.error("Error fetching doctors:", error));
+            .catch(error => {
+                console.error("Auth service is not reachable:", error);
+            });
+            
+        fetch("http://localhost:17000/doctor/all", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("API Response:", data);
+                // Handle both response formats: direct array or {success: true, data: [...]}
+                if (Array.isArray(data)) {
+                    console.log("Direct array response:", data);
+                    setDoctors(data);
+                } else if (data.success && Array.isArray(data.data)) {
+                    console.log("Wrapped response:", data.data);
+                    setDoctors(data.data);
+                } else {
+                    console.error("Unexpected response format:", data);
+                    setDoctors([]);
+                }
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Error fetching doctors:", error);
+                setError(error.message);
+                setDoctors([]);
+                setLoading(false);
+            });
     }, []);
 
     // Automatic slider logic
@@ -347,8 +409,46 @@ const DoctorsSliderSection = () => {
         setCurrentIndex((prevIndex) => (prevIndex - 1 + (maxIndex + 1)) % (maxIndex + 1));
     }, [doctors, numVisibleDoctors]);
 
+    if (loading) {
+        return (
+            <section className="py-20 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Meet Our Expert Doctors</h2>
+                        <p className="text-lg text-gray-700 max-w-2xl mx-auto">Loading our medical experts...</p>
+                    </div>
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section className="py-20 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Meet Our Expert Doctors</h2>
+                        <p className="text-lg text-red-600 max-w-2xl mx-auto">Unable to load doctors: {error}</p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     if (doctors.length === 0) {
-        return null;
+        return (
+            <section className="py-20 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Meet Our Expert Doctors</h2>
+                        <p className="text-lg text-gray-700 max-w-2xl mx-auto">No doctors available at the moment.</p>
+                    </div>
+                </div>
+            </section>
+        );
     }
 
     return (
@@ -481,7 +581,7 @@ const FeaturesSection = () => (
 );
 
 // --- Footer ---
-const Footer = () => (
+const Footer = ({ setShowLogin }: { setShowLogin: (show: boolean) => void }) => (
     <footer className="bg-gradient-to-br from-white to-blue-50 border-t border-gray-100 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid md:grid-cols-4 gap-8">
@@ -530,13 +630,6 @@ const Footer = () => (
                     </div>
                 </div>
             </div>
-            <div className="mt-12 pt-8 border-t border-gray-100">
-                <div className="bg-blue-600/10 rounded-3xl p-6 text-center border border-blue-600/20 shadow-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to get started?</h3>
-                    <p className="text-gray-700 mb-4 text-sm">Join thousands of users getting instant medical insights.</p>
-                    <Button className="bg-purple-600 shadow-xl hover:shadow-2xl">Start Your Diagnosis</Button>
-                </div>
-            </div>
             <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center">
                 <p className="text-sm text-gray-600">© 2024 Algnosis. All rights reserved.</p>
                 <p className="text-xs text-gray-500 mt-2 md:mt-0">Not intended to replace professional medical advice.</p>
@@ -559,13 +652,19 @@ const Home = () => {
     return (
         <div className={`font-sans bg-gradient-to-br from-white to-blue-50 min-h-screen transition-opacity duration-1000 ease-out ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
             <Navigation showLogin={showLogin} setShowLogin={setShowLogin} showSignup={showSignup} setShowSignup={setShowSignup} />
-            <HeroSection />
-            <HowItWorksSection />
-            <DiagnosisTypesSection />
+            <HeroSection setShowLogin={setShowLogin} />
+            <HowItWorksSection setShowLogin={setShowLogin} />
+            <DiagnosisTypesSection setShowLogin={setShowLogin} />
             <DoctorsSliderSection />
             <FeaturesSection />
-            <Footer />
-            {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
+            <Footer setShowLogin={setShowLogin} />
+            {showLogin && <LoginForm
+                onClose={() => setShowLogin(false)}
+                onShowSignup={() => {
+                    setShowLogin(false);
+                    setShowSignup(true);
+                }}
+            />}
             {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
         </div>
     );

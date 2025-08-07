@@ -8,6 +8,7 @@ import com.algnosis.auth_service.exceptionHandling.DoctorNotFound;
 import com.algnosis.auth_service.exceptionHandling.EmailAlreadyRegistered;
 import com.algnosis.auth_service.exceptionHandling.InvalidCredentials;
 import com.algnosis.auth_service.exceptionHandling.PatientNotFound;
+import com.algnosis.auth_service.feignClient.ReportServiceClient;
 import com.algnosis.auth_service.mapper.PatientSignUpMapper;
 import com.algnosis.auth_service.repository.PatientRepository;
 import com.algnosis.auth_service.security.JWTService;
@@ -16,6 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
@@ -29,15 +36,25 @@ public class PatientService {
     @Autowired
     private final JWTService jwtService;
 
+    @Autowired
+    private final ReportServiceClient reportServiceClient;
+
+    @Autowired
+    private final DoctorService doctorService;
+
     //CONSTRUCTOR
     public PatientService(
             PatientRepository patientRepo,
             BCryptPasswordEncoder passwordEncoder,
-            JWTService jwtService
+            JWTService jwtService,
+            ReportServiceClient reportServiceClient,
+            DoctorService doctorService
     ) {
         this.patientRepo = patientRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.reportServiceClient = reportServiceClient;
+        this.doctorService = doctorService;
     }
 
     //HANDLING PATIENT REGISTRATION
@@ -159,5 +176,54 @@ public class PatientService {
         PatientResponseDTO patientResponseDTO = PatientSignUpMapper.toPatientResponseDTO(patient);
 
         return  patientResponseDTO;
+    }
+
+    /**
+     * Get all doctors assigned to the currently logged-in patient
+     * @return List of DoctorResponseDTO representing assigned doctors
+     */
+    public List<DoctorResponseDTO> getAssignedDoctors() {
+        // 1. Get current patient's email from JWT token
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String patientEmail = authentication.getName();
+
+        System.out.println("Fetching assigned doctors for patient: " + patientEmail);
+
+        try {
+            // 2. Get all reports for this patient from report-service
+            List<PatientUploadDTO> patientReports = reportServiceClient.getReportsByPatientEmail(patientEmail);
+            
+            System.out.println("Found " + patientReports.size() + " reports for patient");
+
+            // 3. Extract unique doctor IDs from reports
+            Set<String> doctorIds = patientReports.stream()
+                    .map(PatientUploadDTO::getDoctorID)
+                    .filter(doctorId -> doctorId != null && !doctorId.isEmpty())
+                    .collect(Collectors.toSet());
+
+            System.out.println("Found " + doctorIds.size() + " unique doctor IDs: " + doctorIds);
+
+            // 4. Fetch doctor details for each doctor ID
+            List<DoctorResponseDTO> assignedDoctors = new ArrayList<>();
+            for (String doctorId : doctorIds) {
+                try {
+                    DoctorResponseDTO doctor = doctorService.getDoctorByID(doctorId);
+                    assignedDoctors.add(doctor);
+                    System.out.println("Added doctor: " + doctor.getFirstName() + " " + doctor.getLastName());
+                } catch (DoctorNotFound e) {
+                    System.err.println("Doctor not found for ID: " + doctorId + ". Skipping...");
+                    // Continue with other doctors even if one is not found
+                }
+            }
+
+            System.out.println("Returning " + assignedDoctors.size() + " assigned doctors");
+            return assignedDoctors;
+
+        } catch (Exception e) {
+            System.err.println("Error fetching assigned doctors for patient " + patientEmail + ": " + e.getMessage());
+            e.printStackTrace();
+            // Return empty list instead of throwing exception to prevent breaking the API
+            return new ArrayList<>();
+        }
     }
 }

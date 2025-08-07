@@ -2,7 +2,7 @@ import subprocess
 import os
 import signal
 
-PYTHON_PATH = r"/Library/Frameworks/Python.framework/Versions/3.12/bin/python3"
+PYTHON_PATH = r"venv\Scripts\python.exe"
 
 
 services = [

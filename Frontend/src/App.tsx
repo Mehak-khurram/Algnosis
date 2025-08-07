@@ -4,6 +4,8 @@ import Home from './pages/Home.tsx';
 import PatientDashboard from './pages/patient/Dashboard.tsx';
 import UploadReport from './pages/patient/UploadReport.tsx';
 import DoctorsList from './pages/patient/DoctorsList.tsx';
+import DoctorDetail from './pages/patient/DoctorDetail.tsx';
+import PatientProfile from './pages/patient/Profile.tsx';
 import DiagnosisResult from './pages/patient/DiagnosisResult.tsx';
 import DoctorDashboard from './pages/doctor/Dashboard.tsx';
 import MyPatients from './pages/doctor/MyPatients.tsx';
@@ -17,6 +19,7 @@ import Reports from './pages/patient/Reports.tsx';
 import ReportUploaded from './pages/patient/ReportUploaded.tsx';
 import SubmittedReports from './pages/patient/SubmittedReports.tsx';
 import DoctorsReportAnalysis from './pages/patient/DoctorsReportAnalysis.tsx';
+import MedicalDiagnosisReport from './pages/patient/ReportUploaded.tsx';
 
 function App() {
     return (
@@ -26,6 +29,8 @@ function App() {
                 <Route path="/patient/dashboard" element={<PatientDashboard />} />
                 <Route path="/patient/upload-report" element={<UploadReport />} />
                 <Route path="/patient/doctors" element={<DoctorsList />} />
+                <Route path="/patient/doctor/:doctorId" element={<DoctorDetail />} />
+                <Route path="/patient/profile" element={<PatientProfile />} />
                 <Route path="/patient/diagnosis-result" element={<DiagnosisResult />} />
                 <Route path="/patient/reports" element={<Reports />} />
                 <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
@@ -37,7 +42,7 @@ function App() {
                 <Route path="/doctor/patient/:id" element={<PatientDetail />} />
                 <Route path="/doctor/brain-tumor-result" element={<BrainTumorResult />} />
                 <Route path="/patient/report-uploaded" element={<ReportUploaded />} />
-                <Route path="/patient/report-uploaded/:reportId" element={<ReportUploaded />} />
+                <Route path="/patient/report-uploaded/:reportId" element={<MedicalDiagnosisReport/>} />
                 <Route path="/patient/submitted-reports" element={<SubmittedReports />} />
                 <Route path="/patient/doctors-report-analysis" element={<DoctorsReportAnalysis />} />
                 {/* Add more routes here as needed */}

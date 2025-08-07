@@ -40,13 +40,15 @@ public class SecurityConfig {
                                 "/protected/**",
                                 "/patient/get/data",
                                 "/doctor/data",
-                                "/doctor/get/email").permitAll()
+                                "/doctor/get/email",
+                                "/doctor/all").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/doctor/get/**",
                                 "/patient/profile",
                                 "/patient/update",
-                                "/patient/data"
+                                "/patient/data",
+                                "/patient/assigned-doctors"
                                 ).hasRole("PATIENT")
                         .requestMatchers(
                                 "/patient/get/profile",

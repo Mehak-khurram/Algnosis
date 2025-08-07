@@ -189,7 +189,6 @@ const DoctorNavBar: React.FC = () => {
                 >
                     <FaUserCircle className="text-2xl text-blue-500 hover:text-blue-700 transition" />
                 </button>
-                <span className="text-blue-900 font-semibold">Dr. {doctorName}</span>
                 {/* Logout Button */}
                 <button
                     onClick={handleLogout}

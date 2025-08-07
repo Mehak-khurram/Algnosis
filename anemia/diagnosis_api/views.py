@@ -15,10 +15,11 @@ diagnosis_api = Blueprint('diagnosis_api', __name__)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # Load pre-trained model
-print("Loading model...")
+print("Loading Anemia model...")
 model_path = os.path.join(BASE_DIR, 'model', 'random_forest_classifier.pkl')
 anemiaModel = joblib.load(model_path)
-print("Model loaded successfully.")
+if(model_path):
+    print("Model loaded successfully.")
 
 @diagnosis_api.route('/anemia/upload', methods=['POST'])
 def upload_image():

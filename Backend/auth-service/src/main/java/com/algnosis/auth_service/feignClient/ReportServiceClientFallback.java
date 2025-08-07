@@ -1,8 +1,10 @@
 package com.algnosis.auth_service.feignClient;
 
+import com.algnosis.auth_service.dto.PatientUploadDTO;
 import com.algnosis.auth_service.exceptionHandling.UnreachableService;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -14,4 +16,9 @@ public class ReportServiceClientFallback implements ReportServiceClient{
                 "GetEmailsOfPatientsAssignedToDoctor in ReportServiceClientFallback.");
     }
 
+    @Override
+    public List<PatientUploadDTO> getReportsByPatientEmail(String email) {
+        throw new UnreachableService("Report-service not reachable. This error is thrown by " +
+                "getReportsByPatientEmail in ReportServiceClientFallback.");
+    }
 }

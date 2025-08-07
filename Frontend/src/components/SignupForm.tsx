@@ -42,7 +42,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
         e.preventDefault();
 
         try {
-            const { userType, confirmPassword, password, ...restData } = formData;
+            const { userType, confirmPassword, password, email, ...restData } = formData;
 
             console.log(formData);
 
@@ -52,12 +52,42 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
                     ? 'http://localhost:17000/auth/patient/register'
                     : 'http://localhost:17000/auth/doctor/register'; // change ports if needed
 
-            // Prepare the data payload based on userType
-            const payload = {
-                ...restData,
-                password,
+             let payload: any = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            phoneNumber: formData.phone,
+            active: true,
             };
 
+            if (userType === 'patient') {
+            payload = {
+                ...payload,
+                age: formData.age,
+                gender: formData.gender,
+                allergies: formData.allergies,
+                restrictions: formData.dietaryRestrictions,
+                medicalDevices: formData.medicalDevices,
+                recentSurgery: formData.recentSurgery,
+                currentMedications: formData.currentMedications,
+                primaryContactName: formData.emergencyContactPrimary,
+                primaryContactPhone: formData.emergencyContactPrimaryPhone,
+                secondaryContactName: formData.emergencyContactSecondary,
+                secondaryContactPhone: formData.emergencyContactSecondaryPhone,
+            };
+            } else if (userType === 'provider') {
+            payload = {
+                ...payload,
+                specialization: formData.specialisation,
+                yearsOfExperience: formData.experience,
+                qualifications: formData.qualifications,
+                hospitalName: formData.clinicName,
+                medicalLicenseNumber: formData.licenseNumber,
+                shortBio: formData.bio,
+                assignedReports: [],
+            };
+            }
             console.log("calling api!");
 
             const response = await axios.post(apiUrl, payload);
@@ -66,16 +96,26 @@ const SignupForm: React.FC<SignupFormProps> = ({ onClose }) => {
 
 
             if (response.status === 200 || response.status === 201) {
+                const loginUrl =
+                userType === 'patient'
+                    ? 'http://localhost:17000/auth/patient/login'
+                    : 'http://localhost:17000/auth/doctor/login';
+
+            const loginResponse = await axios.post(loginUrl, { email, password });
+
+            if (loginResponse.status === 200 && loginResponse.data.token) {
+                localStorage.setItem('token', loginResponse.data.token);
                 if (userType === 'patient') {
                     navigate('/patient/dashboard');
                 } else {
                     navigate('/doctor/dashboard');
                 }
             } else {
-                alert("Signup failed.");
+                alert("Login after signup failed.");
             }
-
-            console.log('Signup attempt:', formData);
+        } else {
+            alert("Signup failed.");
+        }
 
         } catch (error: any) {
             console.error("Signup error:", error);

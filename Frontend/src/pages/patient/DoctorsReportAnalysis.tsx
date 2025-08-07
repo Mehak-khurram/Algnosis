@@ -15,7 +15,7 @@ const DoctorsReportAnalysis = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-50 flex flex-col items-center p-4 sm:p-6 lg:p-8 font-sans text-gray-800">
+        <div className="min-h-screen w-full bg-gray-100 flex flex-col items-center p-4 sm:p-6 lg:p-8 font-sans text-gray-800">
             {/* Main Content Area */}
             <div className="w-full max-w-6xl space-y-8">
                 <PatientNavBar />

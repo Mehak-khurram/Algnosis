@@ -70,6 +70,7 @@ public class DoctorService {
                 doctorRepo.save(doctor)
         );
 
+        System.out.println(doctorSignUpRequestDTO);
         return doctorSignUpRequestDTO;
     }
 
@@ -200,5 +201,16 @@ public class DoctorService {
         Doctor saved = doctorRepo.save(existing);
 
         return DoctorSignUpMapper.toDoctorResponseDTO(saved);
+    }
+
+    public List<DoctorResponseDTO> getDoctorList() {
+        List<DoctorResponseDTO> doctors = doctorRepo.findAll()
+                .stream()
+                .map(DoctorSignUpMapper::toDoctorResponseDTO)
+                .toList();
+
+        System.out.println(doctors);
+
+        return doctors;
     }
 }

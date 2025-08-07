@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     User,
     Calendar,
@@ -35,10 +36,17 @@ import {
     ClipboardList, // For appointments
     Stethoscope, // For doctors
 } from "lucide-react";
+import { BarChart, 
+    Bar, XAxis, YAxis, 
+    Tooltip, ResponsiveContainer, CartesianGrid, 
+    Legend,
+    PieChart, Pie, Cell} from "recharts";
+
 
 // Assuming PatientNavBar exists and is styled appropriately for this new UI.
 // If it clashes, you might need to adjust PatientNavBar.tsx or integrate its logic directly.
 import PatientNavBar from '../../components/PatientNavBar.tsx';
+import PatientLoadingPage from '../../components/PatientLoadingPage.tsx';
 
 // --- Reimagined & Enhanced Mini Components ---
 
@@ -168,6 +176,7 @@ const healthAdvices: HealthAdvice[] = [
 ];
 
 export default function PatientDashboard() {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [patientData, setPatientData] = useState<PatientData | null>(null);
@@ -175,12 +184,34 @@ export default function PatientDashboard() {
     const [reportsLoading, setReportsLoading] = useState(true);
     const [reportsError, setReportsError] = useState<string | null>(null);
     const [currentAdviceIndex, setCurrentAdviceIndex] = useState(0);
-    // Edit Profile Modal State
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [editForm, setEditForm] = useState<Partial<PatientData>>({});
-    const [editLoading, setEditLoading] = useState(false);
-    const [editError, setEditError] = useState<string | null>(null);
-    const [editSuccess, setEditSuccess] = useState(false);
+
+
+    // // --- Chart State ---
+    // const [allReports, setAllReports] = useState<Report[]>([]);
+    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+        // Disease color mapping
+    const DISEASE_COLORS: { [key: string]: string } = {
+        pneumonia: "#6366f1",      // blue-violet
+        tb: "#fde047",             // yellow
+        "brain tumor": "#f472b6",  // pink
+        anemia: "#10b981"
+    };
+
+    // Prepare pie chart data
+    const diseaseCounts: { [key: string]: number } = {};
+    reports.forEach(r => {
+        const disease = (r.disease || "").toLowerCase();
+        if (disease) {
+            diseaseCounts[disease] = (diseaseCounts[disease] || 0) + 1;
+        }
+    });
+    const pieData = Object.entries(diseaseCounts).map(([disease, count]) => ({
+        name: disease.charAt(0).toUpperCase() + disease.slice(1),
+        value: count,
+        color: DISEASE_COLORS[disease] || "#f59e42",
+    }));
 
     // Ref to manage the auto-slider interval
     // Use 'any' for browser compatibility (NodeJS.Timeout is not available in browser)
@@ -237,6 +268,7 @@ export default function PatientDashboard() {
                 };
 
                 setPatientData(patient);
+                
             } catch (err) {
                 console.error("Error fetching patient data:", err);
                 setError("Could not load patient information.");
@@ -280,70 +312,50 @@ export default function PatientDashboard() {
         };
     }, []);
 
-    // --- Edit Profile Handlers ---
-    const openEditModal = () => {
-        if (patientData) {
-            setEditForm({ ...patientData });
-            setEditError(null);
-            setEditSuccess(false);
-            setEditModalOpen(true);
-        }
-    };
+// Helper: Get week ranges for the selected month/year (1-7, 8-14, etc.)
+function getWeekRanges(year: number, month: number) {
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const ranges: { start: number; end: number }[] = [];
+    for (let start = 1; start <= lastDay; start += 7) {
+        const end = Math.min(start + 6, lastDay);
+        ranges.push({ start, end });
+    }
+    return ranges;
+}
 
-    const closeEditModal = () => {
-        setEditModalOpen(false);
-        setEditError(null);
-        setEditSuccess(false);
+// Prepare chart data
+const weekRanges = getWeekRanges(selectedYear, selectedMonth);
+const chartData = weekRanges.map((range, idx) => {
+    const count = reports.filter(r => {
+        const ts = new Date(r.createdAt);
+        return (
+            ts.getFullYear() === selectedYear &&
+            ts.getMonth() === selectedMonth &&
+            ts.getDate() >= range.start &&
+            ts.getDate() <= range.end
+        );
+    }).length;
+    return {
+        name: `Week ${idx + 1} (${range.start}-${range.end})`,
+        Reports: count,
     };
+});
 
-    const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setEditForm((prev) => ({ ...prev, [name]: value }));
-    };
+    // Month/year options
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
-    const handleEditSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setEditLoading(true);
-        setEditError(null);
-        setEditSuccess(false);
-        const token = localStorage.getItem("token");
-        try {
-            // Only send token in Authorization header, not in body
-            // Use PUT, only send token in header, and send correct DTO fields
-            // Split name into firstName and lastName for backend
-            const { name, ...rest } = editForm;
-            const [firstName, ...lastArr] = (name || '').split(' ');
-            const lastName = lastArr.join(' ');
-            const payload = { firstName, lastName, ...rest };
-            const response = await fetch("http://localhost:17000/patient/update", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
-            if (!response.ok) throw new Error("Failed to update profile");
-            setEditSuccess(true);
-            // Optionally update patientData in UI
-            setPatientData((prev) => ({ ...prev!, ...editForm } as PatientData));
-            setTimeout(() => {
-                closeEditModal();
-            }, 1200);
-        } catch (err) {
-            setEditError("Could not update profile. Please try again.");
-        } finally {
-            setEditLoading(false);
-        }
-    };
+
+
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-600">
-            <div className="flex flex-col items-center">
-                <Activity className="w-12 h-12 animate-pulse text-blue-500 mb-4" />
-                <p className="text-xl font-semibold">Loading your health data...</p>
-            </div>
-        </div>
+        <PatientLoadingPage 
+            message="Loading Dashboard" 
+            subtitle="Preparing your personalized health overview and medical data..."
+        />
     );
 
     if (error) return (
@@ -356,18 +368,16 @@ export default function PatientDashboard() {
         </div>
     );
     if (!patientData) return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-600">
-            <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg">
-                <Info className="w-12 h-12 text-gray-400 mb-4" />
-                <p className="text-xl font-medium text-center">No patient data available.</p>
-            </div>
-        </div>
+        <PatientLoadingPage 
+            message="No Data Available" 
+            subtitle="Unable to load patient information. Please try refreshing the page."
+        />
     );
 
     const currentAdvice = healthAdvices[currentAdviceIndex];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 font-sans text-gray-800">
+        <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
             {/* Fixed PatientNavBar */}
             <div className="fixed top-0 left-0 w-full z-30">
                 <PatientNavBar />
@@ -386,63 +396,10 @@ export default function PatientDashboard() {
                             Your personalized health journey, simplified.
                         </p>
                     </div>
-                    <Button variant="outline" icon={Edit} className="w-fit text-blue-600 border-blue-200" onClick={openEditModal}>
+                    <Button variant="outline" icon={Edit} className="w-fit text-blue-600 border-blue-200" onClick={() => navigate('/patient/profile')}>
                         Edit Profile
                     </Button>
-            {/* --- Edit Profile Modal --- */}
-            {editModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative animate-fadeIn">
-                        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700" onClick={closeEditModal} aria-label="Close">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                        <h2 className="text-2xl font-bold mb-4 text-blue-700 flex items-center"><Edit className="w-5 h-5 mr-2" />Edit Profile</h2>
-                        <form onSubmit={handleEditSubmit} className="space-y-4">
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">First Name</label>
-                                    <input type="text" name="firstName" value={editForm.name?.split(' ')[0] || ''} onChange={e => setEditForm(f => ({...f, name: e.target.value + (f.name?.split(' ')[1] ? ' ' + f.name?.split(' ')[1] : '')}))} className="w-full border rounded px-3 py-2" required />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">Last Name</label>
-                                    <input type="text" name="lastName" value={editForm.name?.split(' ')[1] || ''} onChange={e => setEditForm(f => ({...f, name: (f.name?.split(' ')[0] || '') + ' ' + e.target.value}))} className="w-full border rounded px-3 py-2" required />
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">Age</label>
-                                    <input type="number" name="age" value={editForm.age || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" min="0" required />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">Gender</label>
-                                    <select name="gender" value={editForm.gender || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required>
-                                        <option value="">Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">Email</label>
-                                    <input type="email" name="email" value={editForm.email || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required />
-                                </div>
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium mb-1">Phone Number</label>
-                                    <input type="text" name="phoneNumber" value={editForm.phoneNumber || ''} onChange={handleEditChange} className="w-full border rounded px-3 py-2" required />
-                                </div>
-                            </div>
-                            {/* Add more fields as needed */}
-                            {editError && <div className="text-red-600 text-sm mt-2">{editError}</div>}
-                            {editSuccess && <div className="text-green-600 text-sm mt-2">Profile updated successfully!</div>}
-                            <div className="flex justify-end mt-4">
-                                <Button type="submit" variant="primary" className="px-6" disabled={editLoading}>{editLoading ? 'Saving...' : 'Save Changes'}</Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+
                 </div>
 
                 {/* Medical Overview & Health Insights */}
@@ -573,19 +530,96 @@ export default function PatientDashboard() {
                                     <p className="text-gray-500 text-center py-4">No emergency contacts listed.</p>
                                 )}
                             </CardContent>
-                            <Button variant="outline" icon={PlusCircle} className="mt-4 text-red-600 border-red-200">
-                                Add Contact
-                            </Button>
+
                         </Card>
                     </div>
                 </div>
 
+                {/* ...existing code... */}
+            
+                <div className="flex flex-col lg:flex-row gap-6 mb-8">
+                    {/* --- Reports Per Week Bar Chart --- */}
+                    <Card className="flex-1 p-6 shadow-xl bg-gradient-to-br from-white to-blue-50/50">
+                        <CardTitle className="flex items-center text-xl font-bold text-blue-700 mb-4">
+                            <FileText className="w-6 h-6 text-white bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg p-2 mr-4 shadow-lg" />
+                            Reports Submitted Per Week
+                        </CardTitle>
+                        <div className="flex flex-wrap gap-4 mb-4">
+                            <select
+                                value={selectedMonth}
+                                onChange={e => setSelectedMonth(Number(e.target.value))}
+                                className="border rounded px-3 py-2"
+                            >
+                                {monthNames.map((name, idx) => (
+                                    <option key={name} value={idx}>{name}</option>
+                                ))}
+                            </select>
+                            <select
+                                value={selectedYear}
+                                onChange={e => setSelectedYear(Number(e.target.value))}
+                                className="border rounded px-3 py-2"
+                            >
+                                {years.map(y => (
+                                    <option key={y} value={y}>{y}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis allowDecimals={false} />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="Reports" fill="#6366f1" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    {/* --- Reports Per Disease Pie Chart --- */}
+                    <Card className="flex-1 p-6 shadow-xl bg-gradient-to-br from-white to-blue-50/50">
+                        <CardTitle className="flex items-center text-xl font-bold text-blue-700 mb-4">
+                            <FileText className="w-6 h-6 text-white bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg p-2 mr-4 shadow-lg" />
+                            Reports Per Disease
+                        </CardTitle>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={pieData}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={100}
+                                    label
+                                >
+                                    {pieData.map((entry, idx) => (
+                                        <Cell key={`cell-${idx}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </Card>
+                </div>
+
                 {/* Medical Reports Section - Table/List Format */}
                 <Card className="p-6 md:p-8 shadow-xl bg-gradient-to-br from-white to-green-50/50">
-                    <CardTitle className="flex items-center text-2xl font-bold text-green-700 mb-6">
-                        <FileText className="w-6 h-6 text-white bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-2 mr-4 shadow-lg" />
-                        Your Medical Reports
-                    </CardTitle>
+                    <div className="flex items-center justify-between mb-6">
+                        <CardTitle className="flex items-center text-2xl font-bold text-green-700">
+                            <FileText className="w-6 h-6 text-white bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-2 mr-4 shadow-lg" />
+                            Your Medical Reports
+                        </CardTitle>
+                        <Button 
+                            variant="outline" 
+                            icon={ChevronRight} 
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                            onClick={() => navigate('/patient/submitted-reports')}
+                        >
+                            View All
+                        </Button>
+                    </div>
                     <CardContent>
                         {reportsLoading ? (
                             <div className="text-center py-8 text-lg text-gray-600">Loading reports...</div>
@@ -604,7 +638,11 @@ export default function PatientDashboard() {
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-100">
                                         {reports.slice(0, 8).map((report) => (
-                                            <tr key={report.id} className="hover:bg-green-50 transition-colors cursor-pointer">
+                                            <tr 
+                                                key={report.id} 
+                                                className="hover:bg-green-50 transition-colors cursor-pointer"
+                                                onClick={() => navigate(`/patient/report-uploaded/${report.id}`, { state: { report } })}
+                                            >
                                                 <td className="px-4 py-3 font-medium text-gray-900">{report.disease}</td>
                                                 <td className="px-4 py-3 text-gray-700">{report.createdAt ? new Date(report.createdAt).toLocaleString() : ''}</td>
                                                 <td className="px-4 py-3">

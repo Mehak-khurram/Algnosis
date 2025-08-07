@@ -378,6 +378,7 @@
 import React, { useEffect, useState } from "react";
 import { FileText, Clock, CheckCircle, Download, Stethoscope, UserCheck, ChevronRight, Activity, HeartPulse, ClipboardCheck, Bell, Calendar, Settings, Search, MessageSquare, User, BookOpen } from "lucide-react";
 import PatientNavBar from "../../components/PatientNavBar.tsx";
+import PatientLoadingPage from "../../components/PatientLoadingPage.tsx";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 
@@ -404,11 +405,13 @@ export default function MedicalDiagnosisReport() {
     const location = useLocation();
     const navigate = useNavigate();
     const [report, setReport] = useState(location.state?.report || null);
+    const [loading, setLoading] = useState(!location.state?.report && !!reportId);
+
 
     useEffect(() => {
         if (!report && reportId) {
             const token = localStorage.getItem('token');
-            fetch(`http://localhost:8020/reports/${reportId}`, {
+            fetch(`http://localhost:8020/reports/get?${reportId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -417,16 +420,20 @@ export default function MedicalDiagnosisReport() {
                     if (!res.ok) throw new Error('Failed to fetch report details');
                     return res.json();
                 })
-                .then(data => setReport(data))
+                .then(data => {
+                    setReport(data);
+                    setLoading(false);
+                })
                 .catch(err => {
                     console.error(err);
-                    navigate('/patient/reports');
+                    setLoading(false);
+                    //navigate('/patient/reports');
                 });
         }
-    }, [report, reportId, navigate]);
+    }, [reportId]);
 
     // Fallbacks for static demo if no data
-    const recommendations = report?.diagno || [
+    const recommendations: string[] = report?.diagno || [
         "No recommendations available."
     ];
     const imageUrl = report?.previewUrl || report?.fileUrl || report?.cloudinaryUrl || report?.imageUrl || "https://images.unsplash.com/photo-1581595219318-4d9ba8e4b69d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80";
@@ -496,10 +503,19 @@ export default function MedicalDiagnosisReport() {
 
     console.log('Debug: diagnosisSummary is', diagnosisSummary);
 
+    if (loading) {
+        return (
+            <PatientLoadingPage 
+                message="Loading Report Details" 
+                subtitle="Fetching your medical report analysis and diagnosis information..."
+            />
+        );
+    }
+
     return (
         <>
         <PatientNavBar />
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pt-16">
+        <div className="min-h-screen bg-gray-100 pt-16">
             {/* Navigation */}
             <PatientNavBar />
 
@@ -661,7 +677,11 @@ export default function MedicalDiagnosisReport() {
                             <div className="p-6">
                                 <div className="mb-6">
                                     <p className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-                                        {report?.diagnosis ? `You have been diagnosed with ${report.diagnosis}.` : "No diagnosis summary available."}
+                                        {report?.diagnosis ? (
+                                            <span className="font-bold text-xl">{report.diagnosis}</span>
+                                        ) : (
+                                            "No diagnosis summary available."
+                                        )}
                                     </p>
                                 </div>
                                 <div>
@@ -671,15 +691,47 @@ export default function MedicalDiagnosisReport() {
                                     </h3>
                                     <ul className="space-y-3">
                                         {status === "Completed"
-                                            ? [
-                                                ...(diagnosisSummary ? diagnosisSummary.split(/\.(?!\d)/).map(sentence => sentence.trim()).filter(Boolean) : []),
-                                                ...recommendations.flatMap(rec => rec.split(/\.(?!\d)/).map(sentence => sentence.trim()).filter(Boolean))
-                                            ].filter(Boolean).map((item, index) => (
-                                                <li key={index} className="flex items-start bg-blue-50 rounded-lg p-3">
-                                                    <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 mr-3"></div>
-                                                    <span className="text-gray-700">{item}</span>
-                                                </li>
-                                            ))
+                                            ? (() => {
+                                                const allRecommendations: string[] = [];
+                                                
+                                                // Add diagnosis summary if available
+                                                if (diagnosisSummary) {
+                                                    const summaryItems = diagnosisSummary.split(/\.(?!\d)/)
+                                                        .map(sentence => sentence.trim())
+                                                        .filter(Boolean);
+                                                    allRecommendations.push(...summaryItems);
+                                                }
+                                                
+                                                // Add recommendations if available and not empty
+                                                if (recommendations && recommendations.length > 0 && recommendations[0] !== "No recommendations available.") {
+                                                    recommendations.forEach(rec => {
+                                                        if (rec && rec.trim() && rec !== "No recommendations available.") {
+                                                            const recItems = rec.split(/\.(?!\d)/)
+                                                                .map(sentence => sentence.trim())
+                                                                .filter(Boolean);
+                                                            allRecommendations.push(...recItems);
+                                                        }
+                                                    });
+                                                }
+                                                
+                                                // If no recommendations found, show default message
+                                                if (allRecommendations.length === 0) {
+                                                    return (
+                                                        <li className="flex items-start bg-blue-50 rounded-lg p-3">
+                                                            <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 mr-3"></div>
+                                                            <span className="text-gray-700">No recommendations available.</span>
+                                                        </li>
+                                                    );
+                                                }
+                                                
+                                                // Return all recommendations
+                                                return allRecommendations.map((item, index) => (
+                                                    <li key={index} className="flex items-start bg-blue-50 rounded-lg p-3">
+                                                        <div className="mt-1 w-2 h-2 rounded-full bg-blue-600 mr-3"></div>
+                                                        <span className="text-gray-700">{item}</span>
+                                                    </li>
+                                                ));
+                                            })()
                                             : [
                                                 "Recommendations will appear here once the report is complete.",
                                                 "Please wait for the review to finish."

@@ -58,4 +58,11 @@ public class DoctorController {
         DoctorResponseDTO updatedDoctor = doctorService.updateDoctorProfile(updatedData);
         return ResponseEntity.ok(updatedDoctor);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<DoctorResponseDTO>> getListOfDocto(){
+        System.out.println("------------CONTROLLER WAS HIT----------");
+        List<DoctorResponseDTO> doctors = doctorService.getDoctorList();
+        return ResponseEntity.ok(doctors);
+    }
 }
