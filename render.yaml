@@ -1,0 +1,63 @@
+services:
+  # ========================================
+  # Python / ML Services
+  # ========================================
+  - type: web
+    name: anemia-service
+    env: python
+    rootDir: anemia
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn "
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+
+  - type: web
+    name: pneumonia-service
+    env: python
+    rootDir: pneumonia
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+
+  - type: web
+    name: tb-service
+    env: python
+    rootDir: TB
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+
+  - type: web
+    name: brain-tumor-service
+    env: python
+    rootDir: brain_tumor_segmentation
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+    plan: starter # PyTorch models usually need more than 512MB RAM of the free tier
+
+  - type: web
+    name: doctor-service
+    env: python
+    rootDir: doctor_service
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT"
+
+  # ========================================
+  # Java Spring Boot Backend Services
+  # ========================================
+  - type: web
+    name: auth-service
+    env: docker
+    rootDir: Backend
+    dockerfilePath: Dockerfile
+    dockerCommand: "java -jar auth-service/target/*.jar"
+
+  - type: web
+    name: notification-service
+    env: docker
+    rootDir: Backend
+    dockerfilePath: Dockerfile
+    dockerCommand: "java -jar notification-service/target/*.jar"
+
+  - type: web
+    name: report-service
+    env: docker
+    rootDir: Backend
+    dockerfilePath: Dockerfile
+    dockerCommand: "java -jar report-service/target/*.jar"
