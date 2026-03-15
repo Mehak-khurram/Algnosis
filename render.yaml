@@ -6,8 +6,9 @@ services:
     name: anemia-service
     env: python
     rootDir: anemia
-    buildCommand: "pip install -r requirements.txt && pip install gunicorn "
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+    plan: free
 
   - type: web
     name: pneumonia-service
@@ -15,6 +16,7 @@ services:
     rootDir: pneumonia
     buildCommand: "pip install -r requirements.txt && pip install gunicorn"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+    plan: free
 
   - type: web
     name: tb-service
@@ -22,6 +24,7 @@ services:
     rootDir: TB
     buildCommand: "pip install -r requirements.txt && pip install gunicorn"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+    plan: free
 
   - type: web
     name: brain-tumor-service
@@ -29,7 +32,7 @@ services:
     rootDir: brain_tumor_segmentation
     buildCommand: "pip install -r requirements.txt && pip install gunicorn"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
-    plan: starter # PyTorch models usually need more than 512MB RAM of the free tier
+    plan: free
 
   - type: web
     name: doctor-service
@@ -37,6 +40,7 @@ services:
     rootDir: doctor_service
     buildCommand: "pip install -r requirements.txt && pip install gunicorn"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT"
+    plan: free
 
   # ========================================
   # Java Spring Boot Backend Services
@@ -47,6 +51,7 @@ services:
     rootDir: Backend
     dockerfilePath: Dockerfile
     dockerCommand: "java -jar auth-service/target/*.jar"
+    plan: free
 
   - type: web
     name: notification-service
@@ -54,6 +59,7 @@ services:
     rootDir: Backend
     dockerfilePath: Dockerfile
     dockerCommand: "java -jar notification-service/target/*.jar"
+    plan: free
 
   - type: web
     name: report-service
@@ -61,3 +67,4 @@ services:
     rootDir: Backend
     dockerfilePath: Dockerfile
     dockerCommand: "java -jar report-service/target/*.jar"
+    plan: free
